@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Home, Building, PlusCircle, User, LogIn, X, Phone, Mail } from "lucide-react";
+import { Home, Building, PlusCircle, User, LogOut, X, Phone, Mail, Shield } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -10,12 +11,13 @@ interface SidebarProps {
 }
 
 export const Sidebar = ({ isOpen, currentPage, onPageChange, onClose }: SidebarProps) => {
+  const { user, signOut, isAdmin } = useAuth();
+  
   const navItems = [
     { id: "home", label: "الرئيسية", icon: Home },
     { id: "properties", label: "العقارات", icon: Building },
     { id: "add-property", label: "إضافة عقار", icon: PlusCircle },
     { id: "profile", label: "الملف الشخصي", icon: User },
-    { id: "login", label: "تسجيل الدخول", icon: LogIn },
   ];
 
   const handleNavClick = (pageId: string) => {
@@ -53,6 +55,22 @@ export const Sidebar = ({ isOpen, currentPage, onPageChange, onClose }: SidebarP
             </Button>
           </div>
 
+          {/* User Info */}
+          {user && (
+            <div className="bg-accent/20 p-4 rounded-lg mb-6">
+              <div className="flex items-center gap-2 mb-2">
+                <User className="h-5 w-5 text-primary" />
+                <span className="font-semibold">مرحباً بك</span>
+              </div>
+              {isAdmin && (
+                <div className="flex items-center gap-1 text-accent text-sm">
+                  <Shield className="h-4 w-4" />
+                  أدمن النظام
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Navigation */}
           <nav className="space-y-2 mb-8">
             {navItems.map((item) => {
@@ -73,6 +91,20 @@ export const Sidebar = ({ isOpen, currentPage, onPageChange, onClose }: SidebarP
                 </Button>
               );
             })}
+            
+            {user && (
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-3 h-12 hover:bg-destructive/10 text-destructive"
+                onClick={() => {
+                  signOut();
+                  onClose();
+                }}
+              >
+                <LogOut className="h-5 w-5" />
+                تسجيل الخروج
+              </Button>
+            )}
           </nav>
 
           {/* Contact Card */}

@@ -3,28 +3,34 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UserPlus, User, Phone, Lock } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { UserPlus, User, Phone, Lock, Mail } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface RegisterProps {
   onPageChange: (page: string) => void;
 }
 
 export const Register = ({ onPageChange }: RegisterProps) => {
-  const { toast } = useToast();
+  const { signUp } = useAuth();
   const [formData, setFormData] = useState({
-    name: "",
+    fullName: "",
+    email: "",
     phone: "",
     password: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "تم إنشاء الحساب بنجاح!",
-      description: "مرحباً بك في تطبيق سكني",
-    });
-    onPageChange("login");
+    setIsLoading(true);
+    
+    const { error } = await signUp(formData.email, formData.password, formData.fullName, formData.phone);
+    
+    if (!error) {
+      onPageChange("login");
+    }
+    
+    setIsLoading(false);
   };
 
   return (
@@ -41,15 +47,31 @@ export const Register = ({ onPageChange }: RegisterProps) => {
             
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="name" className="flex items-center gap-2 text-base font-semibold">
+                <Label htmlFor="fullName" className="flex items-center gap-2 text-base font-semibold">
                   <User className="h-5 w-5 text-primary" />
                   الاسم الكامل
                 </Label>
                 <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  id="fullName"
+                  value={formData.fullName}
+                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                   placeholder="ادخل اسمك الكامل"
+                  className="h-12"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email" className="flex items-center gap-2 text-base font-semibold">
+                  <Mail className="h-5 w-5 text-primary" />
+                  البريد الإلكتروني
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="ادخل البريد الإلكتروني"
                   className="h-12"
                   required
                 />
@@ -87,9 +109,9 @@ export const Register = ({ onPageChange }: RegisterProps) => {
                 />
               </div>
 
-              <Button type="submit" className="w-full h-12 text-lg font-semibold">
+              <Button type="submit" className="w-full h-12 text-lg font-semibold" disabled={isLoading}>
                 <UserPlus className="h-5 w-5 ml-2" />
-                إنشاء حساب
+                {isLoading ? "جاري إنشاء الحساب..." : "إنشاء حساب"}
               </Button>
             </form>
             

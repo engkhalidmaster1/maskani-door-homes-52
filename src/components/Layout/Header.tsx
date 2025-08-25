@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Home, Building, PlusCircle, User, Menu, X } from "lucide-react";
+import { Home, Building, PlusCircle, User, Menu, LogOut, Shield } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface HeaderProps {
   currentPage: string;
@@ -9,6 +10,8 @@ interface HeaderProps {
 }
 
 export const Header = ({ currentPage, onPageChange, onSidebarToggle }: HeaderProps) => {
+  const { user, signOut, isAdmin } = useAuth();
+  
   const navItems = [
     { id: "home", label: "الرئيسية", icon: Home },
     { id: "properties", label: "العقارات", icon: Building },
@@ -58,15 +61,26 @@ export const Header = ({ currentPage, onPageChange, onSidebarToggle }: HeaderPro
             })}
           </nav>
 
-          {/* Login Button */}
-          <Button
-            variant="accent"
-            onClick={() => onPageChange("login")}
-            className="gap-2"
-          >
-            <User className="h-4 w-4" />
-            تسجيل الدخول
-          </Button>
+          {/* User Actions */}
+          <div className="flex items-center gap-2">
+            {isAdmin && (
+              <div className="flex items-center gap-1 bg-accent/20 text-accent-foreground px-3 py-1 rounded-full text-sm">
+                <Shield className="h-4 w-4" />
+                أدمن
+              </div>
+            )}
+            
+            {user && (
+              <Button
+                variant="ghost"
+                onClick={signOut}
+                className="gap-2 text-primary-foreground hover:bg-white/20"
+              >
+                <LogOut className="h-4 w-4" />
+                تسجيل الخروج
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </header>

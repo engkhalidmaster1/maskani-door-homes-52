@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PlusCircle, Building, Home, Layers, Store, Tag, Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Select,
   SelectContent,
@@ -20,8 +22,12 @@ interface AddPropertyProps {
 
 export const AddProperty = ({ onPageChange }: AddPropertyProps) => {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    type: "",
+    title: "",
+    property_type: "apartment", 
+    listing_type: "",
     building: "",
     apartment: "",
     floor: "",
@@ -29,25 +35,81 @@ export const AddProperty = ({ onPageChange }: AddPropertyProps) => {
     furnished: "",
     price: "",
     description: "",
+    bedrooms: "2",
+    bathrooms: "1",
+    area: "",
   });
 
   const [showFurnishedField, setShowFurnishedField] = useState(false);
 
   const handleTypeChange = (value: string) => {
-    setFormData({ ...formData, type: value });
+    setFormData({ ...formData, listing_type: value });
     setShowFurnishedField(value === "rent");
     if (value !== "rent") {
-      setFormData({ ...formData, type: value, furnished: "" });
+      setFormData({ ...formData, listing_type: value, furnished: "" });
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "تم نشر العقار بنجاح!",
-      description: "سيتم مراجعة العقار ونشره في أقرب وقت.",
-    });
-    onPageChange("properties");
+    
+    if (!user) {
+      toast({
+        title: "خطأ",
+        description: "يجب تسجيل الدخول أولاً",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Generate title from building and apartment
+      const title = `شقة رقم ${formData.apartment} في العمارة ${formData.building}`;
+      
+      // Prepare data for insertion
+      const propertyData = {
+        user_id: user.id,
+        title,
+        description: formData.description || null,
+        property_type: formData.property_type,
+        listing_type: formData.listing_type,
+        price: parseFloat(formData.price),
+        area: formData.area ? parseFloat(formData.area) : null,
+        bedrooms: parseInt(formData.bedrooms),
+        bathrooms: parseInt(formData.bathrooms),
+        location: `العمارة ${formData.building} - الطابق ${formData.floor} - قرب ${formData.market}`,
+        address: `شقة ${formData.apartment}، العمارة ${formData.building}، الطابق ${formData.floor}`,
+        amenities: formData.furnished ? [formData.furnished === "yes" ? "مؤثثة" : "غير مؤثثة"] : [],
+        images: [],
+        is_published: true,
+      };
+
+      const { error } = await supabase
+        .from('properties')
+        .insert([propertyData]);
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "تم نشر العقار بنجاح!",
+        description: "تم إضافة العقار وهو متاح الآن للمشاهدة",
+      });
+      
+      onPageChange("properties");
+    } catch (error: any) {
+      console.error('Error adding property:', error);
+      toast({
+        title: "خطأ في إضافة العقار",
+        description: error.message || "حدث خطأ غير متوقع",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -63,21 +125,38 @@ export const AddProperty = ({ onPageChange }: AddPropertyProps) => {
             </h2>
             
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Property Type */}
-              <div className="space-y-2">
-                <Label htmlFor="type" className="flex items-center gap-2 text-base font-semibold">
-                  <Tag className="h-5 w-5 text-primary" />
-                  نوع العرض
-                </Label>
-                <Select value={formData.type} onValueChange={handleTypeChange} required>
-                  <SelectTrigger className="h-12">
-                    <SelectValue placeholder="اختر نوع العرض" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="sale">للبيع</SelectItem>
-                    <SelectItem value="rent">للإيجار</SelectItem>
-                  </SelectContent>
-                </Select>
+              {/* Title and Property Type */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="listing_type" className="flex items-center gap-2 text-base font-semibold">
+                    <Tag className="h-5 w-5 text-primary" />
+                    نوع العرض
+                  </Label>
+                  <Select value={formData.listing_type} onValueChange={handleTypeChange} required>
+                    <SelectTrigger className="h-12">
+                      <SelectValue placeholder="اختر نوع العرض" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="sale">للبيع</SelectItem>
+                      <SelectItem value="rent">للإيجار</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="area" className="flex items-center gap-2 text-base font-semibold">
+                    <Building className="h-5 w-5 text-primary" />
+                    المساحة (متر مربع)
+                  </Label>
+                  <Input
+                    id="area"
+                    type="number"
+                    value={formData.area}
+                    onChange={(e) => setFormData({ ...formData, area: e.target.value })}
+                    placeholder="ادخل المساحة"
+                    className="h-12"
+                  />
+                </div>
               </div>
 
               {/* Building and Apartment */}
@@ -102,22 +181,14 @@ export const AddProperty = ({ onPageChange }: AddPropertyProps) => {
                     <Home className="h-5 w-5 text-primary" />
                     رقم الشقة
                   </Label>
-                  <Select
+              <Input
+                    id="apartment"
                     value={formData.apartment}
-                    onValueChange={(value) => setFormData({ ...formData, apartment: value })}
+                    onChange={(e) => setFormData({ ...formData, apartment: e.target.value })}
+                    placeholder="ادخل رقم الشقة"
+                    className="h-12"
                     required
-                  >
-                    <SelectTrigger className="h-12">
-                      <SelectValue placeholder="اختر رقم الشقة" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({ length: 12 }, (_, i) => (
-                        <SelectItem key={i + 1} value={`${i + 1}`}>
-                          {i + 1}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  />
                 </div>
               </div>
 
@@ -128,22 +199,14 @@ export const AddProperty = ({ onPageChange }: AddPropertyProps) => {
                     <Layers className="h-5 w-5 text-primary" />
                     الطابق
                   </Label>
-                  <Select
+              <Input
+                    id="floor"
                     value={formData.floor}
-                    onValueChange={(value) => setFormData({ ...formData, floor: value })}
+                    onChange={(e) => setFormData({ ...formData, floor: e.target.value })}
+                    placeholder="ادخل رقم الطابق"
+                    className="h-12"
                     required
-                  >
-                    <SelectTrigger className="h-12">
-                      <SelectValue placeholder="اختر الطابق" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({ length: 10 }, (_, i) => (
-                        <SelectItem key={i + 1} value={`${i + 1}`}>
-                          {i + 1}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -243,10 +306,59 @@ export const AddProperty = ({ onPageChange }: AddPropertyProps) => {
                 />
               </div>
 
+              {/* Bedrooms and Bathrooms */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="bedrooms" className="flex items-center gap-2 text-base font-semibold">
+                    <Home className="h-5 w-5 text-primary" />
+                    عدد غرف النوم
+                  </Label>
+                  <Select
+                    value={formData.bedrooms}
+                    onValueChange={(value) => setFormData({ ...formData, bedrooms: value })}
+                    required
+                  >
+                    <SelectTrigger className="h-12">
+                      <SelectValue placeholder="اختر عدد الغرف" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 5 }, (_, i) => (
+                        <SelectItem key={i + 1} value={`${i + 1}`}>
+                          {i + 1}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="bathrooms" className="flex items-center gap-2 text-base font-semibold">
+                    <Home className="h-5 w-5 text-primary" />
+                    عدد دورات المياه
+                  </Label>
+                  <Select
+                    value={formData.bathrooms}
+                    onValueChange={(value) => setFormData({ ...formData, bathrooms: value })}
+                    required
+                  >
+                    <SelectTrigger className="h-12">
+                      <SelectValue placeholder="اختر عدد الحمامات" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 4 }, (_, i) => (
+                        <SelectItem key={i + 1} value={`${i + 1}`}>
+                          {i + 1}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
               {/* Submit Button */}
-              <Button type="submit" className="w-full h-12 text-lg font-semibold" variant="default">
+              <Button type="submit" className="w-full h-12 text-lg font-semibold" variant="default" disabled={isLoading}>
                 <PlusCircle className="h-5 w-5 ml-2" />
-                نشر العقار
+                {isLoading ? "جاري النشر..." : "نشر العقار"}
               </Button>
             </form>
           </div>

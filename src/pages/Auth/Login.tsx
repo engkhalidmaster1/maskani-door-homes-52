@@ -3,27 +3,32 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LogIn, Phone, Lock } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { LogIn, Mail, Lock } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface LoginProps {
   onPageChange: (page: string) => void;
 }
 
 export const Login = ({ onPageChange }: LoginProps) => {
-  const { toast } = useToast();
+  const { signIn } = useAuth();
   const [formData, setFormData] = useState({
-    phone: "",
+    email: "",
     password: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "تم تسجيل الدخول بنجاح!",
-      description: "مرحباً بعودتك إلى تطبيق سكني",
-    });
-    onPageChange("home");
+    setIsLoading(true);
+    
+    const { error } = await signIn(formData.email, formData.password);
+    
+    if (!error) {
+      onPageChange("home");
+    }
+    
+    setIsLoading(false);
   };
 
   return (
@@ -40,16 +45,16 @@ export const Login = ({ onPageChange }: LoginProps) => {
             
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="phone" className="flex items-center gap-2 text-base font-semibold">
-                  <Phone className="h-5 w-5 text-primary" />
-                  رقم الجوال
+                <Label htmlFor="email" className="flex items-center gap-2 text-base font-semibold">
+                  <Mail className="h-5 w-5 text-primary" />
+                  البريد الإلكتروني
                 </Label>
                 <Input
-                  id="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="ادخل رقم الجوال"
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="ادخل البريد الإلكتروني"
                   className="h-12"
                   required
                 />
@@ -71,9 +76,9 @@ export const Login = ({ onPageChange }: LoginProps) => {
                 />
               </div>
 
-              <Button type="submit" className="w-full h-12 text-lg font-semibold">
+              <Button type="submit" className="w-full h-12 text-lg font-semibold" disabled={isLoading}>
                 <LogIn className="h-5 w-5 ml-2" />
-                تسجيل الدخول
+                {isLoading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
               </Button>
             </form>
             

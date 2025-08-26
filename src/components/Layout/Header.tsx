@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Home, Building, PlusCircle, User, Menu, LogOut, Shield } from "lucide-react";
+import { Home, Building, PlusCircle, User, Menu, LogOut, Shield, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 interface HeaderProps {
@@ -17,6 +17,7 @@ export const Header = ({ currentPage, onPageChange, onSidebarToggle }: HeaderPro
     { id: "properties", label: "العقارات", icon: Building },
     { id: "add-property", label: "إضافة عقار", icon: PlusCircle },
     { id: "profile", label: "الملف الشخصي", icon: User },
+    ...(isAdmin ? [{ id: "dashboard", label: "لوحة التحكم", icon: Settings }] : []),
   ];
 
   return (

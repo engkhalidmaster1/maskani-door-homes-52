@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Home, Building, PlusCircle, User, LogOut, X, Phone, Mail, Shield } from "lucide-react";
+import { Home, Building, PlusCircle, User, LogOut, X, Phone, Mail, Shield, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 interface SidebarProps {
@@ -18,6 +18,7 @@ export const Sidebar = ({ isOpen, currentPage, onPageChange, onClose }: SidebarP
     { id: "properties", label: "العقارات", icon: Building },
     { id: "add-property", label: "إضافة عقار", icon: PlusCircle },
     { id: "profile", label: "الملف الشخصي", icon: User },
+    ...(isAdmin ? [{ id: "dashboard", label: "لوحة التحكم", icon: Settings }] : []),
   ];
 
   const handleNavClick = (pageId: string) => {

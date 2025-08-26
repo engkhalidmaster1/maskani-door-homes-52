@@ -19,7 +19,11 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 
-export const Properties = () => {
+interface PropertiesProps {
+  onEditProperty?: (propertyId: string) => void;
+}
+
+export const Properties = ({ onEditProperty }: PropertiesProps) => {
   const { user, isAdmin } = useAuth();
   const { properties, userProperties, isLoading, togglePropertyPublication, deleteProperty } = useProperties();
   const [filters, setFilters] = useState({
@@ -53,27 +57,37 @@ export const Properties = () => {
       {(isOwner || isAdmin) && (
         <>
           <Button
+            onClick={() => onEditProperty?.(property.id)}
+            variant="outline"
+            size="sm"
+            className="gap-1"
+          >
+            <Edit className="w-4 h-4" />
+            تعديل
+          </Button>
+          
+          <Button
             size="sm"
             variant={property.is_published ? "secondary" : "default"}
             onClick={() => togglePropertyPublication(property.id, property.is_published)}
             className="gap-1"
           >
             {property.is_published ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            {property.is_published ? "إلغاء النشر" : "نشر"}
+            {property.is_published ? "إخفاء" : "نشر"}
           </Button>
-          
-          {isAdmin && (
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={() => deleteProperty(property.id)}
-              className="gap-1"
-            >
-              <Trash2 className="h-4 w-4" />
-              حذف
-            </Button>
-          )}
         </>
+      )}
+      
+      {isAdmin && (
+        <Button
+          size="sm"
+          variant="destructive"
+          onClick={() => deleteProperty(property.id)}
+          className="gap-1"
+        >
+          <Trash2 className="h-4 w-4" />
+          حذف
+        </Button>
       )}
     </div>
   );

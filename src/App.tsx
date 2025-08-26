@@ -11,6 +11,8 @@ import { Home } from "@/pages/Home";
 import { Properties } from "@/pages/Properties";
 import { AddProperty } from "@/pages/AddProperty";
 import { Profile } from "@/pages/Profile";
+import Dashboard from "@/pages/Dashboard";
+import { EditProperty } from "@/pages/EditProperty";
 import { Login } from "@/pages/Auth/Login";
 import { Register } from "@/pages/Auth/Register";
 
@@ -19,6 +21,7 @@ const queryClient = new QueryClient();
 const AppContent = () => {
   const [currentPage, setCurrentPage] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [editingPropertyId, setEditingPropertyId] = useState<string | null>(null);
   const { user, isLoading } = useAuth();
 
   // Show loading screen while checking auth
@@ -48,11 +51,23 @@ const AppContent = () => {
       case "home":
         return <Home onPageChange={setCurrentPage} />;
       case "properties":
-        return <Properties />;
+        return editingPropertyId ? (
+          <EditProperty 
+            propertyId={editingPropertyId}
+            onBack={() => setEditingPropertyId(null)}
+            onUpdate={() => {
+              // Refresh properties data if needed
+            }}
+          />
+        ) : (
+          <Properties onEditProperty={setEditingPropertyId} />
+        );
       case "add-property":
         return <AddProperty onPageChange={setCurrentPage} />;
       case "profile":
         return <Profile />;
+      case "dashboard":
+        return <Dashboard />;
       case "login":
         return <Login onPageChange={setCurrentPage} />;
       case "register":

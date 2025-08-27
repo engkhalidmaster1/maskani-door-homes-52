@@ -54,19 +54,43 @@ export const useProperties = () => {
     }
   };
 
+  // Fetch all properties (for admin dashboard)
+  const fetchAllProperties = async () => {
+    if (!isAdmin) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('properties')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      return data || [];
+    } catch (error: any) {
+      console.error('Error fetching all properties:', error);
+      toast({
+        title: "خطأ في تحميل جميع العقارات",
+        description: error.message,
+        variant: "destructive",
+      });
+      return [];
+    }
+  };
+
   // Fetch user's own properties (for management)
   const fetchUserProperties = async () => {
     if (!user) return;
 
     try {
-      let query = supabase.from('properties').select('*');
-      
-      // If admin, get all properties, otherwise get only user's properties
-      if (!isAdmin) {
-        query = query.eq('user_id', user.id);
-      }
-      
-      const { data, error } = await query.order('created_at', { ascending: false });
+      // Always get only the current user's properties, regardless of admin status
+      const { data, error } = await supabase
+        .from('properties')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
       if (error) {
         throw error;
@@ -194,6 +218,7 @@ export const useProperties = () => {
     userProperties,
     isLoading,
     fetchProperties,
+    fetchAllProperties,
     fetchUserProperties,
     togglePropertyPublication,
     updateProperty,

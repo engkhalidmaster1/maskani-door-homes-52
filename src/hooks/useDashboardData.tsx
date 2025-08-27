@@ -49,29 +49,24 @@ export const useDashboardData = () => {
           user_id,
           full_name,
           phone,
+          email,
           created_at
         `);
 
       if (usersError) throw usersError;
 
-      // Get auth users for email
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
-      if (authError) throw authError;
-
       // Get property counts for each user
-      const { data: propertyCounts, error: propertyError } = await supabase
+      const { data: propertiesData, error: propertyError } = await supabase
         .from('properties')
-        .select('user_id')
-        .then(({ data, error }) => {
-          if (error) throw error;
-          const counts = data?.reduce((acc: Record<string, number>, prop) => {
-            acc[prop.user_id] = (acc[prop.user_id] || 0) + 1;
-            return acc;
-          }, {}) || {};
-          return { data: counts, error: null };
-        });
+        .select('user_id');
 
       if (propertyError) throw propertyError;
+
+      // Count properties per user
+      const propertyCounts = propertiesData?.reduce((acc: Record<string, number>, prop) => {
+        acc[prop.user_id] = (acc[prop.user_id] || 0) + 1;
+        return acc;
+      }, {}) || {};
 
       // Get user roles
       const { data: rolesData, error: rolesError } = await supabase
@@ -82,16 +77,15 @@ export const useDashboardData = () => {
 
       // Combine the data
       const combinedUsers: DashboardUser[] = usersData?.map(profile => {
-        const authUser = authUsers.users.find((u: any) => u.id === profile.user_id);
         const userRole = rolesData?.find(r => r.user_id === profile.user_id);
         return {
           id: profile.user_id,
-          email: authUser?.email || '',
+          email: profile.email || `user-${profile.user_id.slice(0, 8)}@maskani.com`, // Use real email or fallback
           full_name: profile.full_name,
           phone: profile.phone,
           role: userRole?.role || 'user',
           created_at: profile.created_at,
-          properties_count: propertyCounts.data?.[profile.user_id] || 0
+          properties_count: propertyCounts[profile.user_id] || 0
         };
       }) || [];
 
@@ -177,12 +171,17 @@ export const useDashboardData = () => {
 
       if (roleError) throw roleError;
 
-      // Delete from auth (requires admin privileges)
-      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
-      if (authError) throw authError;
+      // Note: Cannot delete from auth.users with client-side key
+      // The user will remain in auth.users but won't have access to the app
+      // since their profile and role are deleted
 
       // Refresh data
       await Promise.all([fetchUsers(), fetchUserProperties()]);
+      
+      toast({
+        title: "تم حذف المستخدم",
+        description: "تم حذف المستخدم وجميع عقاراته بنجاح",
+      });
     } catch (error) {
       console.error('Error deleting user:', error);
       toast({
@@ -220,6 +219,99 @@ export const useDashboardData = () => {
     }
   };
 
+  const getUserProfile = async (userId: string) => {
+    if (!isAdmin) return null;
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      return null;
+    }
+  };
+
+  const getUserProperties = async (userId: string) => {
+    if (!isAdmin) return [];
+
+    try {
+      const { data, error } = await supabase
+        .from('properties')
+        .select('*')
+        .eq('user_id', userId);
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching user properties:', error);
+      return [];
+    }
+  };
+
+  const banUserFromPublishing = async (userId: string) => {
+    if (!isAdmin) return;
+
+    try {
+      // Update all user properties to be unpublished
+      const { error } = await supabase
+        .from('properties')
+        .update({ is_published: false })
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      // Refresh data
+      await Promise.all([fetchUsers(), fetchUserProperties()]);
+      
+      toast({
+        title: "تم حظر المستخدم من النشر",
+        description: "تم إخفاء جميع عقارات المستخدم",
+      });
+    } catch (error) {
+      console.error('Error banning user from publishing:', error);
+      toast({
+        title: "خطأ",
+        description: "فشل في حظر المستخدم من النشر",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const unbanUserFromPublishing = async (userId: string) => {
+    if (!isAdmin) return;
+
+    try {
+      // Update all user properties to be published
+      const { error } = await supabase
+        .from('properties')
+        .update({ is_published: true })
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      // Refresh data
+      await Promise.all([fetchUsers(), fetchUserProperties()]);
+      
+      toast({
+        title: "تم إلغاء حظر المستخدم",
+        description: "تم نشر جميع عقارات المستخدم",
+      });
+    } catch (error) {
+      console.error('Error unbanning user from publishing:', error);
+      toast({
+        title: "خطأ",
+        description: "فشل في إلغاء حظر المستخدم",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getDashboardStats = useCallback((): DashboardStats => {
     const totalUsers = users.length;
     const totalProperties = userProperties.length;
@@ -248,6 +340,10 @@ export const useDashboardData = () => {
     isLoading,
     deleteUser,
     updateUserRole,
+    getUserProfile,
+    getUserProperties,
+    banUserFromPublishing,
+    unbanUserFromPublishing,
     getDashboardStats,
     refreshData: () => Promise.all([fetchUsers(), fetchUserProperties()])
   };

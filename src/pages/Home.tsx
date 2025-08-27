@@ -2,50 +2,16 @@ import { Button } from "@/components/ui/button";
 import { PropertyCard } from "@/components/Property/PropertyCard";
 import { ScrollingBanner } from "@/components/Layout/ScrollingBanner";
 import { Search, PlusCircle, Shield } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useProperties } from "@/hooks/useProperties";
 import heroImage from "@/assets/hero-bg.jpg";
 
-interface HomeProps {
-  onPageChange: (page: string) => void;
-}
-
-export const Home = ({ onPageChange }: HomeProps) => {
-  // Sample properties data
-  const featuredProperties = [
-    {
-      id: "1",
-      title: "شقة فاخرة في مجمع الدور",
-      type: "sale" as const,
-      building: "١٢",
-      apartment: "٣٠٤",
-      floor: "الثالث",
-      market: "السوق الأول",
-      price: "٢٥٠،٠٠٠ دينار",
-      icon: "home" as const,
-    },
-    {
-      id: "2",
-      title: "شقة جديدة في مجمع الدور",
-      type: "rent" as const,
-      building: "٧",
-      apartment: "١٠١",
-      floor: "الأول",
-      market: "السوق الثالث",
-      price: "٥٠٠،٠٠٠ دينار/سنوي",
-      furnished: "yes" as const,
-      icon: "building" as const,
-    },
-    {
-      id: "3",
-      title: "شقة عائلية في مجمع الدور",
-      type: "sale" as const,
-      building: "٢٣",
-      apartment: "٥٠١",
-      floor: "الخامس",
-      market: "السوق الثاني",
-      price: "٣٧٥،٠٠٠ دينار",
-      icon: "house-user" as const,
-    },
-  ];
+export const Home = () => {
+  const navigate = useNavigate();
+  const { properties, isLoading } = useProperties();
+  
+  // Get the latest 3 published properties
+  const featuredProperties = properties.slice(0, 3);
 
   const features = [
     {
@@ -80,16 +46,6 @@ export const Home = ({ onPageChange }: HomeProps) => {
           }}
         >
           <div className="text-white max-w-4xl px-8">
-            {/* اسم المطور */}
-            <div className="mb-8">
-              <h2 className="text-7xl md:text-8xl font-black mb-4 text-white drop-shadow-2xl">
-                خالد
-              </h2>
-              <p className="text-lg md:text-xl opacity-80 font-medium">
-                مطور التطبيق
-              </p>
-            </div>
-            
             <h1 className="text-5xl md:text-6xl font-bold mb-6 text-gradient-primary">
               مرحباً بك في تطبيق "سكني"
             </h1>
@@ -98,7 +54,7 @@ export const Home = ({ onPageChange }: HomeProps) => {
             </p>
             <Button
               variant="hero"
-              onClick={() => onPageChange("properties")}
+              onClick={() => navigate("/properties")}
               className="gap-3"
             >
               <Search className="h-5 w-5" />
@@ -116,11 +72,35 @@ export const Home = ({ onPageChange }: HomeProps) => {
             أحدث العقارات
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredProperties.map((property) => (
-              <PropertyCard key={property.id} property={property} />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-muted-foreground">جاري تحميل العقارات...</p>
+              </div>
+            </div>
+          ) : featuredProperties.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuredProperties.map((property) => (
+                <PropertyCard key={property.id} property={property} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-xl font-semibold mb-2">لا توجد عقارات متاحة</h3>
+              <p className="text-muted-foreground mb-6">
+                كن أول من يضيف عقاراً في مجمع الدور
+              </p>
+              <Button 
+                onClick={() => navigate('/add-property')} 
+                className="gap-2"
+              >
+                <PlusCircle className="h-5 w-5" />
+                إضافة عقار جديد
+              </Button>
+            </div>
+          )}
         </section>
 
         {/* Features */}

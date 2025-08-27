@@ -14,33 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
-      profiles: {
-        Row: {
-          created_at: string
-          full_name: string | null
-          id: string
-          phone: string | null
-          updated_at: string
-          user_id: string
+              profiles: {
+          Row: {
+            address: string | null
+            created_at: string
+            email: string | null
+            full_name: string | null
+            id: string
+            phone: string | null
+            updated_at: string
+            user_id: string
+          }
+          Insert: {
+            address?: string | null
+            created_at?: string
+            email?: string | null
+            full_name?: string | null
+            id?: string
+            phone?: string | null
+            updated_at?: string
+            user_id: string
+          }
+          Update: {
+            address?: string | null
+            created_at?: string
+            email?: string | null
+            full_name?: string | null
+            id?: string
+            phone?: string | null
+            updated_at?: string
+            user_id?: string
+          }
+          Relationships: []
         }
-        Insert: {
-          created_at?: string
-          full_name?: string | null
-          id?: string
-          phone?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          full_name?: string | null
-          id?: string
-          phone?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       properties: {
         Row: {
           address: string | null
@@ -119,6 +125,36 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      banner_settings: {
+        Row: {
+          id: string
+          text: string
+          is_active: boolean
+          start_date: string | null
+          end_date: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          text: string
+          is_active?: boolean
+          start_date?: string | null
+          end_date?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          text?: string
+          is_active?: boolean
+          start_date?: string | null
+          end_date?: string | null
+          created_at?: string
+          updated_at?: string
         }
         Relationships: []
       }

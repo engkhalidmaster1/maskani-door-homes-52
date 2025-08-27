@@ -1,6 +1,7 @@
 import React from 'react';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Home, Settings } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface DashboardBreadcrumbProps {
   activeTab: string;
@@ -13,6 +14,7 @@ export const DashboardBreadcrumb = ({ activeTab, onNavigate }: DashboardBreadcru
       case "overview": return "نظرة عامة";
       case "properties": return "العقارات";
       case "edit-properties": return "تعديل العقارات";
+      case "banner-settings": return "إدارة الشريط";
       case "users": return "إدارة المستخدمين";
       case "profile": return "الملف الشخصي";
       default: return "لوحة التحكم";
@@ -21,26 +23,23 @@ export const DashboardBreadcrumb = ({ activeTab, onNavigate }: DashboardBreadcru
 
   return (
     <Breadcrumb className="mb-6">
-      <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink 
-            onClick={() => onNavigate("home")}
-            className="flex items-center gap-2 cursor-pointer hover:text-primary"
-          >
-            <Home className="h-4 w-4" />
-            الرئيسية
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbLink 
-            onClick={() => onNavigate("dashboard")}
-            className="flex items-center gap-2 cursor-pointer hover:text-primary"
-          >
-            <Settings className="h-4 w-4" />
-            لوحة التحكم
-          </BreadcrumbLink>
-        </BreadcrumbItem>
+              <BreadcrumbList>
+          <BreadcrumbItem>
+            <Link to="/" className="flex items-center gap-2 cursor-pointer hover:text-primary">
+              <Home className="h-4 w-4" />
+              الرئيسية
+            </Link>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <button
+              onClick={() => onNavigate('overview')}
+              className="flex items-center gap-2 cursor-pointer hover:text-primary"
+            >
+              <Settings className="h-4 w-4" />
+              لوحة التحكم
+            </button>
+          </BreadcrumbItem>
         {activeTab !== "overview" && (
           <>
             <BreadcrumbSeparator />

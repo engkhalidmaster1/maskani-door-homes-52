@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Save, Eye, EyeOff } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useParams, useNavigate } from "react-router-dom";
 
 interface Property {
   id: string;
@@ -35,13 +36,9 @@ interface Property {
   user_id: string;
 }
 
-interface EditPropertyProps {
-  propertyId: string;
-  onBack: () => void;
-  onUpdate: () => void;
-}
-
-export const EditProperty = ({ propertyId, onBack, onUpdate }: EditPropertyProps) => {
+export const EditProperty = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
   const [property, setProperty] = useState<Property | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -69,15 +66,17 @@ export const EditProperty = ({ propertyId, onBack, onUpdate }: EditPropertyProps
   });
 
   useEffect(() => {
-    fetchProperty();
-  }, [propertyId]);
+    if (id) {
+      fetchProperty();
+    }
+  }, [id]);
 
   const fetchProperty = async () => {
     try {
       const { data, error } = await supabase
         .from('properties')
         .select('*')
-        .eq('id', propertyId)
+        .eq('id', id)
         .single();
 
       if (error) throw error;
@@ -88,7 +87,7 @@ export const EditProperty = ({ propertyId, onBack, onUpdate }: EditPropertyProps
           description: "العقار غير موجود",
           variant: "destructive",
         });
-        onBack();
+        navigate("/properties");
         return;
       }
 
@@ -99,7 +98,7 @@ export const EditProperty = ({ propertyId, onBack, onUpdate }: EditPropertyProps
           description: "ليس لديك صلاحية لتعديل هذا العقار",
           variant: "destructive",
         });
-        onBack();
+        navigate("/properties");
         return;
       }
 
@@ -138,7 +137,7 @@ export const EditProperty = ({ propertyId, onBack, onUpdate }: EditPropertyProps
         description: "فشل في تحميل بيانات العقار",
         variant: "destructive",
       });
-      onBack();
+      navigate("/properties");
     } finally {
       setIsLoading(false);
     }
@@ -174,7 +173,7 @@ export const EditProperty = ({ propertyId, onBack, onUpdate }: EditPropertyProps
       const { error } = await supabase
         .from('properties')
         .update(updateData)
-        .eq('id', propertyId);
+        .eq('id', id);
 
       if (error) throw error;
 
@@ -183,8 +182,7 @@ export const EditProperty = ({ propertyId, onBack, onUpdate }: EditPropertyProps
         description: "تم تحديث العقار بنجاح",
       });
 
-      onUpdate();
-      onBack();
+      navigate("/properties");
     } catch (error) {
       console.error('Error updating property:', error);
       toast({
@@ -205,7 +203,7 @@ export const EditProperty = ({ propertyId, onBack, onUpdate }: EditPropertyProps
       const { error } = await supabase
         .from('properties')
         .update({ is_published: newStatus })
-        .eq('id', propertyId);
+        .eq('id', id);
 
       if (error) throw error;
 
@@ -241,7 +239,7 @@ export const EditProperty = ({ propertyId, onBack, onUpdate }: EditPropertyProps
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="outline" onClick={onBack}>
+          <Button variant="outline" onClick={() => navigate("/properties")}>
             <ArrowRight className="w-4 h-4 mr-2" />
             العودة
           </Button>
@@ -489,7 +487,7 @@ export const EditProperty = ({ propertyId, onBack, onUpdate }: EditPropertyProps
         </div>
 
         <div className="flex justify-end gap-4">
-          <Button type="button" variant="outline" onClick={onBack}>
+          <Button type="button" variant="outline" onClick={() => navigate("/properties")}>
             إلغاء
           </Button>
           <Button type="submit" disabled={isSaving}>

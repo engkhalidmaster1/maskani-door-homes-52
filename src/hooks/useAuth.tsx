@@ -62,6 +62,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state change:', event, session?.user?.email);
+        
+        if (event === 'SIGNED_OUT') {
+          // Clear all state when user signs out
+          setSession(null);
+          setUser(null);
+          setUserRole(null);
+          setIsLoading(false);
+          return;
+        }
+        
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -171,12 +181,34 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
+      console.log('Signing out...');
+      
+      // Sign out from Supabase first
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Sign out error:', error);
+        toast({
+          title: "خطأ في تسجيل الخروج",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      console.log('Sign out successful');
+      
+      // Clear local state after successful sign out
+      setUser(null);
+      setSession(null);
+      setUserRole(null);
+      
       toast({
         title: "تم تسجيل الخروج",
         description: "نراك قريباً!",
       });
     } catch (error: any) {
+      console.error('Sign out error:', error);
       toast({
         title: "خطأ في تسجيل الخروج",
         description: error.message,
@@ -186,7 +218,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const isAdmin = userRole === 'admin';
-  console.log('Auth state:', { user: user?.email, userRole, isAdmin });
+  console.log('Auth state:', { user: user?.email, userRole, isAdmin, isLoading });
 
   const value = {
     user,

@@ -37,6 +37,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const fetchUserRole = async (userId: string) => {
     try {
+      console.log('Fetching role for user:', userId);
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
@@ -48,6 +49,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         return null;
       }
       
+      console.log('User role data:', data);
       return data?.role || null;
     } catch (error) {
       console.error('Error fetching user role:', error);
@@ -59,6 +61,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state change:', event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -66,6 +69,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           // Fetch user role after session is established
           setTimeout(async () => {
             const role = await fetchUserRole(session.user.id);
+            console.log('User role fetched:', role);
             setUserRole(role);
           }, 0);
         } else {
@@ -182,6 +186,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const isAdmin = userRole === 'admin';
+  console.log('Auth state:', { user: user?.email, userRole, isAdmin });
 
   const value = {
     user,

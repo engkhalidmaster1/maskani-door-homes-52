@@ -5,13 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LogIn, Mail, Lock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
-interface LoginProps {
-  onPageChange: (page: string) => void;
-}
-
-export const Login = ({ onPageChange }: LoginProps) => {
+export const Login = () => {
   const { signIn } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
+  
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -25,7 +26,7 @@ export const Login = ({ onPageChange }: LoginProps) => {
     const { error } = await signIn(formData.email, formData.password);
     
     if (!error) {
-      onPageChange("home");
+      navigate(from, { replace: true });
     }
     
     setIsLoading(false);
@@ -84,12 +85,12 @@ export const Login = ({ onPageChange }: LoginProps) => {
             
             <p className="text-center mt-6 text-muted-foreground">
               ليس لديك حساب؟{" "}
-              <button
-                onClick={() => onPageChange("register")}
+              <Link
+                to="/auth/register"
                 className="text-primary font-semibold hover:underline"
               >
                 أنشئ حساب جديد
-              </button>
+              </Link>
             </p>
           </div>
         </Card>

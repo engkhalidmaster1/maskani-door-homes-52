@@ -5,13 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UserPlus, User, Phone, Lock, Mail } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { Link, useNavigate } from "react-router-dom";
 
-interface RegisterProps {
-  onPageChange: (page: string) => void;
-}
-
-export const Register = ({ onPageChange }: RegisterProps) => {
+export const Register = () => {
   const { signUp } = useAuth();
+  const navigate = useNavigate();
+  
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -27,7 +26,7 @@ export const Register = ({ onPageChange }: RegisterProps) => {
     const { error } = await signUp(formData.email, formData.password, formData.fullName, formData.phone);
     
     if (!error) {
-      onPageChange("login");
+      navigate("/login");
     }
     
     setIsLoading(false);
@@ -117,12 +116,12 @@ export const Register = ({ onPageChange }: RegisterProps) => {
             
             <p className="text-center mt-6 text-muted-foreground">
               لديك حساب بالفعل؟{" "}
-              <button
-                onClick={() => onPageChange("login")}
+              <Link
+                to="/auth/login"
                 className="text-primary font-semibold hover:underline"
               >
                 سجل الدخول
-              </button>
+              </Link>
             </p>
           </div>
         </Card>

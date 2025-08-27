@@ -1,30 +1,27 @@
-import { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
-import { Header } from "@/components/Layout/Header";
-import { Sidebar } from "@/components/Layout/Sidebar";
-import { Footer } from "@/components/Layout/Footer";
+import { AppLayout } from "@/components/Layout/AppLayout";
+import { AuthLayout } from "@/components/Layout/AuthLayout";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Home } from "@/pages/Home";
 import { Properties } from "@/pages/Properties";
 import { AddProperty } from "@/pages/AddProperty";
 import { Profile } from "@/pages/Profile";
 import Dashboard from "@/pages/Dashboard";
 import { EditProperty } from "@/pages/EditProperty";
+import { PropertyDetails } from "@/pages/PropertyDetails";
 import { Login } from "@/pages/Auth/Login";
 import { Register } from "@/pages/Auth/Register";
 
 const queryClient = new QueryClient();
 
-const AppContent = () => {
-  const [currentPage, setCurrentPage] = useState("home");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [editingPropertyId, setEditingPropertyId] = useState<string | null>(null);
+const AppRoutes = () => {
   const { user, isLoading } = useAuth();
 
-  // Show loading screen while checking auth
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -36,84 +33,53 @@ const AppContent = () => {
     );
   }
 
-  // Redirect to login if not authenticated and not on auth pages
-  if (!user && !['login', 'register'].includes(currentPage)) {
-    return <Login onPageChange={setCurrentPage} />;
-  }
-
-  // Redirect to home if authenticated and on auth pages
-  if (user && ['login', 'register'].includes(currentPage)) {
-    setCurrentPage("home");
-  }
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case "home":
-        return <Home onPageChange={setCurrentPage} />;
-      case "properties":
-        return editingPropertyId ? (
-          <EditProperty 
-            propertyId={editingPropertyId}
-            onBack={() => setEditingPropertyId(null)}
-            onUpdate={() => {
-              // Refresh properties data if needed
-            }}
-          />
-        ) : (
-          <Properties onEditProperty={setEditingPropertyId} />
-        );
-      case "add-property":
-        return <AddProperty onPageChange={setCurrentPage} />;
-      case "profile":
-        return <Profile />;
-      case "dashboard":
-        return (
-          <Dashboard 
-            onPageChange={setCurrentPage}
-            onEditProperty={setEditingPropertyId}
-          />
-        );
-      case "login":
-        return <Login onPageChange={setCurrentPage} />;
-      case "register":
-        return <Register onPageChange={setCurrentPage} />;
-      default:
-        return <Home onPageChange={setCurrentPage} />;
-    }
-  };
-
-  // Show auth pages without header/footer
-  if (['login', 'register'].includes(currentPage)) {
-    return (
-      <div className="min-h-screen bg-background">
-        <main>
-          {renderPage()}
-        </main>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-background">
-      <Header
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-        onSidebarToggle={() => setSidebarOpen(true)}
-      />
-      
-      <Sidebar
-        isOpen={sidebarOpen}
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-        onClose={() => setSidebarOpen(false)}
-      />
-      
-      <main className="min-h-[calc(100vh-4rem)]">
-        {renderPage()}
-      </main>
-      
-      <Footer />
-    </div>
+    <Routes>
+      {/* Auth Routes */}
+      <Route path="/auth" element={<AuthLayout />}>
+        <Route path="login" element={user ? <Navigate to="/" replace /> : <Login />} />
+        <Route path="register" element={user ? <Navigate to="/" replace /> : <Register />} />
+      </Route>
+
+      {/* Public Routes */}
+      <Route path="/" element={<AppLayout />}>
+        <Route index element={<Home />} />
+        <Route path="properties" element={<Properties />} />
+        <Route path="property/:id" element={<PropertyDetails />} />
+        
+        {/* Protected Routes */}
+        <Route path="add-property" element={
+          <ProtectedRoute>
+            <AddProperty />
+          </ProtectedRoute>
+        } />
+        <Route path="profile" element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        } />
+        <Route path="edit-property/:id" element={
+          <ProtectedRoute>
+            <EditProperty />
+          </ProtectedRoute>
+        } />
+        
+        {/* Dashboard Routes - All require admin */}
+        <Route path="dashboard" element={
+          <ProtectedRoute requireAdmin>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="dashboard/*" element={
+          <ProtectedRoute requireAdmin>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+      </Route>
+
+      {/* Redirect to login if not authenticated */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 };
 
@@ -121,11 +87,13 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <TooltipProvider>
-          <AppContent />
-          <Toaster />
-          <Sonner />
-        </TooltipProvider>
+        <Router>
+          <TooltipProvider>
+            <AppRoutes />
+            <Toaster />
+            <Sonner />
+          </TooltipProvider>
+        </Router>
       </AuthProvider>
     </QueryClientProvider>
   );

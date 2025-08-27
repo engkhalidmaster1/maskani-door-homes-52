@@ -5,6 +5,7 @@ import { PropertyCard } from "@/components/Property/PropertyCard";
 import { Building, Filter, Eye, EyeOff, Edit, Trash2 } from "lucide-react";
 import { useProperties } from "@/hooks/useProperties";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 import {
   Select,
   SelectContent,
@@ -19,26 +20,16 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 
-interface PropertiesProps {
-  onEditProperty?: (propertyId: string) => void;
-}
-
-export const Properties = ({ onEditProperty }: PropertiesProps) => {
+export const Properties = () => {
   const { user, isAdmin } = useAuth();
   const { properties, userProperties, isLoading, togglePropertyPublication, deleteProperty } = useProperties();
+  const navigate = useNavigate();
+  
   const [filters, setFilters] = useState({
     listing_type: "",
     location: "",
     price_range: "",
   });
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ar-IQ', {
-      style: 'currency',
-      currency: 'IQD',
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
 
   const filteredProperties = useMemo(() => {
     return properties.filter(property => {
@@ -52,45 +43,19 @@ export const Properties = ({ onEditProperty }: PropertiesProps) => {
     });
   }, [properties, filters]);
 
-  const PropertyActionButtons = ({ property, isOwner }: { property: any, isOwner: boolean }) => (
-    <div className="flex gap-2 mt-4">
-      {(isOwner || isAdmin) && (
-        <>
-          <Button
-            onClick={() => onEditProperty?.(property.id)}
-            variant="outline"
-            size="sm"
-            className="gap-1"
-          >
-            <Edit className="w-4 h-4" />
-            تعديل
-          </Button>
-          
-          <Button
-            size="sm"
-            variant={property.is_published ? "secondary" : "default"}
-            onClick={() => togglePropertyPublication(property.id, property.is_published)}
-            className="gap-1"
-          >
-            {property.is_published ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            {property.is_published ? "إخفاء" : "نشر"}
-          </Button>
-        </>
-      )}
-      
-      {isAdmin && (
-        <Button
-          size="sm"
-          variant="destructive"
-          onClick={() => deleteProperty(property.id)}
-          className="gap-1"
-        >
-          <Trash2 className="h-4 w-4" />
-          حذف
-        </Button>
-      )}
-    </div>
-  );
+  const handleEdit = (propertyId: string) => {
+    navigate(`/edit-property/${propertyId}`);
+  };
+
+  const handleDelete = (propertyId: string) => {
+    if (confirm("هل أنت متأكد من حذف هذا العقار؟")) {
+      deleteProperty(propertyId);
+    }
+  };
+
+  const handleTogglePublication = (propertyId: string, currentStatus: boolean) => {
+    togglePropertyPublication(propertyId, currentStatus);
+  };
 
   if (isLoading) {
     return (
@@ -166,42 +131,14 @@ export const Properties = ({ onEditProperty }: PropertiesProps) => {
             {/* Properties Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredProperties.map((property) => (
-                <Card key={property.id} className="overflow-hidden shadow-card hover-lift">
-                  <div className="p-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        property.listing_type === 'sale' 
-                          ? 'bg-success/20 text-success' 
-                          : 'bg-warning/20 text-warning'
-                      }`}>
-                        {property.listing_type === 'sale' ? 'للبيع' : 'للإيجار'}
-                      </span>
-                      <span className="text-sm text-muted-foreground">
-                        {property.bedrooms} غرف، {property.bathrooms} حمام
-                      </span>
-                    </div>
-                    
-                    <h3 className="text-xl font-bold mb-2">{property.title}</h3>
-                    <p className="text-muted-foreground mb-4">{property.location}</p>
-                    
-                    {property.description && (
-                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                        {property.description}
-                      </p>
-                    )}
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-primary">
-                        {formatPrice(property.price)}
-                      </span>
-                      {property.area && (
-                        <span className="text-sm text-muted-foreground">
-                          {property.area} م²
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </Card>
+                <PropertyCard 
+                  key={property.id} 
+                  property={property}
+                  showActions={user && (property.user_id === user.id || isAdmin)}
+                  onEdit={user && (property.user_id === user.id || isAdmin) ? handleEdit : undefined}
+                  onDelete={isAdmin ? handleDelete : undefined}
+                  onTogglePublication={user && (property.user_id === user.id || isAdmin) ? handleTogglePublication : undefined}
+                />
               ))}
             </div>
 
@@ -218,45 +155,16 @@ export const Properties = ({ onEditProperty }: PropertiesProps) => {
           {user && (
             <TabsContent value="my" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {userProperties.map((property) => {
-                  const isOwner = property.user_id === user.id;
-                  return (
-                    <Card key={property.id} className="overflow-hidden shadow-card hover-lift">
-                      <div className="p-6">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                            property.listing_type === 'sale' 
-                              ? 'bg-success/20 text-success' 
-                              : 'bg-warning/20 text-warning'
-                          }`}>
-                            {property.listing_type === 'sale' ? 'للبيع' : 'للإيجار'}
-                          </span>
-                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                            property.is_published
-                              ? 'bg-success/20 text-success'
-                              : 'bg-muted text-muted-foreground'
-                          }`}>
-                            {property.is_published ? 'منشور' : 'غير منشور'}
-                          </span>
-                        </div>
-                        
-                        <h3 className="text-xl font-bold mb-2">{property.title}</h3>
-                        <p className="text-muted-foreground mb-4">{property.location}</p>
-                        
-                        <div className="flex items-center justify-between mb-4">
-                          <span className="text-2xl font-bold text-primary">
-                            {formatPrice(property.price)}
-                          </span>
-                          <span className="text-sm text-muted-foreground">
-                            {property.bedrooms} غرف، {property.bathrooms} حمام
-                          </span>
-                        </div>
-
-                        <PropertyActionButtons property={property} isOwner={isOwner} />
-                      </div>
-                    </Card>
-                  );
-                })}
+                {userProperties.map((property) => (
+                  <PropertyCard 
+                    key={property.id} 
+                    property={property}
+                    showActions={true}
+                    onEdit={handleEdit}
+                    onDelete={isAdmin ? handleDelete : undefined}
+                    onTogglePublication={handleTogglePublication}
+                  />
+                ))}
               </div>
 
               {userProperties.length === 0 && (
@@ -264,6 +172,12 @@ export const Properties = ({ onEditProperty }: PropertiesProps) => {
                   <Building className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-xl font-semibold mb-2">لا توجد عقارات</h3>
                   <p className="text-muted-foreground">ابدأ بإضافة عقارك الأول</p>
+                  <Button 
+                    onClick={() => navigate('/add-property')} 
+                    className="mt-4"
+                  >
+                    إضافة عقار جديد
+                  </Button>
                 </div>
               )}
             </TabsContent>

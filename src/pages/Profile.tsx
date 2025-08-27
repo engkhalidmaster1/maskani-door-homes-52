@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,35 +7,38 @@ import { Textarea } from "@/components/ui/textarea";
 import { PropertyCard } from "@/components/Property/PropertyCard";
 import { User, Phone, MapPin, Save, Edit, Trash2, Home as HomeIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useProfile } from "@/hooks/useProfile";
+import { useProperties } from "@/hooks/useProperties";
 
 export const Profile = () => {
   const { toast } = useToast();
+  const { profileData, isLoading, isSaving, updateProfile } = useProfile();
+  const { userProperties } = useProperties();
+  
   const [formData, setFormData] = useState({
-    name: "أحمد محمد",
-    phone: "07701234567",
-    address: "مجمع الدور، بغداد، العراق",
+    name: "",
+    phone: "",
+    address: "",
   });
 
-  // Sample user properties
-  const userProperties = [
-    {
-      id: "user-1",
-      title: "شقة في مجمع الدور",
-      type: "sale" as const,
-      building: "٩",
-      apartment: "٢٠٣",
-      floor: "الثاني",
-      market: "الفنادق",
-      price: "٣٠٠،٠٠٠ دينار",
-      icon: "home" as const,
-    },
-  ];
+  // Update form data when profile data changes
+  useEffect(() => {
+    if (profileData) {
+      setFormData({
+        name: profileData.full_name || "",
+        phone: profileData.phone || "",
+        address: profileData.address || "",
+      });
+    }
+  }, [profileData]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "تم حفظ التغييرات بنجاح!",
-      description: "تم تحديث معلومات الملف الشخصي",
+    
+    await updateProfile({
+      full_name: formData.name,
+      phone: formData.phone,
+      address: formData.address,
     });
   };
 
@@ -53,6 +56,17 @@ export const Profile = () => {
       variant: "destructive",
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">جاري تحميل البيانات...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -116,9 +130,14 @@ export const Profile = () => {
                 />
               </div>
 
-              <Button type="submit" variant="success" className="gap-2">
+              <Button 
+                type="submit" 
+                variant="success" 
+                className="gap-2"
+                disabled={isSaving}
+              >
                 <Save className="h-5 w-5" />
-                حفظ التغييرات
+                {isSaving ? "جاري الحفظ..." : "حفظ التغييرات"}
               </Button>
             </form>
           </div>

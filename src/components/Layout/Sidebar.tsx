@@ -1,28 +1,33 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Home, Building, PlusCircle, User, LogOut, X, Phone, Mail, Shield, Settings } from "lucide-react";
+import { Home, Building, PlusCircle, User, LogOut, X, Phone, Mail, Shield, Settings, LogIn, UserPlus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 interface SidebarProps {
   isOpen: boolean;
-  currentPage: string;
-  onPageChange: (page: string) => void;
   onClose: () => void;
 }
 
-export const Sidebar = ({ isOpen, currentPage, onPageChange, onClose }: SidebarProps) => {
+export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const { user, signOut, isAdmin } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   
-  const navItems = [
-    { id: "home", label: "الرئيسية", icon: Home },
-    { id: "properties", label: "العقارات", icon: Building },
-    { id: "add-property", label: "إضافة عقار", icon: PlusCircle },
-    { id: "profile", label: "الملف الشخصي", icon: User },
-    ...(isAdmin ? [{ id: "dashboard", label: "لوحة التحكم", icon: Settings }] : []),
+  // Different navigation items based on authentication status
+  const navItems = user ? [
+    { id: "/", label: "الرئيسية", icon: Home },
+    { id: "/properties", label: "العقارات", icon: Building },
+    { id: "/add-property", label: "إضافة عقار", icon: PlusCircle },
+    { id: "/profile", label: "الملف الشخصي", icon: User },
+    ...(isAdmin ? [{ id: "/dashboard", label: "لوحة التحكم", icon: Settings }] : []),
+  ] : [
+    { id: "/", label: "الرئيسية", icon: Home },
+    { id: "/properties", label: "العقارات", icon: Building },
   ];
 
-  const handleNavClick = (pageId: string) => {
-    onPageChange(pageId);
+  const handleNavClick = (path: string) => {
+    navigate(path);
     onClose();
   };
 
@@ -45,19 +50,19 @@ export const Sidebar = ({ isOpen, currentPage, onPageChange, onClose }: SidebarP
         <div className="p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-8 pb-4 border-b">
-            <div className="flex items-center gap-3">
+            <Link to="/" className="flex items-center gap-3">
               <div className="bg-primary text-primary-foreground p-2 rounded-xl">
                 <Home className="h-5 w-5" />
               </div>
               <h2 className="text-xl font-bold">سكني</h2>
-            </div>
+            </Link>
             <Button variant="ghost" size="icon" onClick={onClose}>
               <X className="h-5 w-5" />
             </Button>
           </div>
 
           {/* User Info */}
-          {user && (
+          {user ? (
             <div className="bg-accent/20 p-4 rounded-lg mb-6">
               <div className="flex items-center gap-2 mb-2">
                 <User className="h-5 w-5 text-primary" />
@@ -70,18 +75,29 @@ export const Sidebar = ({ isOpen, currentPage, onPageChange, onClose }: SidebarP
                 </div>
               )}
             </div>
+          ) : (
+            <div className="bg-accent/20 p-4 rounded-lg mb-6">
+              <div className="flex items-center gap-2 mb-2">
+                <User className="h-5 w-5 text-primary" />
+                <span className="font-semibold">مرحباً بك في سكني</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                سجل دخولك للوصول إلى جميع الميزات
+              </p>
+            </div>
           )}
 
           {/* Navigation */}
           <nav className="space-y-2 mb-8">
             {navItems.map((item) => {
               const Icon = item.icon;
+              const isActive = location.pathname === item.id;
               return (
                 <Button
                   key={item.id}
                   variant="ghost"
                   className={`w-full justify-start gap-3 h-12 ${
-                    currentPage === item.id
+                    isActive
                       ? "gradient-primary text-primary-foreground shadow-elegant"
                       : "hover:bg-accent"
                   }`}
@@ -93,18 +109,39 @@ export const Sidebar = ({ isOpen, currentPage, onPageChange, onClose }: SidebarP
               );
             })}
             
-            {user && (
+            {user ? (
               <Button
                 variant="ghost"
                 className="w-full justify-start gap-3 h-12 hover:bg-destructive/10 text-destructive"
-                onClick={() => {
-                  signOut();
+                onClick={async () => {
+                  console.log('Sidebar: Sign out button clicked');
+                  await signOut();
                   onClose();
+                  navigate('/');
                 }}
               >
                 <LogOut className="h-5 w-5" />
                 تسجيل الخروج
               </Button>
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-3 h-12 hover:bg-accent"
+                  onClick={() => handleNavClick('/auth/login')}
+                >
+                  <LogIn className="h-5 w-5" />
+                  تسجيل الدخول
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-3 h-12 border-primary hover:bg-accent"
+                  onClick={() => handleNavClick('/auth/register')}
+                >
+                  <UserPlus className="h-5 w-5" />
+                  إنشاء حساب
+                </Button>
+              </>
             )}
           </nav>
 

@@ -8,14 +8,12 @@ import { Edit3, Search, Eye, EyeOff, Trash2 } from "lucide-react";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useProperties } from "@/hooks/useProperties";
 import { toast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
-interface EditPropertiesTabProps {
-  onEditProperty: (propertyId: string) => void;
-}
-
-export const EditPropertiesTab = ({ onEditProperty }: EditPropertiesTabProps) => {
+export const EditPropertiesTab = () => {
   const { userProperties } = useDashboardData();
   const { togglePropertyPublication, deleteProperty } = useProperties();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredProperties = userProperties.filter(property => 
@@ -83,7 +81,7 @@ export const EditPropertiesTab = ({ onEditProperty }: EditPropertiesTabProps) =>
                   <TableRow key={property.id}>
                     <TableCell className="font-medium">{property.title}</TableCell>
                     <TableCell>{property.owner_name || "غير محدد"}</TableCell>
-                    <TableCell>{property.price.toLocaleString()} ر.س</TableCell>
+                                         <TableCell>{property.price.toLocaleString()} د.ع</TableCell>
                     <TableCell>{property.location}</TableCell>
                     <TableCell>{property.property_type}</TableCell>
                     <TableCell>
@@ -96,7 +94,7 @@ export const EditPropertiesTab = ({ onEditProperty }: EditPropertiesTabProps) =>
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => onEditProperty(property.id)}
+                          onClick={() => navigate(`/dashboard/edit-property/${property.id}`)}
                         >
                           <Edit3 className="w-4 h-4" />
                         </Button>

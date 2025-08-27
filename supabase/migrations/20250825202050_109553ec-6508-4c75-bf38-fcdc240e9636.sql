@@ -134,7 +134,7 @@ BEGIN
   VALUES (NEW.id, NEW.raw_user_meta_data ->> 'full_name', NEW.raw_user_meta_data ->> 'phone');
   
   -- Check if this is the admin email and assign role accordingly
-  IF NEW.email = 'eng.khalid.work@gmail.com' THEN
+  IF NEW.email = '}eng.khalid.work@gmail.com' THEN
     INSERT INTO public.user_roles (user_id, role)
     VALUES (NEW.id, 'admin');
   ELSE
@@ -182,3 +182,84 @@ BEGIN
     ON CONFLICT (user_id, role) DO NOTHING;
   END IF;
 END $$;
+
+-- Create banner_settings table
+CREATE TABLE banner_settings (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  text TEXT NOT NULL DEFAULT 'مرحباً بك في تطبيق "سكني" - منصة العقارات الأولى في مجمع الدور | أسعار مناسبة للجميع | شقق مفروشة وغير مفروشة | عقارات للبيع والإيجار',
+  is_active BOOLEAN DEFAULT true,
+  start_date TIMESTAMP WITH TIME ZONE,
+  end_date TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Insert default banner settings
+INSERT INTO banner_settings (text, is_active) VALUES (
+  'مرحباً بك في تطبيق "سكني" - منصة العقارات الأولى في مجمع الدور | أسعار مناسبة للجميع | شقق مفروشة وغير مفروشة | عقارات للبيع والإيجار',
+  true
+);
+
+-- Create function to update updated_at column
+CREATE OR REPLACE FUNCTION update_banner_settings_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Create trigger for banner_settings
+CREATE TRIGGER update_banner_settings_updated_at BEFORE UPDATE ON banner_settings
+  FOR EACH ROW EXECUTE FUNCTION update_banner_settings_updated_at_column();
+
+-- RLS policies for banner_settings (admin only)
+ALTER TABLE banner_settings ENABLE ROW LEVEL SECURITY;
+
+-- Allow admins to read banner settings
+CREATE POLICY "Admins can read banner settings" ON banner_settings
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM user_roles 
+      WHERE user_roles.user_id = auth.uid() 
+      AND user_roles.role = 'admin'
+    )
+  );
+
+-- Allow admins to insert banner settings
+CREATE POLICY "Admins can insert banner settings" ON banner_settings
+  FOR INSERT WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM user_roles 
+      WHERE user_roles.user_id = auth.uid() 
+      AND user_roles.role = 'admin'
+    )
+  );
+
+-- Allow admins to update banner settings
+CREATE POLICY "Admins can update banner settings" ON banner_settings
+  FOR UPDATE USING (
+    EXISTS (
+      SELECT 1 FROM user_roles 
+      WHERE user_roles.user_id = auth.uid() 
+      AND user_roles.role = 'admin'
+    )
+  );
+
+-- Allow admins to delete banner settings
+CREATE POLICY "Admins can delete banner settings" ON banner_settings
+  FOR DELETE USING (
+    EXISTS (
+      SELECT 1 FROM user_roles 
+      WHERE user_roles.user_id = auth.uid() 
+      AND user_roles.role = 'admin'
+    )
+  );
+
+-- Allow public to read active banner settings
+CREATE POLICY "Public can read active banner settings" ON banner_settings
+  FOR SELECT USING (
+    is_active = true AND 
+    (start_date IS NULL OR start_date <= NOW()) AND
+    (end_date IS NULL OR end_date >= NOW())
+  );

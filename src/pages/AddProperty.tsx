@@ -8,6 +8,7 @@ import { PlusCircle, Building, Home, Layers, Store, Tag, Camera } from "lucide-r
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 import {
   Select,
   SelectContent,
@@ -16,13 +17,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface AddPropertyProps {
-  onPageChange: (page: string) => void;
-}
-
-export const AddProperty = ({ onPageChange }: AddPropertyProps) => {
+export const AddProperty = () => {
   const { toast } = useToast();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -99,12 +97,12 @@ export const AddProperty = ({ onPageChange }: AddPropertyProps) => {
         description: "تم إضافة العقار وهو متاح الآن للمشاهدة",
       });
       
-      onPageChange("properties");
+      navigate("/properties");
     } catch (error: any) {
       console.error('Error adding property:', error);
       toast({
         title: "خطأ في إضافة العقار",
-        description: error.message || "حدث خطأ غير متوقع",
+        description: error.message,
         variant: "destructive",
       });
     } finally {
@@ -114,21 +112,21 @@ export const AddProperty = ({ onPageChange }: AddPropertyProps) => {
 
   return (
     <div className="min-h-screen">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="p-4 lg:p-8 max-w-4xl mx-auto">
         <Card className="shadow-elegant hover-lift">
-          <div className="p-8">
-            <h2 className="text-4xl font-bold mb-8 flex items-center gap-4 border-b-2 border-primary pb-4">
-              <div className="bg-primary text-primary-foreground p-3 rounded-xl">
-                <PlusCircle className="h-6 w-6" />
+          <div className="p-4 lg:p-8">
+            <h2 className="text-2xl lg:text-4xl font-bold mb-6 lg:mb-8 flex items-center gap-4 border-b-2 border-primary pb-4">
+              <div className="bg-primary text-primary-foreground p-2 lg:p-3 rounded-xl">
+                <PlusCircle className="h-5 w-5 lg:h-6 lg:w-6" />
               </div>
               إضافة عقار جديد
             </h2>
             
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6">
               {/* Title and Property Type */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="listing_type" className="flex items-center gap-2 text-base font-semibold">
+                  <Label htmlFor="listing_type" className="flex items-center gap-2 text-sm lg:text-base font-semibold">
                     <Tag className="h-5 w-5 text-primary" />
                     نوع العرض
                   </Label>
@@ -144,7 +142,7 @@ export const AddProperty = ({ onPageChange }: AddPropertyProps) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="area" className="flex items-center gap-2 text-base font-semibold">
+                  <Label htmlFor="area" className="flex items-center gap-2 text-sm lg:text-base font-semibold">
                     <Building className="h-5 w-5 text-primary" />
                     المساحة (متر مربع)
                   </Label>
@@ -160,9 +158,9 @@ export const AddProperty = ({ onPageChange }: AddPropertyProps) => {
               </div>
 
               {/* Building and Apartment */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="building" className="flex items-center gap-2 text-base font-semibold">
+                  <Label htmlFor="building" className="flex items-center gap-2 text-sm lg:text-base font-semibold">
                     <Building className="h-5 w-5 text-primary" />
                     رقم العمارة
                   </Label>
@@ -177,7 +175,7 @@ export const AddProperty = ({ onPageChange }: AddPropertyProps) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="apartment" className="flex items-center gap-2 text-base font-semibold">
+                  <Label htmlFor="apartment" className="flex items-center gap-2 text-sm lg:text-base font-semibold">
                     <Home className="h-5 w-5 text-primary" />
                     رقم الشقة
                   </Label>
@@ -193,9 +191,9 @@ export const AddProperty = ({ onPageChange }: AddPropertyProps) => {
               </div>
 
               {/* Floor and Market */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="floor" className="flex items-center gap-2 text-base font-semibold">
+                  <Label htmlFor="floor" className="flex items-center gap-2 text-sm lg:text-base font-semibold">
                     <Layers className="h-5 w-5 text-primary" />
                     الطابق
                   </Label>
@@ -210,7 +208,7 @@ export const AddProperty = ({ onPageChange }: AddPropertyProps) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="market" className="flex items-center gap-2 text-base font-semibold">
+                  <Label htmlFor="market" className="flex items-center gap-2 text-sm lg:text-base font-semibold">
                     <Store className="h-5 w-5 text-primary" />
                     قرب أي سوق
                   </Label>
@@ -238,7 +236,7 @@ export const AddProperty = ({ onPageChange }: AddPropertyProps) => {
               {/* Furnished Field (conditional) */}
               {showFurnishedField && (
                 <div className="space-y-2">
-                  <Label htmlFor="furnished" className="flex items-center gap-2 text-base font-semibold">
+                  <Label htmlFor="furnished" className="flex items-center gap-2 text-sm lg:text-base font-semibold">
                     <Home className="h-5 w-5 text-primary" />
                     نوع العقار
                   </Label>
@@ -260,7 +258,7 @@ export const AddProperty = ({ onPageChange }: AddPropertyProps) => {
 
               {/* Price */}
               <div className="space-y-2">
-                <Label htmlFor="price" className="flex items-center gap-2 text-base font-semibold">
+                <Label htmlFor="price" className="flex items-center gap-2 text-sm lg:text-base font-semibold">
                   <Tag className="h-5 w-5 text-primary" />
                   السعر (دينار عراقي)
                 </Label>
@@ -277,7 +275,7 @@ export const AddProperty = ({ onPageChange }: AddPropertyProps) => {
 
               {/* Description */}
               <div className="space-y-2">
-                <Label htmlFor="description" className="flex items-center gap-2 text-base font-semibold">
+                <Label htmlFor="description" className="flex items-center gap-2 text-sm lg:text-base font-semibold">
                   <Building className="h-5 w-5 text-primary" />
                   وصف العقار
                 </Label>
@@ -293,7 +291,7 @@ export const AddProperty = ({ onPageChange }: AddPropertyProps) => {
 
               {/* Images */}
               <div className="space-y-2">
-                <Label htmlFor="images" className="flex items-center gap-2 text-base font-semibold">
+                <Label htmlFor="images" className="flex items-center gap-2 text-sm lg:text-base font-semibold">
                   <Camera className="h-5 w-5 text-primary" />
                   رفع صور العقار
                 </Label>
@@ -307,9 +305,9 @@ export const AddProperty = ({ onPageChange }: AddPropertyProps) => {
               </div>
 
               {/* Bedrooms and Bathrooms */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="bedrooms" className="flex items-center gap-2 text-base font-semibold">
+                  <Label htmlFor="bedrooms" className="flex items-center gap-2 text-sm lg:text-base font-semibold">
                     <Home className="h-5 w-5 text-primary" />
                     عدد غرف النوم
                   </Label>
@@ -332,7 +330,7 @@ export const AddProperty = ({ onPageChange }: AddPropertyProps) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="bathrooms" className="flex items-center gap-2 text-base font-semibold">
+                  <Label htmlFor="bathrooms" className="flex items-center gap-2 text-sm lg:text-base font-semibold">
                     <Home className="h-5 w-5 text-primary" />
                     عدد دورات المياه
                   </Label>
@@ -356,7 +354,7 @@ export const AddProperty = ({ onPageChange }: AddPropertyProps) => {
               </div>
 
               {/* Submit Button */}
-              <Button type="submit" className="w-full h-12 text-lg font-semibold" variant="default" disabled={isLoading}>
+              <Button type="submit" className="w-full h-12 text-base lg:text-lg font-semibold" variant="default" disabled={isLoading}>
                 <PlusCircle className="h-5 w-5 ml-2" />
                 {isLoading ? "جاري النشر..." : "نشر العقار"}
               </Button>

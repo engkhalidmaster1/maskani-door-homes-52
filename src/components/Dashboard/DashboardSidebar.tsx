@@ -1,0 +1,75 @@
+import React from 'react';
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Users, Building2, Edit3, User, Home, X } from "lucide-react";
+
+interface DashboardSidebarProps {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export const DashboardSidebar = ({ activeTab, onTabChange, isOpen, onClose }: DashboardSidebarProps) => {
+  const sidebarItems = [
+    { id: "overview", label: "نظرة عامة", icon: Home },
+    { id: "properties", label: "العقارات", icon: Building2 },
+    { id: "edit-properties", label: "تعديل العقارات", icon: Edit3 },
+    { id: "users", label: "إدارة المستخدمين", icon: Users },
+    { id: "profile", label: "الملف الشخصي", icon: User },
+  ];
+
+  return (
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+      
+      {/* Sidebar */}
+      <div className={`
+        fixed right-0 top-0 h-full w-64 bg-background border-l shadow-lg z-50 transform transition-transform duration-300 lg:relative lg:transform-none lg:z-auto
+        ${isOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
+      `}>
+        <Card className="h-full rounded-none border-0 shadow-none">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-bold">لوحة التحكم</h2>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                onClick={onClose}
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            
+            <nav className="space-y-2">
+              {sidebarItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Button
+                    key={item.id}
+                    variant={activeTab === item.id ? "default" : "ghost"}
+                    className="w-full justify-start gap-3 text-right"
+                    onClick={() => {
+                      onTabChange(item.id);
+                      onClose();
+                    }}
+                  >
+                    <Icon className="h-5 w-5" />
+                    {item.label}
+                  </Button>
+                );
+              })}
+            </nav>
+          </div>
+        </Card>
+      </div>
+    </>
+  );
+};

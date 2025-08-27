@@ -67,7 +67,12 @@ const AppContent = () => {
       case "profile":
         return <Profile />;
       case "dashboard":
-        return <Dashboard />;
+        return (
+          <Dashboard 
+            onPageChange={setCurrentPage}
+            onEditProperty={setEditingPropertyId}
+          />
+        );
       case "login":
         return <Login onPageChange={setCurrentPage} />;
       case "register":

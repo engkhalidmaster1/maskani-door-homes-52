@@ -80,6 +80,16 @@ export const Home = ({ onPageChange }: HomeProps) => {
           }}
         >
           <div className="text-white max-w-4xl px-8">
+            {/* اسم المطور */}
+            <div className="mb-8">
+              <h2 className="text-7xl md:text-8xl font-black mb-4 text-white drop-shadow-2xl">
+                خالد
+              </h2>
+              <p className="text-lg md:text-xl opacity-80 font-medium">
+                مطور التطبيق
+              </p>
+            </div>
+            
             <h1 className="text-5xl md:text-6xl font-bold mb-6 text-gradient-primary">
               مرحباً بك في تطبيق "سكني"
             </h1>

@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Home, Building, PlusCircle, User, LogOut, X, Phone, Mail, Shield, Settings, LogIn, UserPlus } from "lucide-react";
+import { Home, Building, PlusCircle, User, LogOut, X, Phone, Mail, Shield, Settings, LogIn, UserPlus, Heart } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useFavorites } from "@/hooks/useFavorites";
+import { Badge } from "@/components/ui/badge";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -13,11 +15,13 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const { user, signOut, isAdmin } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const { getFavoritesCount } = useFavorites();
   
   // Different navigation items based on authentication status
   const navItems = user ? [
     { id: "/", label: "الرئيسية", icon: Home },
     { id: "/properties", label: "العقارات", icon: Building },
+    { id: "/favorites", label: "المفضلة", icon: Heart, badge: getFavoritesCount() },
     { id: "/add-property", label: "إضافة عقار", icon: PlusCircle },
     { id: "/profile", label: "الملف الشخصي", icon: User },
     ...(isAdmin ? [{ id: "/dashboard", label: "لوحة التحكم", icon: Settings }] : []),
@@ -96,7 +100,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                 <Button
                   key={item.id}
                   variant="ghost"
-                  className={`w-full justify-start gap-3 h-12 ${
+                  className={`w-full justify-start gap-3 h-12 relative ${
                     isActive
                       ? "gradient-primary text-primary-foreground shadow-elegant"
                       : "hover:bg-accent"
@@ -105,6 +109,11 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                 >
                   <Icon className="h-5 w-5" />
                   {item.label}
+                  {item.badge && item.badge > 0 && (
+                    <Badge variant="secondary" className="text-xs mr-auto bg-red-500 text-white">
+                      {item.badge}
+                    </Badge>
+                  )}
                 </Button>
               );
             })}

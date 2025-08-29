@@ -41,3 +41,7 @@ USING (
 GRANT ALL ON storage.objects TO authenticated;
 GRANT ALL ON storage.buckets TO authenticated;
 
+
+
+
+

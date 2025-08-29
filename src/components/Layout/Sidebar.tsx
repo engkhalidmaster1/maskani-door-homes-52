@@ -163,11 +163,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Phone className="h-4 w-4" />
-                <span>07701234567</span>
-              </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Mail className="h-4 w-4" />
-                <span>info@maskani.com</span>
+                <span>00905013196750</span>
               </div>
             </div>
           </Card>

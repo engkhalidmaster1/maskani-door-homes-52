@@ -1,8 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Building, Home as HomeIcon, MapPin, Bed, Bath, Ruler, Heart, CheckSquare, Square, Edit, Trash2, Eye, EyeOff } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Building, Home as HomeIcon, Layers, Store, MapPin, Bed, Bath, Ruler, Heart, CheckSquare, Square, Edit, Trash2, Eye, EyeOff } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useAuth } from "@/hooks/useAuth";
@@ -172,10 +172,7 @@ export const PropertyCard = ({
       )}
 
       {/* Main Content - Clickable Area */}
-      <div 
-        onClick={() => navigate(`/property/${property.id}`)} 
-        className="cursor-pointer"
-      >
+      <div onClick={() => navigate(`/property/${property.id}`)} className="cursor-pointer">
         {/* Property Image/Icon */}
         <div className="relative h-48 overflow-hidden">
           {(() => {
@@ -197,33 +194,20 @@ export const PropertyCard = ({
               </div>
             );
           })()}
-
-          {/* Status Badges */}
-          <Badge
-            variant={property.listing_type === "sale" ? "default" : "secondary"}
-            className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm"
-          >
-            {property.listing_type === "sale" ? "للبيع" : "للإيجار"}
-          </Badge>
-          
-          {!property.is_published && (
-            <Badge
-              variant="secondary"
-              className="absolute top-3 right-20 bg-white/90 backdrop-blur-sm"
-            >
-              غير منشور
-            </Badge>
-          )}
         </div>
 
-        {/* Property Details */}
+        {/* Property Info */}
         <div className="p-4">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-lg font-semibold">{property.title}</h3>
+            <Badge variant={property.listing_type === "sale" ? "default" : "outline"}>
+              {property.listing_type === "sale" ? "للبيع" : "للإيجار"}
+            </Badge>
             <span className="text-xl font-bold text-primary">
               {formatPrice(property.price)}
             </span>
           </div>
+
+          <h3 className="text-lg font-semibold mb-2">{property.title}</h3>
 
           {property.location && (
             <div className="flex items-center text-muted-foreground mb-2">

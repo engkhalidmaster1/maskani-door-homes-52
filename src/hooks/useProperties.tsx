@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { PostgrestError } from "@supabase/supabase-js";
 
 interface Property {
   id: string;
@@ -31,7 +32,7 @@ export const useProperties = () => {
   const { toast } = useToast();
 
   // Fetch all published properties (for general viewing)
-  const fetchProperties = async () => {
+  const fetchProperties = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('properties')
@@ -44,7 +45,7 @@ export const useProperties = () => {
       }
 
       setProperties(data || []);
-    } catch (error: any) {
+    } catch (error: PostgrestError) {
       console.error('Error fetching properties:', error);
       toast({
         title: "خطأ في تحميل العقارات",
@@ -52,10 +53,10 @@ export const useProperties = () => {
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
 
   // Fetch all properties (for admin dashboard)
-  const fetchAllProperties = async () => {
+  const fetchAllProperties = useCallback(async () => {
     if (!isAdmin) return;
 
     try {
@@ -69,7 +70,8 @@ export const useProperties = () => {
       }
 
       return data || [];
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const postgrestError = error as PostgrestError;
       console.error('Error fetching all properties:', error);
       toast({
         title: "خطأ في تحميل جميع العقارات",
@@ -78,10 +80,10 @@ export const useProperties = () => {
       });
       return [];
     }
-  };
+  }, [isAdmin, toast]);
 
   // Fetch user's own properties (for management)
-  const fetchUserProperties = async () => {
+  const fetchUserProperties = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -97,15 +99,16 @@ export const useProperties = () => {
       }
 
       setUserProperties(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const postgrestError = error as PostgrestError;
       console.error('Error fetching user properties:', error);
       toast({
         title: "خطأ في تحميل عقاراتك",
-        description: error.message,
+        description: postgrestError.message,
         variant: "destructive",
       });
     }
-  };
+  }, [user, toast]);
 
   // Toggle property publication status
   const togglePropertyPublication = async (propertyId: string, currentStatus: boolean) => {
@@ -126,11 +129,12 @@ export const useProperties = () => {
 
       // Refresh both lists
       await Promise.all([fetchProperties(), fetchUserProperties()]);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const postgrestError = error as PostgrestError;
       console.error('Error toggling property publication:', error);
       toast({
         title: "خطأ في تعديل العقار",
-        description: error.message,
+        description: postgrestError.message,
         variant: "destructive",
       });
     }
@@ -139,6 +143,27 @@ export const useProperties = () => {
   // Update property
   const updateProperty = async (propertyId: string, updates: Partial<Property>) => {
     try {
+      // التحقق من ملكية العقار
+      const { data: property, error: fetchError } = await supabase
+        .from('properties')
+        .select('user_id')
+        .eq('id', propertyId)
+        .single();
+
+      if (fetchError) {
+        throw fetchError;
+      }
+
+      // التحقق من الصلاحيات
+      if (!isAdmin && property.user_id !== user?.id) {
+        toast({
+          title: "غير مسموح",
+          description: "لا تملك صلاحية تعديل هذا العقار",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('properties')
         .update(updates)
@@ -150,16 +175,17 @@ export const useProperties = () => {
 
       toast({
         title: "تم تحديث العقار بنجاح",
-        description: "تم حفظ التغييرات",
+        description: "تم حفظ جميع التغييرات",
       });
 
-      // Refresh both lists
+      // تحديث القوائم
       await Promise.all([fetchProperties(), fetchUserProperties()]);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const postgrestError = error as PostgrestError;
       console.error('Error updating property:', error);
       toast({
         title: "خطأ في تحديث العقار",
-        description: error.message,
+        description: postgrestError.message,
         variant: "destructive",
       });
     }
@@ -167,16 +193,28 @@ export const useProperties = () => {
 
   // Delete property (admin only)
   const deleteProperty = async (propertyId: string) => {
-    if (!isAdmin) {
-      toast({
-        title: "غير مسموح",
-        description: "لا تملك صلاحية حذف العقارات",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
+      // التحقق من ملكية العقار
+      const { data: property, error: fetchError } = await supabase
+        .from('properties')
+        .select('user_id')
+        .eq('id', propertyId)
+        .single();
+
+      if (fetchError) {
+        throw fetchError;
+      }
+
+      // التحقق من الصلاحيات
+      if (!isAdmin && property.user_id !== user?.id) {
+        toast({
+          title: "غير مسموح",
+          description: "لا تملك صلاحية حذف هذا العقار",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('properties')
         .delete()
@@ -188,16 +226,17 @@ export const useProperties = () => {
 
       toast({
         title: "تم حذف العقار",
-        description: "تم حذف العقار نهائياً",
+        description: "تم حذف العقار بنجاح",
       });
 
-      // Refresh both lists
+      // تحديث القوائم
       await Promise.all([fetchProperties(), fetchUserProperties()]);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const postgrestError = error as PostgrestError;
       console.error('Error deleting property:', error);
       toast({
         title: "خطأ في حذف العقار",
-        description: error.message,
+        description: postgrestError.message,
         variant: "destructive",
       });
     }
@@ -205,13 +244,23 @@ export const useProperties = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      setIsLoading(true);
-      await Promise.all([fetchProperties(), fetchUserProperties()]);
-      setIsLoading(false);
+      try {
+        setIsLoading(true);
+        await Promise.all([fetchProperties(), fetchUserProperties()]);
+      } catch (error) {
+        console.error('Error loading properties:', error);
+        toast({
+          title: "خطأ في تحميل العقارات",
+          description: "حدث خطأ أثناء تحميل العقارات. يرجى المحاولة مرة أخرى.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     loadData();
-  }, [user, isAdmin]);
+  }, [user, isAdmin, fetchProperties, fetchUserProperties, toast]);
 
   return {
     properties,

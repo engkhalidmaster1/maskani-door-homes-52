@@ -22,7 +22,6 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
   const navItems = user ? [
     { id: "/", label: "الرئيسية", icon: Home },
     { id: "/properties", label: "العقارات", icon: Building },
-    { id: "/properties-management", label: "إدارة العقارات", icon: List },
     { id: "/favorites", label: "المفضلة", icon: Heart, badge: getFavoritesCount() },
     { id: "/add-property", label: "إضافة عقار", icon: PlusCircle },
     { id: "/profile", label: "الملف الشخصي", icon: User },
@@ -39,14 +38,18 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
     <header className="gradient-primary text-primary-foreground shadow-elegant sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Mobile menu button */}
+          {/* Menu button - Mobile Only */}
           <Button
             variant="ghost"
-            size="icon"
-            className="md:hidden text-primary-foreground hover:bg-white/20"
+            className="md:hidden flex items-center gap-3 px-4 py-2.5 hover:bg-white/20 text-primary-foreground group rounded-xl"
             onClick={onSidebarToggle}
           >
-            <Menu className="h-6 w-6" />
+            <div className="flex flex-col items-end gap-2 min-w-[28px]">
+              <div className="w-7 h-[3px] bg-white rounded-full transition-all duration-300 group-hover:w-6"></div>
+              <div className="w-6 h-[3px] bg-white rounded-full transition-all duration-300 group-hover:w-7"></div>
+              <div className="w-7 h-[3px] bg-white rounded-full transition-all duration-300 group-hover:w-5"></div>
+            </div>
+            <span className="font-medium text-[15px] tracking-wide">قائمة</span>
           </Button>
 
           {/* Logo */}
@@ -85,36 +88,7 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
 
           {/* User Actions */}
           <div className="flex items-center gap-2">
-            {userStatus && user && (
-              <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs ${getStatusColor(userStatus.status)}`}>
-                {userStatus.status === 'publisher' && <User className="h-3 w-3" />}
-                {userStatus.status === 'trusted_owner' && <Shield className="h-3 w-3" />}
-                {userStatus.status === 'office_agent' && <Building className="h-3 w-3" />}
-                {getStatusLabel(userStatus.status)}
-              </div>
-            )}
-            
-            {isAdmin && user && (
-              <div className="flex items-center gap-1 bg-accent/20 text-accent-foreground px-3 py-1 rounded-full text-sm">
-                <Shield className="h-4 w-4" />
-                أدمن
-              </div>
-            )}
-            
-            {user ? (
-              <Button
-                variant="ghost"
-                onClick={async () => {
-                  console.log('Header: Sign out button clicked');
-                  await signOut();
-                  navigate('/');
-                }}
-                className="gap-2 text-primary-foreground hover:bg-white/20"
-              >
-                <LogOut className="h-4 w-4" />
-                تسجيل الخروج
-              </Button>
-            ) : (
+            {!user && (
               <div className="flex items-center gap-2">
                 <Link to="/auth/login">
                   <Button

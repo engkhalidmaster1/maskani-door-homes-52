@@ -86,3 +86,7 @@ ALTER COLUMN property_code SET NOT NULL;
 GRANT EXECUTE ON FUNCTION public.get_next_property_sequence TO authenticated;
 GRANT EXECUTE ON FUNCTION public.generate_property_code TO authenticated;
 
+
+
+
+

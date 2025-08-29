@@ -1,17 +1,76 @@
 import { Button } from "@/components/ui/button";
 import { PropertyCard } from "@/components/Property/PropertyCard";
 import { ScrollingBanner } from "@/components/Layout/ScrollingBanner";
-import { Search, PlusCircle, Shield } from "lucide-react";
+import { Search, PlusCircle, Shield, Home as HomeIcon, User, Building2, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useProperties } from "@/hooks/useProperties";
-import heroImage from "@/assets/hero-bg.jpg";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect } from "react";
 
 export const Home = () => {
   const navigate = useNavigate();
   const { properties, isLoading } = useProperties();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   
   // Get the latest 3 published properties
   const featuredProperties = properties.slice(0, 3);
+
+  // Function to handle navigation with auth check
+  const handleNavigation = (path: string, requiresAuth: boolean = false) => {
+    if (requiresAuth && !user) {
+      toast({
+        title: "تسجيل الدخول مطلوب",
+        description: "يجب تسجيل الدخول للوصول إلى هذه الصفحة",
+        variant: "destructive",
+      });
+      navigate("/auth/login");
+      return;
+    }
+    navigate(path);
+  };
+
+  // Main navigation cards
+  const navigationCards = [
+    {
+      icon: Search,
+      title: "ابدأ البحث",
+      description: "ابحث عن العقارات المناسبة باستخدام فلاتر متقدمة",
+      path: "/properties",
+      requiresAuth: false,
+      bgColor: "bg-blue-50",
+      iconColor: "bg-blue-500",
+    },
+    {
+      icon: PlusCircle,
+      title: "إضافة عقار جديد",
+      description: "أضف عقارك للبيع أو الإيجار في دقائق",
+      path: "/add-property",
+      requiresAuth: true,
+      bgColor: "bg-green-50",
+      iconColor: "bg-green-500",
+    },
+    {
+      icon: Building2,
+      title: "العقارات المتوفرة الآن",
+      description: "تصفح جميع العقارات المتاحة للبيع والإيجار",
+      path: "/properties",
+      requiresAuth: false,
+      bgColor: "bg-purple-50",
+      iconColor: "bg-purple-500",
+    },
+    {
+      icon: User,
+      title: "ملفي الشخصي",
+      description: "إدارة حسابك الشخصي وإعداداتك",
+      path: "/profile",
+      requiresAuth: true,
+      bgColor: "bg-orange-50",
+      iconColor: "bg-orange-500",
+    },
+  ];
 
   const features = [
     {
@@ -31,37 +90,98 @@ export const Home = () => {
     },
   ];
 
+  // Auto-close modal after 2 seconds
+  useEffect(() => {
+    if (showWelcomeModal) {
+      const timer = setTimeout(() => {
+        setShowWelcomeModal(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showWelcomeModal]);
+
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <ScrollingBanner />
         
-        {/* Hero Section */}
-        <div
-          className="relative rounded-2xl overflow-hidden shadow-elegant mb-16 min-h-[500px] flex items-center justify-center text-center"
-          style={{
-            backgroundImage: `linear-gradient(rgba(30, 41, 59, 0.85), rgba(30, 41, 59, 0.9)), url(${heroImage})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
+        {/* Welcome Button */}
+        <Button
+          onClick={() => setShowWelcomeModal(true)}
+          className="fixed top-20 left-4 z-50 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg rounded-full px-4 py-2 text-sm font-medium"
         >
-          <div className="text-white max-w-4xl px-8">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 text-gradient-primary">
-              مرحباً بك في تطبيق "سكني"
-            </h1>
-            <p className="text-xl md:text-2xl mb-8 opacity-90 leading-relaxed">
-              منصة متكاملة للعثور على أفضل العقارات للبيع والإيجار في مجمع الدور
-            </p>
-            <Button
-              variant="hero"
-              onClick={() => navigate("/properties")}
-              className="gap-3"
-            >
-              <Search className="h-5 w-5" />
-              ابدأ البحث
-            </Button>
+          مرحبا
+        </Button>
+
+        {/* Welcome Modal */}
+        {showWelcomeModal && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
+              {/* Close Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-4 left-4 text-gray-500 hover:text-gray-700"
+                onClick={() => setShowWelcomeModal(false)}
+              >
+                <X className="h-5 w-5" />
+              </Button>
+              
+              {/* Modal Content */}
+              <div className="text-center">
+                <h1 className="text-2xl font-bold mb-4 text-gray-800">
+                  مرحباً بك في تطبيق "سكني"
+                </h1>
+                <p className="text-gray-600 mb-6 leading-relaxed">
+                  منصة متكاملة للعثور على أفضل العقارات للبيع والإيجار في مجمع الدور
+                </p>
+                <Button
+                  onClick={() => {
+                    setShowWelcomeModal(false);
+                    handleNavigation("/properties");
+                  }}
+                  className="gap-2"
+                >
+                  <Search className="h-4 w-4" />
+                  ابدأ البحث
+                </Button>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Main Navigation Cards - مثل الصورة */}
+        <section className="mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {navigationCards.map((card, index) => {
+              const Icon = card.icon;
+              return (
+                <div
+                  key={index}
+                  className={`${card.bgColor} rounded-2xl p-6 shadow-card hover:shadow-lg transition-all duration-300 cursor-pointer border border-gray-100`}
+                  onClick={() => handleNavigation(card.path, card.requiresAuth)}
+                >
+                  <div className={`${card.iconColor} w-12 h-12 rounded-xl flex items-center justify-center mb-4`}>
+                    <Icon className="h-6 w-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-3 text-gray-800">
+                    {card.title}
+                  </h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    {card.description}
+                  </p>
+                  {card.requiresAuth && !user && (
+                    <div className="mt-3">
+                      <span className="text-xs text-orange-600 bg-orange-100 px-2 py-1 rounded-full">
+                        يتطلب تسجيل دخول
+                      </span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
 
         {/* Featured Properties */}
         <section>
@@ -93,7 +213,7 @@ export const Home = () => {
                 كن أول من يضيف عقاراً في مجمع الدور
               </p>
               <Button 
-                onClick={() => navigate('/add-property')} 
+                onClick={() => handleNavigation('/add-property', true)} 
                 className="gap-2"
               >
                 <PlusCircle className="h-5 w-5" />
@@ -103,8 +223,11 @@ export const Home = () => {
           )}
         </section>
 
-        {/* Features */}
+        {/* Feature Cards - مثل الصورة الأصلية */}
         <section className="mt-16">
+          <h2 className="text-3xl font-bold mb-8 text-center">
+            مميزات المنصة
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {features.map((feature, index) => {
               const Icon = feature.icon;

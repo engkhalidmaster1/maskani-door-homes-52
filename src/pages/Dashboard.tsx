@@ -105,10 +105,12 @@ export const Dashboard = ({ onPageChange, onEditProperty }: DashboardProps) => {
         return renderOverviewTab();
       case "properties":
         return renderPropertiesTab();
-             case "edit-properties":
-         return <EditPropertiesTab />;
-       case "banner-settings":
-         return <BannerSettingsTab />;
+      case "properties-management":
+        return renderPropertiesManagementTab();
+      case "edit-properties":
+        return <EditPropertiesTab />;
+      case "banner-settings":
+        return <BannerSettingsTab />;
       case "users":
         return renderUsersTab();
       case "profile":
@@ -190,6 +192,70 @@ export const Dashboard = ({ onPageChange, onEditProperty }: DashboardProps) => {
         </CardContent>
       </Card>
     </div>
+  );
+
+  const renderPropertiesManagementTab = () => (
+    <Card>
+      <CardHeader>
+        <CardTitle>إدارة العقارات</CardTitle>
+        <p className="text-sm text-muted-foreground">إدارة شاملة لجميع العقارات في النظام</p>
+      </CardHeader>
+      <CardContent>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>العنوان</TableHead>
+                <TableHead>المالك</TableHead>
+                <TableHead>السعر</TableHead>
+                <TableHead>الموقع</TableHead>
+                <TableHead>النوع</TableHead>
+                <TableHead>الحالة</TableHead>
+                <TableHead>الإجراءات</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {userProperties.map((property) => (
+                <TableRow key={property.id}>
+                  <TableCell className="font-medium">{property.title}</TableCell>
+                  <TableCell>{property.owner_name || "غير محدد"}</TableCell>
+                  <TableCell>{property.price.toLocaleString()} د.ع</TableCell>
+                  <TableCell>{property.location}</TableCell>
+                  <TableCell>{property.property_type}</TableCell>
+                  <TableCell>
+                    <Badge variant={property.is_published ? "default" : "secondary"}>
+                      {property.is_published ? "منشور" : "مخفي"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleTogglePublication(property.id, property.is_published)}
+                      >
+                        {property.is_published ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDeleteProperty(property.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
+    </Card>
   );
 
   const renderPropertiesTab = () => (
@@ -377,6 +443,9 @@ export const Dashboard = ({ onPageChange, onEditProperty }: DashboardProps) => {
                     break;
                   case 'properties':
                     setSelectedTab('properties');
+                    break;
+                  case 'properties-management':
+                    setSelectedTab('properties-management');
                     break;
                   case 'edit-properties':
                     setSelectedTab('edit-properties');

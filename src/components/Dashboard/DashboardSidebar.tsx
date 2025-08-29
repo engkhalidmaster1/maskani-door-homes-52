@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Users, Building2, Edit3, User, Home, X, MessageSquare } from "lucide-react";
+import { Users, Building2, Edit3, User, Home, X, MessageSquare, Settings } from "lucide-react";
 
 interface DashboardSidebarProps {
   activeTab: string;
@@ -14,6 +14,7 @@ export const DashboardSidebar = ({ activeTab, onTabChange, isOpen, onClose }: Da
   const sidebarItems = [
     { id: "overview", label: "نظرة عامة", icon: Home },
     { id: "properties", label: "العقارات", icon: Building2 },
+    { id: "properties-management", label: "إدارة العقارات", icon: Settings },
     { id: "edit-properties", label: "تعديل العقارات", icon: Edit3 },
     { id: "banner-settings", label: "إدارة الشريط", icon: MessageSquare },
     { id: "users", label: "إدارة المستخدمين", icon: Users },

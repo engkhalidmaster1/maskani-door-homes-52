@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PropertyCard } from "@/components/Property/PropertyCard";
-import { Building, Filter, Eye, EyeOff, Edit, Trash2 } from "lucide-react";
+import { Building, Filter, Eye, EyeOff, Edit, Trash2, Home, User } from "lucide-react";
 import { useProperties } from "@/hooks/useProperties";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -80,9 +80,23 @@ export const Properties = () => {
         </h1>
 
         <Tabs defaultValue="all" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="all">جميع العقارات</TabsTrigger>
-            {user && <TabsTrigger value="my">عقاراتي</TabsTrigger>}
+          <TabsList className="grid w-full grid-cols-2 h-16 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 p-1 rounded-2xl shadow-2xl border border-blue-500/20 backdrop-blur-sm">
+            <TabsTrigger 
+              value="all" 
+              className="flex items-center gap-3 text-base font-bold text-white data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-lg data-[state=active]:scale-[1.02] rounded-xl transition-all duration-300 hover:bg-white/10 group"
+            >
+              <Home className="h-6 w-6 group-hover:scale-110 transition-transform duration-200" />
+              جميع العقارات
+            </TabsTrigger>
+            {user && (
+              <TabsTrigger 
+                value="my" 
+                className="flex items-center gap-3 text-base font-bold text-white data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-lg data-[state=active]:scale-[1.02] rounded-xl transition-all duration-300 hover:bg-white/10 group"
+              >
+                <User className="h-6 w-6 group-hover:scale-110 transition-transform duration-200" />
+                عقاراتي
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="all" className="space-y-6">

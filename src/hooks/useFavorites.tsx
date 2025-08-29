@@ -16,15 +16,17 @@ interface FavoriteProperty {
   price: number;
   location: string;
   property_type: string;
-  listing_type: string;
+  listing_type: "sale" | "rent";
   images: string[];
   is_published: boolean;
   created_at: string;
+  updated_at: string;
   bedrooms: number;
   bathrooms: number;
   area: number;
   description: string;
   amenities: string[];
+  user_id: string;
 }
 
 export const useFavorites = () => {
@@ -58,11 +60,13 @@ export const useFavorites = () => {
             images,
             is_published,
             created_at,
+            updated_at,
             bedrooms,
             bathrooms,
             area,
             description,
-            amenities
+            amenities,
+            user_id
           )
         `)
         .eq('user_id', user.id)

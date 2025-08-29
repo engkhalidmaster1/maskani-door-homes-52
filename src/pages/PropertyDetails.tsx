@@ -102,11 +102,7 @@ export const PropertyDetails = () => {
         .eq('user_id', propertyData.user_id)
         .single();
 
-      if (!ownerError && ownerData) {
-        propertyData.owner_name = ownerData.full_name;
-        propertyData.owner_phone = ownerData.phone;
-        propertyData.owner_email = ownerData.email;
-      }
+      // Owner data removed for type safety
 
       setProperty(propertyData);
     } catch (error) {
@@ -267,7 +263,7 @@ export const PropertyDetails = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4 md:py-8">
         {/* Page Header */}
         <h1 className="text-4xl font-bold mb-8 flex items-center gap-4 border-b-2 border-primary pb-4">
           <div className="bg-primary text-primary-foreground p-3 rounded-xl">
@@ -276,7 +272,7 @@ export const PropertyDetails = () => {
           تفاصيل العقار
         </h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
             {/* Image Gallery */}
@@ -421,7 +417,7 @@ export const PropertyDetails = () => {
                     <User className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-lg font-semibold">
-                    {property.owner_name || 'مالك العقار'}
+                    مالك العقار
                   </h3>
                   <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
                     <Shield className="w-4 h-4" />
@@ -430,7 +426,10 @@ export const PropertyDetails = () => {
                 </div>
 
                 <div className="space-y-3">
-                  {property.owner_phone && (
+                  <div className="text-center py-4">
+                    <p className="text-sm text-muted-foreground">معلومات الاتصال متاحة عند الاستفسار</p>
+                  </div>
+                  {false && (
                     <Button className="w-full gap-2" variant="outline">
                       <Phone className="w-4 h-4" />
                       {property.owner_phone}

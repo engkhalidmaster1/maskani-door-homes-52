@@ -202,27 +202,7 @@ export const AddProperty = () => {
       const uploadedImageUrls = await uploadImages();
 
       // Generate property code
-      const propertyCode = await (async () => {
-        try {
-          // Try to get sequence from database
-          const { data, error } = await supabase.rpc('generate_property_code', {
-            bedrooms_count: parseInt(formData.bedrooms),
-            created_date: new Date().toISOString()
-          });
-          
-          if (error) {
-            console.error('Error generating code from DB:', error);
-            // Fallback to client-side generation
-            return generatePropertyCode(parseInt(formData.bedrooms));
-          }
-          
-          return data;
-        } catch (error) {
-          console.error('Error calling generate_property_code:', error);
-          // Fallback to client-side generation
-          return generatePropertyCode(parseInt(formData.bedrooms));
-        }
-      })();
+      const propertyCode = generatePropertyCode(parseInt(formData.bedrooms));
 
       // Generate title from building and apartment
       const title = `شقة رقم ${formData.apartment} في العمارة ${formData.building}`;
@@ -285,7 +265,7 @@ export const AddProperty = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-2 md:px-0">
       <div className="w-full">
         {/* User Status Info - Compact */}
         <div className="bg-blue-50 border-b border-blue-200 p-3">
@@ -313,7 +293,7 @@ export const AddProperty = () => {
           </div>
         </div>
 
-        <div className="p-4">
+        <div className="p-2 md:p-4">
           <h2 className="text-2xl font-bold mb-4 flex items-center gap-3 border-b-2 border-primary pb-3">
             <div className="bg-primary text-primary-foreground p-2 rounded-lg">
               <PlusCircle className="h-5 w-5" />
@@ -323,7 +303,7 @@ export const AddProperty = () => {
           
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Row 1: Listing Type, Area, Building, Apartment */}
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div>
                 <Label htmlFor="listing_type" className="flex items-center gap-1 text-xs font-semibold mb-1">
                   <Tag className="h-3 w-3 text-primary" />
@@ -387,7 +367,7 @@ export const AddProperty = () => {
             </div>
 
             {/* Row 2: Floor, Market, Price, Bedrooms */}
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div>
                 <Label htmlFor="floor" className="flex items-center gap-1 text-xs font-semibold mb-1">
                   <Layers className="h-3 w-3 text-primary" />
@@ -469,7 +449,7 @@ export const AddProperty = () => {
             </div>
 
             {/* Row 3: Bathrooms, Furnished (conditional), Description */}
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
               <div>
                 <Label htmlFor="bathrooms" className="flex items-center gap-1 text-xs font-semibold mb-1">
                   <Home className="h-3 w-3 text-primary" />
@@ -515,7 +495,7 @@ export const AddProperty = () => {
                 </div>
               )}
 
-              <div className={showFurnishedField ? "col-span-2" : "col-span-3"}>
+              <div className={showFurnishedField ? "col-span-1 md:col-span-2" : "col-span-1 md:col-span-3"}>
                 <Label htmlFor="description" className="flex items-center gap-1 text-xs font-semibold mb-1">
                   <Building className="h-3 w-3 text-primary" />
                   وصف العقار
@@ -553,9 +533,9 @@ export const AddProperty = () => {
                 disabled={selectedImages.length >= (userStatus?.images_limit || 2)}
               />
               
-              {/* Image Previews - Compact */}
+              {/* Image Previews - Mobile Responsive */}
               {imagePreviewUrls.length > 0 && (
-                <div className="grid grid-cols-6 gap-2 mt-2">
+                <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mt-2">
                   {imagePreviewUrls.map((url, index) => (
                     <div key={index} className="relative group">
                       <img

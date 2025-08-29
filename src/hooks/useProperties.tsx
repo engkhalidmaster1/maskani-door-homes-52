@@ -10,7 +10,7 @@ interface Property {
   title: string;
   description: string | null;
   property_type: string;
-  listing_type: string;
+  listing_type: "sale" | "rent";
   price: number;
   area: number | null;
   bedrooms: number;
@@ -44,12 +44,13 @@ export const useProperties = () => {
         throw error;
       }
 
-      setProperties(data || []);
-    } catch (error: PostgrestError) {
+      setProperties((data || []).map(p => ({ ...p, listing_type: p.listing_type as "sale" | "rent" })));
+    } catch (error: unknown) {
+      const postgrestError = error as PostgrestError;
       console.error('Error fetching properties:', error);
       toast({
         title: "خطأ في تحميل العقارات",
-        description: error.message,
+        description: postgrestError.message,
         variant: "destructive",
       });
     }
@@ -75,7 +76,7 @@ export const useProperties = () => {
       console.error('Error fetching all properties:', error);
       toast({
         title: "خطأ في تحميل جميع العقارات",
-        description: error.message,
+        description: postgrestError.message,
         variant: "destructive",
       });
       return [];
@@ -98,7 +99,7 @@ export const useProperties = () => {
         throw error;
       }
 
-      setUserProperties(data || []);
+      setUserProperties((data || []).map(p => ({ ...p, listing_type: p.listing_type as "sale" | "rent" })));
     } catch (error: unknown) {
       const postgrestError = error as PostgrestError;
       console.error('Error fetching user properties:', error);

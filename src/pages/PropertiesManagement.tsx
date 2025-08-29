@@ -392,15 +392,15 @@ export const PropertiesManagement = () => {
               : 'space-y-4'
           }>
             {filteredProperties.map((property) => (
-              <PropertyCard
-                key={property.id}
-                property={property}
-                showCheckbox={true}
-                isSelected={isSelected(property)}
-                onSelectionChange={(prop, selected) => {
-                  toggleItem(prop);
-                }}
-              />
+              <div key={property.id} className="p-4 border rounded">
+                <h3>{property.title}</h3>
+                <p>{property.price} دينار</p>
+                <input 
+                  type="checkbox" 
+                  checked={isSelected(property)} 
+                  onChange={() => toggleItem(property)}
+                />
+              </div>
             ))}
           </div>
         )}

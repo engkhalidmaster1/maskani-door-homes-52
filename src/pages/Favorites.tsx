@@ -41,17 +41,17 @@ export const Favorites = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4 md:py-8">
         {/* Page Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 md:mb-8 gap-4">
           <div>
-            <h1 className="text-4xl font-bold flex items-center gap-4 border-b-2 border-primary pb-4">
-              <div className="bg-primary text-primary-foreground p-3 rounded-xl">
-                <Heart className="h-6 w-6" />
+            <h1 className="text-2xl md:text-4xl font-bold flex items-center gap-3 md:gap-4 border-b-2 border-primary pb-3 md:pb-4">
+              <div className="bg-primary text-primary-foreground p-2 md:p-3 rounded-lg md:rounded-xl">
+                <Heart className="h-5 w-5 md:h-6 md:w-6" />
               </div>
               المفضلة
             </h1>
-            <p className="text-muted-foreground mt-2">
+            <p className="text-muted-foreground mt-2 text-sm md:text-base">
               {getFavoritesCount()} عقار محفوظ في مفضلتك
             </p>
           </div>
@@ -68,7 +68,7 @@ export const Favorites = () => {
 
         {/* Favorites Grid */}
         {favoriteProperties.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
             {favoriteProperties.map((property) => (
               <PropertyCard 
                 key={property.id} 

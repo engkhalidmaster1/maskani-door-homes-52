@@ -402,7 +402,10 @@ export const ImageDiagnostics = () => {
                 <CardTitle>العقار التشخيصي</CardTitle>
               </CardHeader>
               <CardContent>
-                <PropertyCard property={diagnosticProperty} />
+                <div className="p-4 border rounded">
+                  <h3>{diagnosticProperty.title}</h3>
+                  <p>عقار تشخيصي</p>
+                </div>
                 <div className="mt-4 p-3 bg-gray-50 rounded-lg">
                   <p className="text-sm font-medium mb-2">تفاصيل الصور المحفوظة:</p>
                   {diagnosticProperty.images?.map((url: string, index: number) => (

@@ -72,14 +72,16 @@ export const useUserStatus = () => {
 
     try {
       const { data, error } = await supabase
-        .rpc('get_user_status', { user_id_param: user.id });
+        .from('user_statuses')
+        .select('*')
+        .eq('user_id', user.id);
 
       if (error) {
         throw error;
       }
 
       if (data && data.length > 0) {
-        setUserStatus(data[0] as UserStatusData);
+        setUserStatus(data[0]);
       }
     } catch (error: any) {
       console.error('Error fetching user status:', error);
@@ -161,10 +163,9 @@ export const useUserStatus = () => {
 
     try {
       const { data, error } = await supabase
-        .rpc('update_user_status', {
-          target_user_id: targetUserId,
-          new_status: newStatus
-        });
+        .from('user_statuses')
+        .update({ status: newStatus })
+        .eq('user_id', targetUserId);
 
       if (error) {
         throw error;

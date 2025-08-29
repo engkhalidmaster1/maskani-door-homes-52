@@ -70,12 +70,12 @@ export const Properties = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4 md:py-8">
         {/* Page Header */}
-        <h1 className="text-4xl font-bold mb-8 flex items-center gap-4 border-b-2 border-primary pb-4">
-          <div className="bg-primary text-primary-foreground p-3 rounded-xl">
-            <Building className="h-6 w-6" />
-          </div>
+        <h1 className="text-2xl md:text-4xl font-bold mb-6 md:mb-8 flex items-center gap-3 md:gap-4 border-b-2 border-primary pb-3 md:pb-4">
+            <div className="bg-primary text-primary-foreground p-2 md:p-3 rounded-lg md:rounded-xl">
+              <Building className="h-5 w-5 md:h-6 md:w-6" />
+            </div>
           العقارات
         </h1>
 
@@ -143,7 +143,7 @@ export const Properties = () => {
             </Card>
 
             {/* Properties Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
               {filteredProperties.map((property) => (
                 <PropertyCard 
                   key={property.id} 
@@ -168,7 +168,7 @@ export const Properties = () => {
 
           {user && (
             <TabsContent value="my" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
                 {userProperties.map((property) => (
                   <PropertyCard 
                     key={property.id} 

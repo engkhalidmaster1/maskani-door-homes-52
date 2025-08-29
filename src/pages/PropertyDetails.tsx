@@ -32,7 +32,6 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
-import { useFavorites } from "@/hooks/useFavorites";
 
 interface Property {
   id: string;
@@ -60,11 +59,10 @@ export const PropertyDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { isFavorite, toggleFavorite } = useFavorites();
   const [property, setProperty] = useState<Property | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isToggling, setIsToggling] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
     fetchPropertyDetails();
@@ -170,23 +168,6 @@ export const PropertyDetails = () => {
     }
   };
 
-  const handleToggleFavorite = async () => {
-    if (!user) {
-      toast({
-        title: "تسجيل الدخول مطلوب",
-        description: "يجب تسجيل الدخول لحفظ العقارات",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!property?.id) return;
-
-    setIsToggling(true);
-    await toggleFavorite(property.id);
-    setIsToggling(false);
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
@@ -244,23 +225,11 @@ export const PropertyDetails = () => {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className={`gap-2 transition-colors ${
-                  property && isFavorite(property.id) 
-                    ? 'text-red-500 hover:text-red-600' 
-                    : 'text-gray-500 hover:text-red-500'
-                }`}
-                onClick={handleToggleFavorite}
-                disabled={isToggling}
+                className={`gap-2 ${isFavorite ? 'text-red-500' : ''}`}
+                onClick={() => setIsFavorite(!isFavorite)}
               >
-                <Heart className={`w-4 h-4 transition-all ${
-                  property && isFavorite(property.id) 
-                    ? 'fill-current scale-110' 
-                    : ''
-                }`} />
-                {isToggling 
-                  ? 'جاري...' 
-                  : (property && isFavorite(property.id) ? 'محفوظ' : 'حفظ')
-                }
+                <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
+                {isFavorite ? 'محفوظ' : 'حفظ'}
               </Button>
             </div>
           </div>
@@ -268,14 +237,6 @@ export const PropertyDetails = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Page Header */}
-        <h1 className="text-4xl font-bold mb-8 flex items-center gap-4 border-b-2 border-primary pb-4">
-          <div className="bg-primary text-primary-foreground p-3 rounded-xl">
-            <Building className="h-6 w-6" />
-          </div>
-          تفاصيل العقار
-        </h1>
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">

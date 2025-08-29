@@ -14,8 +14,6 @@ import { EditPropertiesTab } from "@/components/Dashboard/EditPropertiesTab";
 import { BannerSettingsTab } from "@/components/Dashboard/BannerSettingsTab";
 import { Profile } from "@/pages/Profile";
 import { UserActions } from "@/components/Dashboard/UserActions";
-import { UserStatusControl } from "@/components/Dashboard/UserStatusControl";
-import { useUserStatus } from "@/hooks/useUserStatus";
 
 interface DashboardProps {
   onPageChange?: (page: string) => void;
@@ -37,7 +35,6 @@ export const Dashboard = ({ onPageChange, onEditProperty }: DashboardProps) => {
     getDashboardStats 
   } = useDashboardData();
   const { togglePropertyPublication, deleteProperty } = useProperties();
-  const { allUsersWithStatus, fetchAllUsersWithStatus } = useUserStatus();
   
   const [selectedTab, setSelectedTab] = useState("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -271,67 +268,43 @@ export const Dashboard = ({ onPageChange, onEditProperty }: DashboardProps) => {
                 <TableHead>البريد الإلكتروني</TableHead>
                 <TableHead>الهاتف</TableHead>
                 <TableHead>الدور</TableHead>
-                <TableHead>حالة المستخدم</TableHead>
-                <TableHead>الحدود</TableHead>
                 <TableHead>عدد العقارات</TableHead>
                 <TableHead>تاريخ التسجيل</TableHead>
                 <TableHead>الإجراءات</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {allUsersWithStatus.map((userWithStatus) => {
-                const user = users.find(u => u.id === userWithStatus.id);
-                if (!user || !userWithStatus.status_data) return null;
-                
-                return (
-                  <TableRow key={userWithStatus.id}>
-                    <TableCell>{userWithStatus.full_name || "غير محدد"}</TableCell>
-                    <TableCell>{userWithStatus.email}</TableCell>
-                    <TableCell>{userWithStatus.phone || "غير محدد"}</TableCell>
-                    <TableCell>
-                      <Badge variant={user.role === 'admin' ? "default" : "secondary"}>
-                        {user.role === 'admin' ? "مدير" : "مستخدم"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <UserStatusControl
-                        userId={userWithStatus.id}
-                        currentStatus={userWithStatus.status_data.status}
-                        userName={userWithStatus.full_name || userWithStatus.email}
-                        onStatusUpdate={fetchAllUsersWithStatus}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        <div>العقارات: {userWithStatus.status_data.properties_limit}</div>
-                        <div>الصور: {userWithStatus.status_data.images_limit}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="font-medium">
-                        {user.properties_count || 0}
-                      </span>
-                      <span className="text-muted-foreground">
-                        /{userWithStatus.status_data.properties_limit}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(user.created_at).toLocaleDateString('en-US')}
-                    </TableCell>
-                    <TableCell>
-                      <UserActions
-                        user={user}
-                        onDelete={handleDeleteUser}
-                        onUpdateRole={updateUserRole}
-                        onBanUser={banUserFromPublishing}
-                        onUnbanUser={unbanUserFromPublishing}
-                        getUserProfile={getUserProfile}
-                        getUserProperties={getUserProperties}
-                      />
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+              {users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>{user.full_name || "غير محدد"}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{user.phone || "غير محدد"}</TableCell>
+                  <TableCell>
+                    <Badge variant={user.role === 'admin' ? "default" : "secondary"}>
+                      {user.role === 'admin' ? "مدير" : "مستخدم"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <span className="font-medium">
+                      {user.properties_count || 0}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    {new Date(user.created_at).toLocaleDateString('en-US')}
+                  </TableCell>
+                  <TableCell>
+                    <UserActions
+                      user={user}
+                      onDelete={handleDeleteUser}
+                      onUpdateRole={updateUserRole}
+                      onBanUser={banUserFromPublishing}
+                      onUnbanUser={unbanUserFromPublishing}
+                      getUserProfile={getUserProfile}
+                      getUserProperties={getUserProperties}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </div>

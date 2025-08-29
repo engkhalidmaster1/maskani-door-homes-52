@@ -94,7 +94,7 @@ export const EditPropertiesTab = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => navigate(`/edit-property/${property.id}`)}
+                          onClick={() => navigate(`/dashboard/edit-property/${property.id}`)}
                         >
                           <Edit3 className="w-4 h-4" />
                         </Button>

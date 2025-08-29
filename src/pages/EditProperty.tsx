@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Save, Eye, EyeOff, Edit } from "lucide-react";
+import { ArrowRight, Save, Eye, EyeOff } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useParams, useNavigate } from "react-router-dom";
@@ -244,12 +244,7 @@ export const EditProperty = () => {
             العودة
           </Button>
           <div>
-            <h1 className="text-4xl font-bold mb-2 flex items-center gap-4 border-b-2 border-primary pb-4">
-              <div className="bg-primary text-primary-foreground p-3 rounded-xl">
-                <Edit className="h-6 w-6" />
-              </div>
-              تعديل العقار
-            </h1>
+            <h1 className="text-2xl font-bold">تعديل العقار</h1>
             <p className="text-muted-foreground">{property?.title}</p>
           </div>
         </div>

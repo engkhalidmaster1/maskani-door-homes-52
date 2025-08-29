@@ -1,11 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building, Home as HomeIcon, Layers, Store, MapPin, Bed, Bath, Ruler, Heart, CheckSquare, Square } from "lucide-react";
+import { Building, Home as HomeIcon, Layers, Store, MapPin, Bed, Bath, Ruler } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
-import { useFavorites } from "@/hooks/useFavorites";
-import { useAuth } from "@/hooks/useAuth";
-import { getImageForProperty, hasValidImages, getValidImages, getPropertyDefaultImage } from "@/utils/imageUtils";
 
 interface Property {
   id: string;
@@ -32,9 +28,6 @@ interface PropertyCardProps {
   onEdit?: (propertyId: string) => void;
   onDelete?: (propertyId: string) => void;
   onTogglePublication?: (propertyId: string, currentStatus: boolean) => void;
-  showCheckbox?: boolean;
-  isSelected?: boolean;
-  onSelectionChange?: (property: Property, selected: boolean) => void;
 }
 
 export const PropertyCard = ({ 
@@ -42,29 +35,8 @@ export const PropertyCard = ({
   showActions = false,
   onEdit,
   onDelete,
-  onTogglePublication,
-  showCheckbox = false,
-  isSelected = false,
-  onSelectionChange
+  onTogglePublication
 }: PropertyCardProps) => {
-  const { user } = useAuth();
-  const { isFavorite, toggleFavorite } = useFavorites();
-  const [isToggling, setIsToggling] = useState(false);
-
-  const handleToggleFavorite = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (!user) {
-      // Handle non-authenticated user
-      return;
-    }
-
-    setIsToggling(true);
-    await toggleFavorite(property.id);
-    setIsToggling(false);
-  };
-
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ar-IQ', {
       style: 'currency',
@@ -88,112 +60,33 @@ export const PropertyCard = ({
 
   return (
     <Link to={`/property/${property.id}`}>
-      <Card className="overflow-hidden hover-lift shadow-card group cursor-pointer relative">
-        {/* Selection Checkbox - Top Left */}
-        {showCheckbox && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              onSelectionChange?.(property, !isSelected);
-            }}
-            className="absolute top-3 left-3 z-20 p-2 rounded-full bg-white/95 backdrop-blur-sm shadow-md transition-all hover:scale-110"
-          >
-            {isSelected ? (
-              <CheckSquare className="w-5 h-5 text-primary" />
-            ) : (
-              <Square className="w-5 h-5 text-gray-400 hover:text-primary" />
-            )}
-          </button>
-        )}
-
-        {/* Favorite Button - Top Left (or Right if checkbox is shown) */}
-        {user && (
-          <button
-            onClick={handleToggleFavorite}
-            disabled={isToggling}
-            className={`absolute top-3 ${showCheckbox ? 'left-16' : 'left-3'} z-10 p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-md transition-all hover:scale-110 ${
-              isFavorite(property.id) 
-                ? 'text-red-500' 
-                : 'text-gray-400 hover:text-red-500'
-            }`}
-          >
-            <Heart 
-              className={`w-4 h-4 transition-all ${
-                isFavorite(property.id) ? 'fill-current' : ''
-              }`} 
-            />
-          </button>
-        )}
-
-        {/* Property Image/Icon */}
-        <div className="relative h-48 overflow-hidden">
-          {(() => {
-            const imageToShow = getImageForProperty(property.images, property.property_type, 0);
-            
-            if (imageToShow) {
-              // عرض الصورة المرفوعة
-              return (
-                <img
-                  src={imageToShow}
-                  alt={property.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  onError={(e) => {
-                    // Fallback to placeholder if image fails to load
-                    e.currentTarget.style.display = 'none';
-                    const fallbackDiv = e.currentTarget.parentElement?.querySelector('.fallback-bg') as HTMLElement;
-                    if (fallbackDiv) fallbackDiv.style.display = 'flex';
-                  }}
-                />
-              );
-            } else {
-              // عرض placeholder إذا لم توجد صور مرفوعة
-              return null; // سيظهر الـ fallback-bg
-            }
-          })()}
-          
-          {/* Placeholder for properties without images */}
-          <div className="fallback-bg bg-gray-100 text-gray-400 h-full flex items-center justify-center" style={{display: !getImageForProperty(property.images, property.property_type, 0) ? 'flex' : 'none'}}>
-            <div className="text-center opacity-60 group-hover:opacity-80 transition-opacity">
-              {getPropertyIcon()}
-              <p className="text-xs mt-2 font-medium">بدون صورة</p>
-            </div>
-          </div>
-
-          {/* Property Code */}
-          {(property as any).property_code && (
-            <div className="absolute top-3 right-3 bg-primary/90 text-white px-2 py-1 rounded text-xs font-mono">
-              {(property as any).property_code}
-            </div>
-          )}
-
-          {/* Image count indicator */}
-          {property.images && property.images.length > 1 && (
-            <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
-              {property.images.length} صور
-            </div>
-          )}
-
+      <Card className="overflow-hidden hover-lift shadow-card group cursor-pointer">
+      {/* Property Image/Icon */}
+      <div className="gradient-primary text-primary-foreground h-48 flex items-center justify-center relative">
+        <Badge
+          variant={property.listing_type === "sale" ? "default" : "secondary"}
+          className={`absolute top-4 right-4 ${
+            property.listing_type === "sale"
+              ? "bg-success text-success-foreground"
+              : "bg-warning text-warning-foreground"
+          }`}
+        >
+          {property.listing_type === "sale" ? "للبيع" : "للإيجار"}
+        </Badge>
+        
+        {!property.is_published && (
           <Badge
-            variant={property.listing_type === "sale" ? "default" : "secondary"}
-            className={`absolute top-4 right-4 ${
-              property.listing_type === "sale"
-                ? "bg-success text-success-foreground"
-                : "bg-warning text-warning-foreground"
-            }`}
+            variant="secondary"
+            className="absolute top-4 left-4 bg-muted text-muted-foreground"
           >
-            {property.listing_type === "sale" ? "للبيع" : "للإيجار"}
+            غير منشور
           </Badge>
-          
-          {!property.is_published && (
-            <Badge
-              variant="secondary"
-              className="absolute top-4 left-16 bg-muted text-muted-foreground"
-            >
-              غير منشور
-            </Badge>
-          )}
+        )}
+        
+        <div className="opacity-80 group-hover:opacity-100 transition-opacity">
+          {getPropertyIcon()}
         </div>
+      </div>
 
       {/* Property Details */}
       <div className="p-6">

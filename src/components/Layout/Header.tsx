@@ -1,11 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Home, Building, PlusCircle, User, Menu, LogOut, Shield, Settings, LogIn, UserPlus, Heart, List } from "lucide-react";
+import { Home, Building, PlusCircle, User, Menu, LogOut, Shield, Settings, LogIn, UserPlus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useFavorites } from "@/hooks/useFavorites";
-import { useUserStatus } from "@/hooks/useUserStatus";
-import { Badge } from "@/components/ui/badge";
 
 interface HeaderProps {
   onSidebarToggle: () => void;
@@ -15,15 +12,11 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
   const { user, signOut, isAdmin } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const { getFavoritesCount } = useFavorites();
-  const { userStatus, getStatusLabel, getStatusColor } = useUserStatus();
   
   // Different navigation items based on authentication status
   const navItems = user ? [
     { id: "/", label: "الرئيسية", icon: Home },
     { id: "/properties", label: "العقارات", icon: Building },
-    { id: "/properties-management", label: "إدارة العقارات", icon: List },
-    { id: "/favorites", label: "المفضلة", icon: Heart, badge: getFavoritesCount() },
     { id: "/add-property", label: "إضافة عقار", icon: PlusCircle },
     { id: "/profile", label: "الملف الشخصي", icon: User },
     ...(isAdmin ? [{ id: "/dashboard", label: "لوحة التحكم", icon: Settings }] : []),
@@ -66,17 +59,12 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
                 <Link key={item.id} to={item.id}>
                   <Button
                     variant="ghost"
-                    className={`text-primary-foreground hover:bg-white/20 gap-2 relative ${
+                    className={`text-primary-foreground hover:bg-white/20 gap-2 ${
                       isActive ? "bg-white/25" : ""
                     }`}
                   >
                     <Icon className="h-4 w-4" />
                     {item.label}
-                    {item.badge && item.badge > 0 && (
-                      <Badge variant="secondary" className="text-xs ml-1 bg-red-500 text-white">
-                        {item.badge}
-                      </Badge>
-                    )}
                   </Button>
                 </Link>
               );
@@ -85,15 +73,6 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
 
           {/* User Actions */}
           <div className="flex items-center gap-2">
-            {userStatus && user && (
-              <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs ${getStatusColor(userStatus.status)}`}>
-                {userStatus.status === 'publisher' && <User className="h-3 w-3" />}
-                {userStatus.status === 'trusted_owner' && <Shield className="h-3 w-3" />}
-                {userStatus.status === 'office_agent' && <Building className="h-3 w-3" />}
-                {getStatusLabel(userStatus.status)}
-              </div>
-            )}
-            
             {isAdmin && user && (
               <div className="flex items-center gap-1 bg-accent/20 text-accent-foreground px-3 py-1 rounded-full text-sm">
                 <Shield className="h-4 w-4" />

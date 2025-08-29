@@ -16,6 +16,10 @@ import { EditProperty } from "@/pages/EditProperty";
 import { PropertyDetails } from "@/pages/PropertyDetails";
 import { Login } from "@/pages/Auth/Login";
 import { Register } from "@/pages/Auth/Register";
+import { Favorites } from "@/pages/Favorites";
+import { TestImages } from "@/pages/TestImages";
+import { ImageDiagnostics } from "@/pages/ImageDiagnostics";
+import { PropertiesManagement } from "@/pages/PropertiesManagement";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +52,26 @@ const AppRoutes = () => {
         <Route path="property/:id" element={<PropertyDetails />} />
         
         {/* Protected Routes */}
+        <Route path="favorites" element={
+          <ProtectedRoute>
+            <Favorites />
+          </ProtectedRoute>
+        } />
+        <Route path="test-images" element={
+          <ProtectedRoute>
+            <TestImages />
+          </ProtectedRoute>
+        } />
+        <Route path="image-diagnostics" element={
+          <ProtectedRoute>
+            <ImageDiagnostics />
+          </ProtectedRoute>
+        } />
+        <Route path="properties-management" element={
+          <ProtectedRoute>
+            <PropertiesManagement />
+          </ProtectedRoute>
+        } />
         <Route path="add-property" element={
           <ProtectedRoute>
             <AddProperty />

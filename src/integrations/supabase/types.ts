@@ -158,6 +158,95 @@ export type Database = {
         }
         Relationships: []
       }
+      favorites: {
+        Row: {
+          id: string;
+          user_id: string;
+          property_id: string;
+          created_at: string;
+        }
+        Insert: {
+          id?: string;
+          user_id: string;
+          property_id: string;
+          created_at?: string;
+        }
+        Update: {
+          id?: string;
+          user_id?: string;
+          property_id?: string;
+          created_at?: string;
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_user_id_fkey";
+            columns: ["user_id"];
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "favorites_property_id_fkey";
+            columns: ["property_id"];
+            referencedRelation: "properties";
+            referencedColumns: ["id"];
+          }
+        ]
+      }
+      user_statuses: {
+        Row: {
+          id: string
+          user_id: string
+          status: Database["public"]["Enums"]["user_status"]
+          properties_limit: number
+          images_limit: number
+          can_publish: boolean
+          is_verified: boolean
+          verified_by: string | null
+          verified_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          status?: Database["public"]["Enums"]["user_status"]
+          properties_limit?: number
+          images_limit?: number
+          can_publish?: boolean
+          is_verified?: boolean
+          verified_by?: string | null
+          verified_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          status?: Database["public"]["Enums"]["user_status"]
+          properties_limit?: number
+          images_limit?: number
+          can_publish?: boolean
+          is_verified?: boolean
+          verified_by?: string | null
+          verified_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_statuses_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_statuses_verified_by_fkey"
+            columns: ["verified_by"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -177,6 +266,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      user_status: "publisher" | "trusted_owner" | "office_agent"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -305,6 +395,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      user_status: ["publisher", "trusted_owner", "office_agent"],
     },
   },
 } as const

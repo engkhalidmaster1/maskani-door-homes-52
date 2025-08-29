@@ -191,4 +191,18 @@ All colors MUST be HSL.
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+
+  /* Scrolling banner animation */
+  @keyframes scroll-left-to-right {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .animate-scroll-banner {
+    animation: scroll-left-to-right 15s linear infinite;
+  }
 }

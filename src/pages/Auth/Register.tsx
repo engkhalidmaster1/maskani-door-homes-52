@@ -34,7 +34,7 @@ export const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="container mx-auto px-4 max-w-md">
+      <div className="container mx-auto px-4 max-w-lg">
         <Card className="shadow-elegant hover-lift">
           <div className="p-8">
             <h2 className="text-3xl font-bold mb-8 flex items-center gap-4 justify-center text-center">
@@ -45,70 +45,73 @@ export const Register = () => {
             </h2>
             
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="fullName" className="flex items-center gap-2 text-base font-semibold">
-                  <User className="h-5 w-5 text-primary" />
-                  الاسم الكامل
-                </Label>
-                <Input
-                  id="fullName"
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                  placeholder="ادخل اسمك الكامل"
-                  className="h-12"
-                  required
-                />
+              {/* Grid layout for form fields - 2 columns on larger screens, 1 column on mobile */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="fullName" className="flex items-center gap-2 text-base font-semibold">
+                    <User className="h-5 w-5 text-primary" />
+                    الاسم الكامل
+                  </Label>
+                  <Input
+                    id="fullName"
+                    value={formData.fullName}
+                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                    placeholder="ادخل اسمك الكامل"
+                    className="h-12"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="flex items-center gap-2 text-base font-semibold">
+                    <Mail className="h-5 w-5 text-primary" />
+                    البريد الإلكتروني
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="ادخل البريد الإلكتروني"
+                    className="h-12"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="flex items-center gap-2 text-base font-semibold">
+                    <Phone className="h-5 w-5 text-primary" />
+                    رقم الجوال
+                  </Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="ادخل رقم الجوال"
+                    className="h-12"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="flex items-center gap-2 text-base font-semibold">
+                    <Lock className="h-5 w-5 text-primary" />
+                    كلمة المرور
+                  </Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    placeholder="اختر كلمة مرور قوية"
+                    className="h-12"
+                    required
+                  />
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email" className="flex items-center gap-2 text-base font-semibold">
-                  <Mail className="h-5 w-5 text-primary" />
-                  البريد الإلكتروني
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="ادخل البريد الإلكتروني"
-                  className="h-12"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="flex items-center gap-2 text-base font-semibold">
-                  <Phone className="h-5 w-5 text-primary" />
-                  رقم الجوال
-                </Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="ادخل رقم الجوال"
-                  className="h-12"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password" className="flex items-center gap-2 text-base font-semibold">
-                  <Lock className="h-5 w-5 text-primary" />
-                  كلمة المرور
-                </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  placeholder="اختر كلمة مرور قوية"
-                  className="h-12"
-                  required
-                />
-              </div>
-
-              <Button type="submit" className="w-full h-12 text-lg font-semibold" disabled={isLoading}>
+              <Button type="submit" className="w-full h-12 text-lg font-semibold mt-6" disabled={isLoading}>
                 <UserPlus className="h-5 w-5 ml-2" />
                 {isLoading ? "جاري إنشاء الحساب..." : "إنشاء حساب"}
               </Button>
@@ -117,7 +120,7 @@ export const Register = () => {
             <p className="text-center mt-6 text-muted-foreground">
               لديك حساب بالفعل؟{" "}
               <Link
-                to="/auth/login"
+                to="/login"
                 className="text-primary font-semibold hover:underline"
               >
                 سجل الدخول

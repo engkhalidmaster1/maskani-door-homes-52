@@ -10,7 +10,7 @@ interface Property {
   title: string;
   description: string | null;
   property_type: string;
-  listing_type: string;
+  listing_type: "sale" | "rent";
   price: number;
   area: number | null;
   bedrooms: number;
@@ -22,6 +22,7 @@ interface Property {
   is_published: boolean;
   created_at: string;
   updated_at: string;
+  ownership_type?: "ملك صرف" | "سر قفلية" | null;
 }
 
 export const useProperties = () => {
@@ -44,7 +45,15 @@ export const useProperties = () => {
         throw error;
       }
 
-      setProperties(data || []);
+      // التأكد من أن listing_type يتوافق مع الأنواع المتوقعة
+      const validatedData = (data || []).map(item => ({
+        ...item,
+        listing_type: item.listing_type === "sale" || item.listing_type === "rent" 
+          ? item.listing_type as "sale" | "rent"
+          : "sale" // قيمة افتراضية في حالة وجود قيمة غير متوقعة
+      }));
+
+      setProperties(validatedData);
     } catch (error: PostgrestError) {
       console.error('Error fetching properties:', error);
       toast({
@@ -98,7 +107,15 @@ export const useProperties = () => {
         throw error;
       }
 
-      setUserProperties(data || []);
+      // التأكد من أن listing_type يتوافق مع الأنواع المتوقعة
+      const validatedData = (data || []).map(item => ({
+        ...item,
+        listing_type: item.listing_type === "sale" || item.listing_type === "rent" 
+          ? item.listing_type as "sale" | "rent"
+          : "sale" // قيمة افتراضية في حالة وجود قيمة غير متوقعة
+      }));
+
+      setUserProperties(validatedData);
     } catch (error: unknown) {
       const postgrestError = error as PostgrestError;
       console.error('Error fetching user properties:', error);

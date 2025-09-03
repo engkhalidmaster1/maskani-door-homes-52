@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { PropertyCard } from "@/components/Property/PropertyCard";
+import { HomePropertyCard } from "@/components/Property/HomePropertyCard";
 import { ScrollingBanner } from "@/components/Layout/ScrollingBanner";
-import { Search, PlusCircle, Shield, Home as HomeIcon, User, Building2, X } from "lucide-react";
+import { Search, PlusCircle, Shield, Home as HomeIcon, User, Building2, X, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useProperties } from "@/hooks/useProperties";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,7 +26,7 @@ export const Home = () => {
         description: "يجب تسجيل الدخول للوصول إلى هذه الصفحة",
         variant: "destructive",
       });
-      navigate("/auth/login");
+      navigate("/login");
       return;
     }
     navigate(path);
@@ -85,8 +85,9 @@ export const Home = () => {
     },
     {
       icon: Shield,
-      title: "آمن وموثوق",
-      description: "منصة آمنة للتعاملات العقارية",
+      title: "اربح معنا أكثر",
+      description: "ربح سهل للدلالين و منصة امنة للبائعين",
+      link: "https://api.whatsapp.com/send?phone=905013196750"
     },
   ];
 
@@ -108,9 +109,9 @@ export const Home = () => {
         {/* Welcome Button */}
         <Button
           onClick={() => setShowWelcomeModal(true)}
-          className="fixed top-20 left-4 z-50 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg rounded-full px-4 py-2 text-sm font-medium"
+          className="fixed top-20 left-4 z-50 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg rounded-full w-10 h-10 flex items-center justify-center"
         >
-          مرحبا
+          <AlertCircle className="h-5 w-5" />
         </Button>
 
         {/* Welcome Modal */}
@@ -202,7 +203,7 @@ export const Home = () => {
           ) : featuredProperties.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {featuredProperties.map((property) => (
-                <PropertyCard key={property.id} property={property} />
+                <HomePropertyCard key={property.id} property={property} />
               ))}
             </div>
           ) : (
@@ -231,11 +232,37 @@ export const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {features.map((feature, index) => {
               const Icon = feature.icon;
+              // جعل المربع الأول (ابحث بسهولة) قابلاً للنقر
+              const isSearchFeature = index === 0; // التحقق من أنه المربع الأول
+              // جعل المربع الثاني (أضف عقارك) قابلاً للنقر
+              const isAddFeature = index === 1; // التحقق من أنه المربع الثاني
+              // جعل المربع الثالث (اربح معنا أكثر) قابلاً للنقر
+              const isEarnFeature = index === 2; // التحقق من أنه المربع الثالث
+              
               return (
                 <div
                   key={index}
-                  className="text-center p-8 bg-card rounded-2xl shadow-card hover-lift"
+                  className={`text-center p-8 bg-card rounded-2xl shadow-card transition-all duration-300 relative
+                    ${isSearchFeature || isAddFeature || isEarnFeature
+                      ? 'cursor-pointer hover:shadow-xl hover:transform hover:scale-105' 
+                      : 'hover-lift'}`}
+                  onClick={() => {
+                    if (isSearchFeature) navigate('/properties');
+                    if (isAddFeature) {
+                      if (user) {
+                        navigate('/add-property');
+                      } else {
+                        navigate('/register');
+                      }
+                    }
+                    if (isEarnFeature && feature.link) window.open(feature.link, '_blank');
+                  }}
                 >
+                  {isAddFeature && !user && (
+                    <span className="absolute top-4 right-4 text-xs text-red-500 bg-red-50 px-2 py-1 rounded-full border border-red-300 font-medium">
+                      سجل قبل إضافة العقار
+                    </span>
+                  )}
                   <div className="bg-primary text-primary-foreground w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-6">
                     <Icon className="h-8 w-8" />
                   </div>

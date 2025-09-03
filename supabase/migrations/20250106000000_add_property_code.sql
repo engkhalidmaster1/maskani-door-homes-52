@@ -90,3 +90,4 @@ GRANT EXECUTE ON FUNCTION public.generate_property_code TO authenticated;
 
 
 
+

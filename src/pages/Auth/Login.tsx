@@ -86,7 +86,7 @@ export const Login = () => {
             <p className="text-center mt-6 text-muted-foreground">
               ليس لديك حساب؟{" "}
               <Link
-                to="/auth/register"
+                to="/register"
                 className="text-primary font-semibold hover:underline"
               >
                 أنشئ حساب جديد

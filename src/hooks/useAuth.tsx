@@ -163,8 +163,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         });
       } else {
         toast({
-          title: "مرحباً بعودتك!",
-          description: "تم تسجيل الدخول بنجاح",
+          title: "🎉 مرحباً بعودتك!",
+          description: "تم تسجيل الدخول بنجاح - استمتع بتصفح العقارات",
+          duration: 8000, // زمن أطول لإعطاء المستخدم وقت لرؤية الزر
         });
       }
       

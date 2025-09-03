@@ -88,26 +88,40 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
 
           {/* User Actions */}
           <div className="flex items-center gap-2">
-            {!user && (
-              <div className="flex items-center gap-2">
-                <Link to="/auth/login">
+            {!user ? (
+              <div className="hidden md:flex items-center gap-2">
+                <Link to="/login">
                   <Button
                     variant="ghost"
-                    className="gap-2 text-primary-foreground hover:bg-white/20"
+                    className="gap-2 text-primary-foreground hover:bg-white/20 border-2 border-white"
                   >
                     <LogIn className="h-4 w-4" />
                     تسجيل الدخول
                   </Button>
                 </Link>
-                <Link to="/auth/register">
+                <Link to="/register">
                   <Button
-                    variant="outline"
-                    className="gap-2 text-primary-foreground border-primary-foreground hover:bg-white/20"
+                    variant="default"
+                    className="gap-2 bg-primary hover:bg-primary/90 text-white border-2 border-white"
                   >
                     <UserPlus className="h-4 w-4" />
                     إنشاء حساب
                   </Button>
                 </Link>
+              </div>
+            ) : (
+              <div className="hidden md:flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  className="gap-2 text-primary-foreground hover:bg-white/20 border-2 border-white"
+                  onClick={async () => {
+                    await signOut();
+                    navigate('/');
+                  }}
+                >
+                  <LogOut className="h-4 w-4" />
+                  تسجيل الخروج
+                </Button>
               </div>
             )}
           </div>

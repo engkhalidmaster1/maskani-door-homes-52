@@ -1,23 +1,27 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { PropertyCard } from "@/components/Property/PropertyCard";
-import { User, Phone, MapPin, Save, Edit, Trash2, Home as HomeIcon, Mail, Lock } from "lucide-react";
+import { User, Phone, MapPin, Save, Edit, Trash2, Home as HomeIcon, Mail, Lock, Shield, CheckCircle, XCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useProfile } from "@/hooks/useProfile";
 import { useProperties } from "@/hooks/useProperties";
 import { useAuth } from "@/hooks/useAuth";
-import { MainNav } from "@/components/Layout/MainNav";
+import { useUserStatus } from "@/hooks/useUserStatus";
 import { ContactFooter } from "@/components/Layout/ContactFooter";
 
 export const Profile = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { profileData, isLoading, isSaving, updateProfile } = useProfile();
   const { userProperties } = useProperties();
   const { user } = useAuth();
+  const { userStatus, getStatusLabel, getStatusColor } = useUserStatus();
   
   const [formData, setFormData] = useState({
     name: "",
@@ -74,7 +78,6 @@ export const Profile = () => {
 
   const content = (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <MainNav />
       <div className="container mx-auto px-4 py-8 max-w-7xl flex-grow">
         <div className="flex flex-col md:flex-row gap-8 items-start">
           {/* Profile Form */}
@@ -181,6 +184,74 @@ export const Profile = () => {
                   </div>
                   عقاراتي
                 </h2>
+                
+                {/* User Status Information */}
+                {userStatus && (
+                  <Card className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-l-primary">
+                    <div className="p-6">
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="bg-primary text-primary-foreground p-2 rounded-lg">
+                          <Shield className="h-5 w-5" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-gray-900">معلومات الصلاحية</h3>
+                          <Badge className={`${getStatusColor(userStatus.status)} mt-1`}>
+                            {getStatusLabel(userStatus.status)}
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-white rounded-lg p-4 border">
+                          <div className="flex items-center gap-2 mb-2">
+                            <HomeIcon className="h-4 w-4 text-primary" />
+                            <span className="text-sm font-medium text-gray-600">حد العقارات</span>
+                          </div>
+                          <div className="text-2xl font-bold text-gray-900">
+                            {userStatus.current_properties_count || 0} / {userStatus.properties_limit}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            متبقي: {userStatus.properties_limit - (userStatus.current_properties_count || 0)}
+                          </div>
+                        </div>
+                        
+                        <div className="bg-white rounded-lg p-4 border">
+                          <div className="flex items-center gap-2 mb-2">
+                            <CheckCircle className="h-4 w-4 text-primary" />
+                            <span className="text-sm font-medium text-gray-600">حد الصور</span>
+                          </div>
+                          <div className="text-2xl font-bold text-gray-900">
+                            {userStatus.images_limit}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            صورة لكل عقار
+                          </div>
+                        </div>
+                        
+                        <div className="bg-white rounded-lg p-4 border">
+                          <div className="flex items-center gap-2 mb-2">
+                            {userStatus.can_publish ? (
+                              <CheckCircle className="h-4 w-4 text-green-500" />
+                            ) : (
+                              <XCircle className="h-4 w-4 text-red-500" />
+                            )}
+                            <span className="text-sm font-medium text-gray-600">النشر</span>
+                          </div>
+                          <div className={`text-lg font-semibold ${userStatus.can_publish ? 'text-green-600' : 'text-red-600'}`}>
+                            {userStatus.can_publish ? 'مسموح' : 'غير مسموح'}
+                          </div>
+                          {userStatus.is_verified && (
+                            <div className="text-xs text-green-600 mt-1 flex items-center gap-1">
+                              <CheckCircle className="h-3 w-3" />
+                              حساب موثق
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                )}
+                
                 {userProperties.length > 0 ? (
                   <div className="flex flex-col gap-4">
                     {userProperties.map((property) => (
@@ -229,7 +300,12 @@ export const Profile = () => {
                     <p className="text-muted-foreground mb-6">
                       لم تقم بإضافة أي عقارات بعد
                     </p>
-                    <Button variant="accent">إضافة عقار جديد</Button>
+                    <Button 
+                      variant="accent" 
+                      onClick={() => navigate('/add-property')}
+                    >
+                      إضافة عقار جديد
+                    </Button>
                   </div>
                 )}
               </div>

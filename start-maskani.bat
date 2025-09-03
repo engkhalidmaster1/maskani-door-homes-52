@@ -70,8 +70,8 @@ REM عرض معلومات التشغيل
 echo 🚀 بدء تشغيل خادم التطوير...
 echo.
 echo 📱 ستتمكن من الوصول للتطبيق عبر:
-echo    🌐 المحلي: http://localhost:8080
-echo    🔗 الشبكة: http://[your-ip]:8080
+echo    🌐 المحلي: http://localhost:8081
+echo    🔗 الشبكة: http://[your-ip]:8081
 echo.
 echo 💡 نصائح هامة:
 echo    • اضغط Ctrl+C لإيقاف التطبيق

@@ -6,17 +6,37 @@ import { componentTagger } from "lovable-tagger";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "::",
-    port: 8080,
+    host: "localhost",
+    port: 3000,
+    strictPort: false,
+    hmr: {
+      protocol: "ws",
+      host: "localhost",
+    },
   },
   plugins: [
     react(),
-    mode === 'development' &&
-    componentTagger(),
+    mode === 'development' && componentTagger(),
+    {
+      name: 'vite-plugin-pwa-manual',
+      buildEnd() {
+        // This is a simple manual implementation since we couldn't install vite-plugin-pwa
+        console.log('PWA support has been configured manually');
+      }
+    }
   ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  build: {
+    rollupOptions: {
+      // Make sure to include service worker and manifest in the build
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        'service-worker': path.resolve(__dirname, 'public/service-worker.js'),
+      },
     },
   },
 }));

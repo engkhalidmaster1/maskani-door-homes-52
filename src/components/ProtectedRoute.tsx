@@ -27,7 +27,7 @@ export const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRout
   // Redirect to login if not authenticated
   if (!user) {
     console.log('Redirecting to login - no user');
-    return <Navigate to="/auth/login" state={{ from: location }} replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   // Redirect to home if admin required but user is not admin

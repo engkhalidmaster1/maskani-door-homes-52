@@ -1,10 +1,8 @@
 import { Phone, MessageSquare } from "lucide-react";
 
 export function ContactFooter() {
-  const whatsappNumber = "00905013196750";
-  
   const handleWhatsAppClick = () => {
-    window.open(`https://wa.me/${whatsappNumber}`, '_blank');
+    window.open('https://api.whatsapp.com/send?phone=905013196750', '_blank');
   };
 
   return (

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Convertir SVG a PNG</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    button { padding: 10px; margin: 10px 0; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    canvas { border: 1px solid #ddd; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <h1>Convertir SVG a PNG</h1>
+  
+  <div>
+    <h2>192x192</h2>
+    <img id="svg192" src="./public/maskani-icon-192x192.svg" width="192" height="192">
+    <canvas id="canvas192" width="192" height="192"></canvas>
+    <div>
+      <button onclick="convertToPNG(192)">Convertir a PNG</button>
+      <a id="download192" download="maskani-icon-192x192.png" href="#">Descargar PNG</a>
+    </div>
+  </div>
+  
+  <div>
+    <h2>512x512</h2>
+    <img id="svg512" src="./public/maskani-icon-512x512.svg" width="512" height="512">
+    <canvas id="canvas512" width="512" height="512"></canvas>
+    <div>
+      <button onclick="convertToPNG(512)">Convertir a PNG</button>
+      <a id="download512" download="maskani-icon-512x512.png" href="#">Descargar PNG</a>
+    </div>
+  </div>
+
+  <script>
+    function convertToPNG(size) {
+      const svg = document.getElementById(`svg${size}`);
+      const canvas = document.getElementById(`canvas${size}`);
+      const ctx = canvas.getContext('2d');
+      
+      // Dibujar un fondo blanco
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, size, size);
+      
+      // Crear una imagen temporal
+      const img = new Image();
+      img.onload = function() {
+        ctx.drawImage(img, 0, 0, size, size);
+        
+        // Actualizar el enlace de descarga
+        const download = document.getElementById(`download${size}`);
+        download.href = canvas.toDataURL('image/png');
+        download.style.display = 'inline-block';
+      };
+      
+      // Convertir el SVG a una URL de datos
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+      const url = URL.createObjectURL(svgBlob);
+      img.src = url;
+    }
+  </script>
+</body>
+</html>

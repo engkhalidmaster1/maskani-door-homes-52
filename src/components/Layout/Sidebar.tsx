@@ -137,7 +137,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                 <Button
                   variant="ghost"
                   className="w-full justify-start gap-3 h-12 hover:bg-accent"
-                  onClick={() => handleNavClick('/auth/login')}
+                  onClick={() => handleNavClick('/login')}
                 >
                   <LogIn className="h-5 w-5" />
                   تسجيل الدخول
@@ -145,7 +145,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                 <Button
                   variant="outline"
                   className="w-full justify-start gap-3 h-12 border-primary hover:bg-accent"
-                  onClick={() => handleNavClick('/auth/register')}
+                  onClick={() => handleNavClick('/register')}
                 >
                   <UserPlus className="h-5 w-5" />
                   إنشاء حساب

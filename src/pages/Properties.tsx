@@ -26,8 +26,9 @@ export const Properties = () => {
   const navigate = useNavigate();
   
   const [filters, setFilters] = useState({
-    listing_type: "",
-    location: "",
+    listing_type: "" as "" | "sale" | "rent",
+    location: "all",
+    ownership_type: "all" as "all" | "ملك صرف" | "سر قفلية",
     price_range: "",
   });
 
@@ -36,7 +37,10 @@ export const Properties = () => {
       if (filters.listing_type && property.listing_type !== filters.listing_type) {
         return false;
       }
-      if (filters.location && !property.location?.includes(filters.location)) {
+      if (filters.location && filters.location !== "all" && !property.location?.includes(filters.location)) {
+        return false;
+      }
+      if (filters.ownership_type && filters.ownership_type !== "all" && property.ownership_type !== filters.ownership_type) {
         return false;
       }
       return true;
@@ -80,62 +84,93 @@ export const Properties = () => {
         </h1>
 
         <Tabs defaultValue="all" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 h-16 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 p-1 rounded-2xl shadow-2xl border border-blue-500/20 backdrop-blur-sm">
-            <TabsTrigger 
-              value="all" 
-              className="flex items-center gap-3 text-base font-bold text-white data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-lg data-[state=active]:scale-[1.02] rounded-xl transition-all duration-300 hover:bg-white/10 group"
-            >
-              <Home className="h-6 w-6 group-hover:scale-110 transition-transform duration-200" />
-              جميع العقارات
-            </TabsTrigger>
-            {user && (
+          <div className="flex justify-center mb-6">
+            <TabsList className="inline-flex h-12 items-center justify-center rounded-xl bg-white p-1 shadow-lg border border-gray-200">
               <TabsTrigger 
-                value="my" 
-                className="flex items-center gap-3 text-base font-bold text-white data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-lg data-[state=active]:scale-[1.02] rounded-xl transition-all duration-300 hover:bg-white/10 group"
+                value="all" 
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-lg px-6 py-2.5 text-sm font-semibold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md text-gray-600 hover:text-gray-900 hover:bg-gray-50 gap-2 min-w-[140px]"
               >
-                <User className="h-6 w-6 group-hover:scale-110 transition-transform duration-200" />
-                عقاراتي
+                <Home className="h-4 w-4" />
+                جميع العقارات
               </TabsTrigger>
-            )}
-          </TabsList>
+              {user && (
+                <TabsTrigger 
+                  value="my" 
+                  className="inline-flex items-center justify-center whitespace-nowrap rounded-lg px-6 py-2.5 text-sm font-semibold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-md text-gray-600 hover:text-gray-900 hover:bg-gray-50 gap-2 min-w-[140px]"
+                >
+                  <User className="h-4 w-4" />
+                  عقاراتي
+                </TabsTrigger>
+              )}
+            </TabsList>
+          </div>
 
           <TabsContent value="all" className="space-y-6">
             {/* Filters */}
             <Card className="p-6 shadow-card">
-              <div className="flex items-center gap-2 mb-4">
-                <Filter className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold">فلترة النتائج</h3>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Select value={filters.listing_type} onValueChange={(value) => setFilters({ ...filters, listing_type: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="جميع الأنواع" />
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {/* نوع العقار: بيع أو إيجار */}
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    className={`flex-1 font-bold transition-all shadow-sm ${
+                      filters.listing_type === "sale" 
+                        ? "bg-red-500 hover:bg-red-600 text-white shadow-md border-red-600" 
+                        : "hover:bg-red-100 text-red-600 border-red-300 hover:text-red-700"
+                    }`}
+                    onClick={() => setFilters(prev => ({ 
+                      ...prev, 
+                      listing_type: prev.listing_type === "sale" ? "" : "sale" 
+                    }))}
+                  >
+                    للبيع
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className={`flex-1 font-bold transition-all shadow-sm ${
+                      filters.listing_type === "rent" 
+                        ? "bg-green-500 hover:bg-green-600 text-white shadow-md border-green-600" 
+                        : "hover:bg-green-100 text-green-600 border-green-300 hover:text-green-700"
+                    }`}
+                    onClick={() => setFilters(prev => ({ 
+                      ...prev, 
+                      listing_type: prev.listing_type === "rent" ? "" : "rent" 
+                    }))}
+                  >
+                    للإيجار
+                  </Button>
+                </div>
+
+                <Select value={filters.location} onValueChange={(value) => setFilters({ ...filters, location: value })}>
+                  <SelectTrigger className="text-right" dir="rtl">
+                    <SelectValue placeholder="جميع المواقع" className="text-right" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="sale">للبيع</SelectItem>
-                    <SelectItem value="rent">للإيجار</SelectItem>
+                  <SelectContent className="text-right" dir="rtl">
+                    <SelectItem value="all" className="text-right">كل المواقع</SelectItem>
+                    <SelectItem value="السوق الأول" className="text-right">السوق الأول</SelectItem>
+                    <SelectItem value="السوق الثاني" className="text-right">السوق الثاني</SelectItem>
+                    <SelectItem value="السوق الثالث" className="text-right">السوق الثالث</SelectItem>
+                    <SelectItem value="السوق الرابع" className="text-right">السوق الرابع</SelectItem>
+                    <SelectItem value="السوق الخامس" className="text-right">السوق الخامس</SelectItem>
+                    <SelectItem value="السوق السادس" className="text-right">السوق السادس</SelectItem>
+                    <SelectItem value="الفنادق" className="text-right">الفنادق</SelectItem>
                   </SelectContent>
                 </Select>
 
-                <Select value={filters.location} onValueChange={(value) => setFilters({ ...filters, location: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="جميع المواقع" />
+                <Select value={filters.ownership_type} onValueChange={(value) => setFilters({ ...filters, ownership_type: value as "all" | "ملك صرف" | "سر قفلية" })}>
+                  <SelectTrigger className="text-right" dir="rtl">
+                    <SelectValue placeholder="نوع التملك" className="text-right" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="السوق الأول">السوق الأول</SelectItem>
-                    <SelectItem value="السوق الثاني">السوق الثاني</SelectItem>
-                    <SelectItem value="السوق الثالث">السوق الثالث</SelectItem>
-                    <SelectItem value="السوق الرابع">السوق الرابع</SelectItem>
-                    <SelectItem value="السوق الخامس">السوق الخامس</SelectItem>
-                    <SelectItem value="السوق السادس">السوق السادس</SelectItem>
-                    <SelectItem value="الفنادق">الفنادق</SelectItem>
+                  <SelectContent className="text-right" dir="rtl">
+                    <SelectItem value="all" className="text-right">جميع الأنواع</SelectItem>
+                    <SelectItem value="ملك صرف" className="text-right">ملك صرف</SelectItem>
+                    <SelectItem value="سر قفلية" className="text-right">سر قفلية</SelectItem>
                   </SelectContent>
                 </Select>
 
                 <Button 
                   variant="outline" 
-                  onClick={() => setFilters({ listing_type: "", location: "", price_range: "" })}
+                  onClick={() => setFilters({ listing_type: "", location: "all", ownership_type: "all", price_range: "" })}
                 >
                   مسح الفلاتر
                 </Button>

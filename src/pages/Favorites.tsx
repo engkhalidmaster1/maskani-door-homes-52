@@ -20,7 +20,7 @@ export const Favorites = () => {
           <p className="text-muted-foreground mb-6">
             يجب تسجيل الدخول لعرض مفضلتك
           </p>
-          <Button onClick={() => navigate('/auth/login')}>
+          <Button onClick={() => navigate('/login')}>
             تسجيل الدخول
           </Button>
         </div>

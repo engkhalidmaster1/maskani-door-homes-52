@@ -130,6 +130,7 @@ export const PropertyCard = ({
       {/* Selection Checkbox */}
       {showCheckbox && (
         <button
+          title="تحديد العقار"
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
@@ -148,6 +149,7 @@ export const PropertyCard = ({
       {/* Favorite Button */}
       {user && (
         <button
+          title={isFavorite(property.id) ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
@@ -200,8 +202,12 @@ export const PropertyCard = ({
 
           {/* Status Badges */}
           <Badge
-            variant={property.listing_type === "sale" ? "default" : "secondary"}
-            className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm"
+            variant="default"
+            className={`absolute top-3 right-3 backdrop-blur-sm font-bold ${
+              property.listing_type === "sale" 
+                ? "bg-red-500 text-white" 
+                : "bg-green-500 text-white"
+            }`}
           >
             {property.listing_type === "sale" ? "للبيع" : "للإيجار"}
           </Badge>
@@ -217,36 +223,40 @@ export const PropertyCard = ({
         </div>
 
         {/* Property Details */}
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-lg font-semibold">{property.title}</h3>
-            <span className="text-xl font-bold text-primary">
-              {formatPrice(property.price)}
-            </span>
+        <div className="p-4 bg-gray-50">
+          <div className="flex items-center justify-between mb-3 flex-row-reverse border-b pb-2 border-gray-200">
+            <div className="ml-2 text-right w-2/3">
+              <h3 className="text-lg font-bold text-gray-800">{property.title}</h3>
+            </div>
+            <div className="w-1/3 text-left">
+              <span className="text-xl font-bold text-primary bg-blue-50 px-2 py-1 rounded">
+                {formatPrice(property.price)}
+              </span>
+            </div>
           </div>
 
           {property.location && (
-            <div className="flex items-center text-muted-foreground mb-2">
-              <MapPin className="h-4 w-4 ml-1" />
-              <span>{property.location}</span>
+            <div className="flex items-center text-muted-foreground mb-3 flex-row-reverse text-right bg-gray-100 p-1 rounded">
+              <MapPin className="h-4 w-4 ml-1 text-blue-500" />
+              <span className="text-gray-700">{property.location}</span>
             </div>
           )}
 
-          <div className="flex items-center gap-4 text-muted-foreground">
-            <div className="flex items-center">
-              <Bed className="h-4 w-4 ml-1" />
-              <span>{property.bedrooms}</span>
-            </div>
-            <div className="flex items-center">
-              <Bath className="h-4 w-4 ml-1" />
-              <span>{property.bathrooms}</span>
-            </div>
+          <div className="flex items-center gap-4 text-muted-foreground justify-end border-t pt-2 border-gray-200">
             {property.area && (
-              <div className="flex items-center">
-                <Ruler className="h-4 w-4 ml-1" />
-                <span>{property.area} م²</span>
+              <div className="flex items-center flex-row-reverse bg-blue-50 p-1 rounded">
+                <Ruler className="h-4 w-4 ml-1 text-blue-500" />
+                <span className="text-gray-700 font-medium">{property.area} م²</span>
               </div>
             )}
+            <div className="flex items-center flex-row-reverse bg-green-50 p-1 rounded">
+              <Bath className="h-4 w-4 ml-1 text-green-500" />
+              <span className="text-gray-700 font-medium">{property.bathrooms}</span>
+            </div>
+            <div className="flex items-center flex-row-reverse bg-purple-50 p-1 rounded">
+              <Bed className="h-4 w-4 ml-1 text-purple-500" />
+              <span className="text-gray-700 font-medium">{property.bedrooms}</span>
+            </div>
           </div>
         </div>
       </div>

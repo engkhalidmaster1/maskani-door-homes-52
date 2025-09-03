@@ -201,28 +201,8 @@ export const AddProperty = () => {
       // Upload images first
       const uploadedImageUrls = await uploadImages();
 
-      // Generate property code
-      const propertyCode = await (async () => {
-        try {
-          // Try to get sequence from database
-          const { data, error } = await supabase.rpc('generate_property_code', {
-            bedrooms_count: parseInt(formData.bedrooms),
-            created_date: new Date().toISOString()
-          });
-          
-          if (error) {
-            console.error('Error generating code from DB:', error);
-            // Fallback to client-side generation
-            return generatePropertyCode(parseInt(formData.bedrooms));
-          }
-          
-          return data;
-        } catch (error) {
-          console.error('Error calling generate_property_code:', error);
-          // Fallback to client-side generation
-          return generatePropertyCode(parseInt(formData.bedrooms));
-        }
-      })();
+      // Generate property code using client-side function
+      const propertyCode = generatePropertyCode(parseInt(formData.bedrooms));
 
       // Generate title from building and apartment
       const title = `شقة رقم ${formData.apartment} في العمارة ${formData.building}`;

@@ -54,11 +54,12 @@ export const useProperties = () => {
       }));
 
       setProperties(validatedData);
-    } catch (error: PostgrestError) {
+    } catch (error: unknown) {
       console.error('Error fetching properties:', error);
+      const errorMessage = error instanceof Error ? error.message : 'حدث خطأ غير متوقع';
       toast({
         title: "خطأ في تحميل العقارات",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     }
@@ -80,11 +81,11 @@ export const useProperties = () => {
 
       return data || [];
     } catch (error: unknown) {
-      const postgrestError = error as PostgrestError;
       console.error('Error fetching all properties:', error);
+      const errorMessage = error instanceof Error ? error.message : 'حدث خطأ غير متوقع';
       toast({
         title: "خطأ في تحميل جميع العقارات",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
       return [];

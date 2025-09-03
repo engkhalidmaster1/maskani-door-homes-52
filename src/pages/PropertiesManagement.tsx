@@ -4,11 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { PropertyCard } from "@/components/Property/PropertyCard";
+import { PropertyCardMobile } from "@/components/Property/PropertyCardMobile";
 import { BulkActionsBar, BulkDeleteConfirmation } from "@/components/Property/BulkActionsBar";
 import { useMultiSelect } from "@/hooks/useMultiSelect";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { 
   Search, 
   Filter, 
@@ -23,25 +25,29 @@ import {
 interface Property {
   id: string;
   title: string;
-  description: string;
+  description?: string | null;
   price: number;
   property_type: string;
-  listing_type: string;
+  listing_type: "sale" | "rent";
   bedrooms: number;
   bathrooms: number;
-  area: number;
-  location: string;
-  address: string;
-  images: string[];
+  area?: number | null;
+  location?: string | null;
+  address?: string | null;
+  images?: string[] | null;
   is_published: boolean;
   created_at: string;
+  updated_at: string;
   user_id: string;
   property_code?: string;
+  amenities?: string[] | null;
+  ownership_type?: string | null;
 }
 
 export const PropertiesManagement = () => {
   const { user, isAdmin } = useAuth();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   
   const [properties, setProperties] = useState<Property[]>([]);
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
@@ -110,7 +116,7 @@ export const PropertiesManagement = () => {
     if (searchTerm) {
       filtered = filtered.filter(property =>
         property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        property.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        property.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         property.property_code?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
@@ -251,35 +257,35 @@ export const PropertiesManagement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-3 md:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
-        <h1 className="text-4xl font-bold mb-8 flex items-center gap-4 border-b-2 border-primary pb-4">
-          <div className="bg-primary text-primary-foreground p-3 rounded-xl">
-            <Grid3X3 className="h-6 w-6" />
+        <h1 className="text-2xl md:text-4xl font-bold mb-6 md:mb-8 flex items-center gap-3 md:gap-4 border-b-2 border-primary pb-3 md:pb-4">
+          <div className="bg-primary text-primary-foreground p-2 md:p-3 rounded-xl">
+            <Grid3X3 className="h-4 w-4 md:h-6 md:w-6" />
           </div>
           إدارة العقارات
         </h1>
 
         {/* Controls */}
-        <Card className="mb-6">
-          <CardContent className="p-6">
-            <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+        <Card className="mb-4 md:mb-6">
+          <CardContent className="p-3 md:p-6">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center justify-between">
               {/* Search */}
-              <div className="flex-1 max-w-md">
+              <div className="flex-1 max-w-full md:max-w-md">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
                     placeholder="البحث بالعنوان، الموقع، أو الشفرة..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 text-sm"
                   />
                 </div>
               </div>
 
               {/* Controls */}
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2">
                 {/* Sort */}
                 <select
                   value={`${sortBy}-${sortOrder}`}
@@ -288,7 +294,7 @@ export const PropertiesManagement = () => {
                     setSortBy(field as any);
                     setSortOrder(order as any);
                   }}
-                  className="px-3 py-2 border rounded-lg text-sm"
+                  className="px-3 py-2 border rounded-lg text-xs md:text-sm min-w-0"
                 >
                   <option value="date-desc">الأحدث أولاً</option>
                   <option value="date-asc">الأقدم أولاً</option>
@@ -298,25 +304,27 @@ export const PropertiesManagement = () => {
                   <option value="code-desc">الشفرة: ي-أ</option>
                 </select>
 
-                {/* View Mode */}
-                <div className="flex border rounded-lg overflow-hidden">
-                  <Button
-                    variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => setViewMode('grid')}
-                    className="rounded-none"
-                  >
-                    <Grid3X3 className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant={viewMode === 'list' ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => setViewMode('list')}
-                    className="rounded-none"
-                  >
-                    <List className="w-4 h-4" />
-                  </Button>
-                </div>
+                {/* View Mode - Hidden on mobile */}
+                {!isMobile && (
+                  <div className="flex border rounded-lg overflow-hidden">
+                    <Button
+                      variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setViewMode('grid')}
+                      className="rounded-none"
+                    >
+                      <Grid3X3 className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant={viewMode === 'list' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setViewMode('list')}
+                      className="rounded-none"
+                    >
+                      <List className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
 
                 {/* Refresh */}
                 <Button variant="outline" size="sm" onClick={fetchProperties}>
@@ -328,45 +336,45 @@ export const PropertiesManagement = () => {
         </Card>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
           <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-3 md:p-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-primary">{properties.length}</div>
-                <div className="text-sm text-gray-600">إجمالي العقارات</div>
+                <div className="text-lg md:text-2xl font-bold text-primary">{properties.length}</div>
+                <div className="text-xs md:text-sm text-gray-600">إجمالي العقارات</div>
               </div>
             </CardContent>
           </Card>
           
           <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-3 md:p-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
+                <div className="text-lg md:text-2xl font-bold text-green-600">
                   {properties.filter(p => p.is_published).length}
                 </div>
-                <div className="text-sm text-gray-600">منشور</div>
+                <div className="text-xs md:text-sm text-gray-600">منشور</div>
               </div>
             </CardContent>
           </Card>
           
           <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-3 md:p-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-orange-600">
+                <div className="text-lg md:text-2xl font-bold text-orange-600">
                   {properties.filter(p => !p.is_published).length}
                 </div>
-                <div className="text-sm text-gray-600">غير منشور</div>
+                <div className="text-xs md:text-sm text-gray-600">غير منشور</div>
               </div>
             </CardContent>
           </Card>
           
           <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-3 md:p-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">
+                <div className="text-lg md:text-2xl font-bold text-blue-600">
                   {selectionStats.selectedCount}
                 </div>
-                <div className="text-sm text-gray-600">محدد</div>
+                <div className="text-xs md:text-sm text-gray-600">محدد</div>
               </div>
             </CardContent>
           </Card>
@@ -375,32 +383,54 @@ export const PropertiesManagement = () => {
         {/* Properties Grid/List */}
         {filteredProperties.length === 0 ? (
           <Card>
-            <CardContent className="p-12 text-center">
+            <CardContent className="p-8 md:p-12 text-center">
               <div className="text-gray-400 mb-4">
-                <Grid3X3 className="w-16 h-16 mx-auto" />
+                <Grid3X3 className="w-12 h-12 md:w-16 md:h-16 mx-auto" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">لا توجد عقارات</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg md:text-xl font-semibold mb-2">لا توجد عقارات</h3>
+              <p className="text-gray-600 text-sm md:text-base">
                 {searchTerm ? 'لم يتم العثور على عقارات تطابق البحث' : 'لم يتم العثور على أي عقارات'}
               </p>
             </CardContent>
           </Card>
         ) : (
           <div className={
-            viewMode === 'grid' 
-              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
-              : 'space-y-4'
+            isMobile || viewMode === 'list'
+              ? 'space-y-3 md:space-y-4'
+              : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6'
           }>
             {filteredProperties.map((property) => (
-              <PropertyCard
-                key={property.id}
-                property={property}
-                showCheckbox={true}
-                isSelected={isSelected(property)}
-                onSelectionChange={(prop, selected) => {
-                  toggleItem(prop);
-                }}
-              />
+              isMobile ? (
+                <PropertyCardMobile
+                  key={property.id}
+                  property={{
+                    ...property,
+                    listing_type: (property.listing_type === "sale" || property.listing_type === "rent") 
+                      ? property.listing_type as "sale" | "rent"
+                      : "sale"
+                  }}
+                  showCheckbox={true}
+                  isSelected={isSelected(property)}
+                  onSelectionChange={(prop, selected) => {
+                    toggleItem(prop);
+                  }}
+                />
+              ) : (
+                <PropertyCard
+                  key={property.id}
+                  property={{
+                    ...property,
+                    listing_type: (property.listing_type === "sale" || property.listing_type === "rent") 
+                      ? property.listing_type as "sale" | "rent"
+                      : "sale"
+                  }}
+                  showCheckbox={true}
+                  isSelected={isSelected(property)}
+                  onSelectionChange={(prop, selected) => {
+                    toggleItem(prop);
+                  }}
+                />
+              )
             ))}
           </div>
         )}

@@ -72,15 +72,33 @@ export const useUserStatus = () => {
 
     try {
       const { data, error } = await supabase
-        .rpc('get_user_status', { user_id_param: user.id });
+        .from('user_statuses')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
 
-      if (error) {
-        throw error;
+      if (error || !data) {
+        // Create default status if none exists
+        const { data: newStatus, error: createError } = await supabase
+          .from('user_statuses')
+          .insert({
+            user_id: user.id,
+            status: 'publisher',
+            properties_limit: 1,
+            images_limit: 2,
+            can_publish: true,
+            is_verified: false
+          })
+          .select()
+          .single();
+
+        if (!createError && newStatus) {
+          setUserStatus(newStatus as UserStatusData);
+        }
+        return;
       }
 
-      if (data && data.length > 0) {
-        setUserStatus(data[0] as UserStatusData);
-      }
+      setUserStatus(data as UserStatusData);
     } catch (error: any) {
       console.error('Error fetching user status:', error);
       toast({
@@ -160,11 +178,12 @@ export const useUserStatus = () => {
     setIsUpdating(true);
 
     try {
-      const { data, error } = await supabase
-        .rpc('update_user_status', {
-          target_user_id: targetUserId,
-          new_status: newStatus
-        });
+      const { error } = await supabase
+        .from('user_statuses')
+        .update({
+          status: newStatus
+        })
+        .eq('user_id', targetUserId);
 
       if (error) {
         throw error;
@@ -229,11 +248,3 @@ export const useUserStatus = () => {
     getRemainingProperties
   };
 };
-
-
-
-
-
-
-
-

@@ -97,7 +97,15 @@ export const PropertiesManagement = () => {
 
       if (error) throw error;
 
-      setProperties(data || []);
+      // التأكد من أن listing_type يتوافق مع الأنواع المتوقعة
+      const validatedData = (data || []).map(item => ({
+        ...item,
+        listing_type: item.listing_type === "sale" || item.listing_type === "rent" 
+          ? item.listing_type as "sale" | "rent"
+          : "sale" // قيمة افتراضية في حالة وجود قيمة غير متوقعة
+      }));
+
+      setProperties(validatedData);
     } catch (error: any) {
       toast({
         title: "خطأ في تحميل العقارات",
@@ -412,7 +420,10 @@ export const PropertiesManagement = () => {
                   showCheckbox={true}
                   isSelected={isSelected(property)}
                   onSelectionChange={(prop, selected) => {
-                    toggleItem(prop);
+                    toggleItem({
+                      ...prop,
+                      user_id: property.user_id
+                    });
                   }}
                 />
               ) : (
@@ -427,7 +438,10 @@ export const PropertiesManagement = () => {
                   showCheckbox={true}
                   isSelected={isSelected(property)}
                   onSelectionChange={(prop, selected) => {
-                    toggleItem(prop);
+                    toggleItem({
+                      ...prop,
+                      user_id: property.user_id
+                    });
                   }}
                 />
               )

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useCachedFetch, useDataCache } from "@/hooks/useImageCache";
 import { PostgrestError } from "@supabase/supabase-js";
 
 interface Property {
@@ -31,6 +32,7 @@ export const useProperties = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { user, isAdmin } = useAuth();
   const { toast } = useToast();
+  const { clearDataCache } = useDataCache();
 
   // Fetch all published properties (for general viewing)
   const fetchProperties = useCallback(async () => {
@@ -145,7 +147,9 @@ export const useProperties = () => {
         description: currentStatus ? "العقار غير مرئي الآن" : "العقار مرئي الآن للجميع",
       });
 
-      // Refresh both lists
+      // Clear cache and refresh both lists
+      clearDataCache('properties');
+      clearDataCache('user-properties');
       await Promise.all([fetchProperties(), fetchUserProperties()]);
     } catch (error: unknown) {
       const postgrestError = error as PostgrestError;
@@ -196,7 +200,9 @@ export const useProperties = () => {
         description: "تم حفظ جميع التغييرات",
       });
 
-      // تحديث القوائم
+      // Clear cache and refresh lists
+      clearDataCache('properties');
+      clearDataCache('user-properties');
       await Promise.all([fetchProperties(), fetchUserProperties()]);
     } catch (error: unknown) {
       const postgrestError = error as PostgrestError;
@@ -247,7 +253,9 @@ export const useProperties = () => {
         description: "تم حذف العقار بنجاح",
       });
 
-      // تحديث القوائم
+      // Clear cache and refresh lists
+      clearDataCache('properties');
+      clearDataCache('user-properties');
       await Promise.all([fetchProperties(), fetchUserProperties()]);
     } catch (error: unknown) {
       const postgrestError = error as PostgrestError;

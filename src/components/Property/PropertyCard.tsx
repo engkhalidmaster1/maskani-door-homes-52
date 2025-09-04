@@ -1,11 +1,14 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { LazyImage } from "@/components/ui/lazy-image";
+import { getOptimizedImageUrl } from "@/utils/imageOptimization";
 import { Building, Home as HomeIcon, MapPin, Bed, Bath, Ruler, Heart, CheckSquare, Square, Edit, Trash2, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Property {
   id: string;
@@ -50,6 +53,7 @@ export const PropertyCard = ({
   const { user } = useAuth();
   const { isFavorite, toggleFavorite } = useFavorites();
   const [isToggling, setIsToggling] = useState(false);
+  const isMobile = useIsMobile();
   const navigate = useNavigate();
 
   const formatPrice = (price: number) => {
@@ -183,15 +187,12 @@ export const PropertyCard = ({
           {(() => {
             const imageUrl = property.images?.[0];
             return imageUrl ? (
-              <img
-                src={imageUrl}
+              <LazyImage
+                src={getOptimizedImageUrl(imageUrl, isMobile ? 'small' : 'medium')}
                 alt={property.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                  const fallbackDiv = e.currentTarget.parentElement?.querySelector('.fallback-bg') as HTMLElement;
-                  if (fallbackDiv) fallbackDiv.style.display = 'flex';
-                }}
+                placeholder="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23f0f0f0'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999'%3ELoading...%3C/text%3E%3C/svg%3E"
+                fallback="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23f5f5f5'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999'%3EImage not found%3C/text%3E%3C/svg%3E"
               />
             ) : (
               <div className="fallback-bg w-full h-full flex items-center justify-center bg-muted">

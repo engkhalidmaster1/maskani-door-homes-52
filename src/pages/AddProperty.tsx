@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { PlusCircle, Building, Home, Layers, Store, Tag, Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useOptimizedImageUpload } from "@/hooks/useOptimizedImageUpload";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useUserStatus } from "@/hooks/useUserStatus";
@@ -22,6 +23,7 @@ import {
 export const AddProperty = () => {
   const { toast } = useToast();
   const { user } = useAuth();
+  const { uploadOptimizedImages, uploadProgress, isUploading } = useOptimizedImageUpload();
   const navigate = useNavigate();
   const { userStatus, canAddProperty, getRemainingProperties } = useUserStatus();
   const [isLoading, setIsLoading] = useState(false);
@@ -142,35 +144,13 @@ export const AddProperty = () => {
 
   const uploadImages = async (): Promise<string[]> => {
     if (selectedImages.length === 0) return [];
-
-    const uploadedUrls: string[] = [];
-
-    for (const file of selectedImages) {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `property-images/${fileName}`;
-
-      try {
-        const { error: uploadError } = await supabase.storage
-          .from('property-images')
-          .upload(filePath, file);
-
-        if (uploadError) {
-          console.error('Error uploading image:', uploadError);
-          continue;
-        }
-
-        const { data } = supabase.storage
-          .from('property-images')
-          .getPublicUrl(filePath);
-
-        uploadedUrls.push(data.publicUrl);
-      } catch (error) {
-        console.error('Error processing image:', error);
-      }
+    
+    try {
+      return await uploadOptimizedImages(selectedImages, 'property-images');
+    } catch (error) {
+      console.error('Error uploading optimized images:', error);
+      return [];
     }
-
-    return uploadedUrls;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

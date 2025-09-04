@@ -3,6 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { LazyImage } from "@/components/ui/lazy-image";
+import { getOptimizedImageUrl } from "@/utils/imageOptimization";
 import { Heart, MapPin, BedDouble, Bath, Square, Phone, Eye, Edit, Trash2 } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useAuth } from "@/hooks/useAuth";
@@ -92,14 +94,12 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
         {/* Image Section */}
         <div className="relative h-48 bg-gray-100">
           {property.images && property.images.length > 0 ? (
-            <img
-              src={property.images[0]}
+            <LazyImage
+              src={getOptimizedImageUrl(property.images[0], 'small')}
               alt={property.title}
               className="w-full h-full object-cover"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = "/placeholder.svg";
-              }}
+              placeholder="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23f0f0f0'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999'%3ELoading...%3C/text%3E%3C/svg%3E"
+              fallback="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23f5f5f5'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999'%3EImage not found%3C/text%3E%3C/svg%3E"
             />
           ) : (
             <div className="w-full h-full bg-gray-200 flex items-center justify-center">

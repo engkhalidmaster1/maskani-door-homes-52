@@ -16,15 +16,6 @@ export const getPropertyDefaultImage = (propertyType: string): string => {
     case 'office':
     case 'مكتب':
       return `${baseUrl}/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80`;
-    case 'commercial':
-    case 'محل تجاري':
-      return `${baseUrl}/photo-1555529669-e69e7aa0ba9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80`;
-    case 'market':
-    case 'سوق':
-      return `${baseUrl}/photo-1534452203293-494d7ddbf7e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2072&q=80`;
-    case 'hotel':
-    case 'فندق':
-      return `${baseUrl}/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80`;
     default:
       return `${baseUrl}/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80`;
   }

@@ -324,7 +324,7 @@ export const AddProperty = () => {
         title,
         description: formData.description?.trim() ? formData.description.trim() : null,
         property_type: formData.property_type,
-        listing_type: formData.listing_type,
+        listing_type: formData.listing_type as "sale" | "rent",
         price: parseFloat(formData.price),
         area: formData.area ? parseFloat(formData.area) : null,
         bedrooms: parseInt(formData.bedrooms),
@@ -332,11 +332,8 @@ export const AddProperty = () => {
         market: marketOption.value,
         location: locationText,
         address: addressText,
-        latitude: formData.latitude,
-        longitude: formData.longitude,
         amenities: formData.furnished ? [formData.furnished === "yes" ? "مؤثثة" : "غير مؤثثة"] : [],
         images: uploadedImageUrls,
-        property_code: propertyCode, // حقل مطلوب
         is_published: true,
       };
 
@@ -347,51 +344,10 @@ export const AddProperty = () => {
         .from('properties')
         .insert([propertyData]);
 
-      // If there's a schema error, try with basic fields only
-      if (error && (error.message?.includes('schema cache') || error.message?.includes('property_code'))) {
-        console.log('Retrying with basic fields only...');
-        const basicPropertyData = {
-          user_id: user.id,
-          title,
-          description: formData.description?.trim() ? formData.description.trim() : null,
-          property_type: formData.property_type,
-          listing_type: formData.listing_type,
-          price: parseFloat(formData.price),
-          bedrooms: parseInt(formData.bedrooms),
-          bathrooms: 1,
-          market: marketOption.value,
-          location: locationText,
-          address: addressText,
-          latitude: formData.latitude,
-          longitude: formData.longitude,
-          images: uploadedImageUrls,
-          property_code: propertyCode, // إضافة الكود المطلوب
-          is_published: true,
-        };
-        
-        const retryResult = await supabase
-          .from('properties')
-          .insert([basicPropertyData]);
-        
-        error = retryResult.error;
-      }
 
       if (error) {
         console.error('Supabase error:', error);
-        
-        // معالجة أخطاء محددة
-        let userMessage = 'خطأ غير محدد';
-        if (error.message?.includes('property_code')) {
-          userMessage = 'خطأ في إنشاء كود العقار';
-        } else if (error.message?.includes('not-null constraint')) {
-          userMessage = 'بيانات مطلوبة مفقودة';
-        } else if (error.message?.includes('duplicate')) {
-          userMessage = 'هذا العقار موجود مسبقاً';
-        } else {
-          userMessage = error.message || 'خطأ غير محدد';
-        }
-        
-        throw new Error(`خطأ في قاعدة البيانات: ${userMessage}`);
+        throw new Error(`خطأ في حفظ العقار: ${error.message}`);
       }
 
       console.log('Property created successfully');

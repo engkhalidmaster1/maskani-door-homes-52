@@ -140,8 +140,17 @@ export const useUserStatus = () => {
         throw statusesError;
       }
 
-      // Combine data
-      const profiles: ProfileRow[] = usersData ?? [];
+      // Combine data - map to full profile structure
+      const profiles = (usersData ?? []).map(p => ({
+        address: '',
+        created_at: new Date().toISOString(),
+        email: p.email,
+        full_name: p.full_name,
+        id: p.user_id,
+        phone: p.phone,
+        updated_at: new Date().toISOString(),
+        user_id: p.user_id
+      }));
       const statuses: UserStatusData[] = statusesData ?? [];
 
       const combinedData: UserWithStatus[] = profiles.map(profile => {

@@ -1,0 +1,406 @@
+﻿import React, { useState, useMemo } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useProperties as useSyncedProperties } from "@/hooks/useSyncedData";
+import { PropertyCard } from "@/components/Property/PropertyCard";
+import { AddPropertyForm } from "../components/AddPropertyForm";
+import { useAuth } from "@/hooks/useAuth";
+import { 
+  Search, 
+  Plus, 
+  Filter, 
+  SlidersHorizontal, 
+  MapPin,
+  DollarSign,
+  Home,
+  Building,
+  Car,
+  Calendar,
+  Wifi,
+  WifiOff,
+  RefreshCw,
+  Database
+} from "lucide-react";
+import { toast } from "sonner";
+
+const Properties = () => {
+  const { user } = useAuth();
+  const {
+    data: properties,
+    loading,
+    error,
+    isOnline,
+    syncStatus,
+    addItem: addProperty,
+    updateItem: updateProperty,
+    deleteItem: deleteProperty,
+    refresh,
+    forceSync
+  } = useSyncedProperties();
+
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedType, setSelectedType] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
+  const [priceRange, setPriceRange] = useState('all');
+  const [showFilters, setShowFilters] = useState(false);
+
+  // تصفية وترتيب العقارات
+  const filteredProperties = useMemo(() => {
+    let filtered = properties.filter(property => {
+      const matchesSearch = property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          property.location.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesType = selectedType === 'all' || property.type === selectedType;
+      const matchesStatus = selectedStatus === 'all' || property.status === selectedStatus;
+      
+      let matchesPrice = true;
+      if (priceRange !== 'all') {
+        const price = property.price;
+        switch (priceRange) {
+          case 'under-100k':
+            matchesPrice = price < 100000;
+            break;
+          case '100k-300k':
+            matchesPrice = price >= 100000 && price < 300000;
+            break;
+          case '300k-500k':
+            matchesPrice = price >= 300000 && price < 500000;
+            break;
+          case 'over-500k':
+            matchesPrice = price >= 500000;
+            break;
+        }
+      }
+
+      return matchesSearch && matchesType && matchesStatus && matchesPrice;
+    });
+
+    // ترتيب النتائج
+    switch (sortBy) {
+      case 'newest':
+        filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        break;
+      case 'oldest':
+        filtered.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+        break;
+      case 'price-high':
+        filtered.sort((a, b) => b.price - a.price);
+        break;
+      case 'price-low':
+        filtered.sort((a, b) => a.price - b.price);
+        break;
+      case 'title':
+        filtered.sort((a, b) => a.title.localeCompare(b.title, 'ar'));
+        break;
+    }
+
+    return filtered;
+  }, [properties, searchTerm, selectedType, selectedStatus, priceRange, sortBy]);
+
+  const handleAddProperty = async (propertyData: any) => {
+    try {
+      const newProperty = {
+        ...propertyData,
+        user_id: user?.id,
+        created_at: new Date().toISOString()
+      };
+
+      await addProperty(newProperty);
+      setShowAddForm(false);
+      
+      if (isOnline) {
+        toast.success('تم إضافة العقار وسيتم رفعه للسحاب قريباً');
+      } else {
+        toast.success('تم حفظ العقار محلياً وسيتم رفعه عند عودة الاتصال');
+      }
+    } catch (error) {
+      console.error('Error adding property:', error);
+      toast.error('حدث خطأ في إضافة العقار');
+    }
+  };
+
+  const handleRefresh = async () => {
+    try {
+      await refresh();
+      toast.success('تم تحديث البيانات بنجاح');
+    } catch (error) {
+      toast.error('فشل في تحديث البيانات');
+    }
+  };
+
+  const handleForceSync = async () => {
+    if (!isOnline) {
+      toast.error('لا يوجد اتصال بالإنترنت');
+      return;
+    }
+
+    try {
+      await forceSync();
+      toast.success('تمت المزامنة بنجاح');
+    } catch (error) {
+      toast.error('فشل في المزامنة: ' + error.message);
+    }
+  };
+
+  if (loading && properties.length === 0) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="text-center py-12">
+          <div className="animate-spin h-12 w-12 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-lg">جاري تحميل العقارات...</p>
+          <p className="text-sm text-muted-foreground">
+            {isOnline ? 'جاري التحميل من السحاب...' : 'جاري التحميل من قاعدة البيانات المحلية...'}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto p-6 max-w-7xl">
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">العقارات</h1>
+            <p className="text-muted-foreground flex items-center gap-2">
+              {isOnline ? (
+                <>
+                  <Wifi className="h-4 w-4 text-green-500" />
+                  متصل - {filteredProperties.length} عقار
+                </>
+              ) : (
+                <>
+                  <WifiOff className="h-4 w-4 text-orange-500" />
+                  غير متصل - {filteredProperties.length} عقار محلي
+                </>
+              )}
+              {syncStatus === 'syncing' && (
+                <Badge variant="secondary" className="animate-pulse">
+                  <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
+                  جاري المزامنة...
+                </Badge>
+              )}
+            </p>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button 
+              onClick={handleRefresh}
+              variant="outline"
+              disabled={loading}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+              تحديث
+            </Button>
+            
+            {isOnline && (
+              <Button 
+                onClick={handleForceSync}
+                variant="outline"
+                disabled={syncStatus === 'syncing'}
+                className="flex items-center gap-2"
+              >
+                <Database className="h-4 w-4" />
+                مزامنة فورية
+              </Button>
+            )}
+            
+            {user && (
+              <Button 
+                onClick={() => setShowAddForm(true)}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                إضافة عقار
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Search and Filters */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Search className="h-5 w-5" />
+            البحث والتصفية
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder="ابحث عن العقارات..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pr-10"
+            />
+          </div>
+
+          {/* Toggle Filters */}
+          <div className="flex justify-between items-center">
+            <Button
+              variant="outline"
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center gap-2"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              {showFilters ? 'إخفاء الفلاتر' : 'إظهار الفلاتر'}
+            </Button>
+            
+            <div className="text-sm text-muted-foreground">
+              {filteredProperties.length} من {properties.length} عقار
+            </div>
+          </div>
+
+          {/* Advanced Filters */}
+          {showFilters && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t">
+              <div>
+                <label className="text-sm font-medium mb-2 block">نوع العقار</label>
+                <Select value={selectedType} onValueChange={setSelectedType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر النوع" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">جميع الأنواع</SelectItem>
+                    <SelectItem value="villa">فيلا</SelectItem>
+                    <SelectItem value="apartment">شقة</SelectItem>
+                    <SelectItem value="house">بيت</SelectItem>
+                    <SelectItem value="land">أرض</SelectItem>
+                    <SelectItem value="commercial">تجاري</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">حالة العقار</label>
+                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر الحالة" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">جميع الحالات</SelectItem>
+                    <SelectItem value="للبيع">للبيع</SelectItem>
+                    <SelectItem value="للإيجار">للإيجار</SelectItem>
+                    <SelectItem value="مباع">مباع</SelectItem>
+                    <SelectItem value="مؤجر">مؤجر</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">نطاق السعر</label>
+                <Select value={priceRange} onValueChange={setPriceRange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر النطاق" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">جميع الأسعار</SelectItem>
+                    <SelectItem value="under-100k">أقل من 100 ألف</SelectItem>
+                    <SelectItem value="100k-300k">100 - 300 ألف</SelectItem>
+                    <SelectItem value="300k-500k">300 - 500 ألف</SelectItem>
+                    <SelectItem value="over-500k">أكثر من 500 ألف</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">ترتيب حسب</label>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر الترتيب" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">الأحدث أولاً</SelectItem>
+                    <SelectItem value="oldest">الأقدم أولاً</SelectItem>
+                    <SelectItem value="price-high">السعر الأعلى أولاً</SelectItem>
+                    <SelectItem value="price-low">السعر الأقل أولاً</SelectItem>
+                    <SelectItem value="title">ترتيب أبجدي</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Properties Grid */}
+      {error ? (
+        <Card>
+          <CardContent className="text-center py-12">
+            <div className="text-red-500 mb-4">
+              <WifiOff className="h-12 w-12 mx-auto mb-2" />
+              <p className="text-lg font-medium">خطأ في تحميل البيانات</p>
+              <p className="text-sm text-muted-foreground">{error}</p>
+            </div>
+            <Button onClick={handleRefresh} variant="outline">
+              <RefreshCw className="h-4 w-4 mr-2" />
+              إعادة المحاولة
+            </Button>
+          </CardContent>
+        </Card>
+      ) : filteredProperties.length === 0 ? (
+        <Card>
+          <CardContent className="text-center py-12">
+            <Home className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium mb-2">لم يتم العثور على عقارات</h3>
+            <p className="text-muted-foreground mb-4">
+              {properties.length === 0 
+                ? 'لا توجد عقارات مضافة بعد' 
+                : 'جرب تعديل معايير البحث'}
+            </p>
+            {user && properties.length === 0 && (
+              <Button onClick={() => setShowAddForm(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                إضافة أول عقار
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredProperties.map((property) => {
+            // تحويل البيانات لتتناسب مع PropertyCard
+            const propertyData = {
+              ...property,
+              property_type: property.type,
+              listing_type: property.status,
+              address: property.location,
+              amenities: property.features,
+              bedrooms: 0,
+              bathrooms: 0,
+              is_published: true,
+              area: 0,
+              user_id: property.user_id
+            };
+            
+            return (
+              <PropertyCard 
+                key={property.id} 
+                property={propertyData}
+              />
+            );
+          })}
+        </div>
+      )}
+
+      {/* Add Property Modal */}
+      {showAddForm && (
+        <AddPropertyForm
+          onClose={() => setShowAddForm(false)}
+          onSubmit={handleAddProperty}
+        />
+      )}
+    </div>
+  );
+};
+
+export default Properties;

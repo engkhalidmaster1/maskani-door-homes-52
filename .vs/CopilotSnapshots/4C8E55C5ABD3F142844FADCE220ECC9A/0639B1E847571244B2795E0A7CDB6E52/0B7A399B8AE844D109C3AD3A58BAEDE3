@@ -1,0 +1,463 @@
+﻿import { localDB } from './localDatabase';
+import { supabase } from '@/integrations/supabase/client';
+
+// خدمة المزامنة بين قاعدة البيانات المحلية والسحابية
+class SyncService {
+  private isOnline: boolean = navigator.onLine;
+  private syncInProgress: boolean = false;
+  private syncInterval: NodeJS.Timeout | null = null;
+  private retryTimeout: NodeJS.Timeout | null = null;
+
+  constructor() {
+    this.setupNetworkListeners();
+    this.startAutoSync();
+  }
+
+  // إعداد مراقبة حالة الاتصال
+  private setupNetworkListeners(): void {
+    window.addEventListener('online', () => {
+      console.log('🌐 تم استعادة الاتصال بالإنترنت');
+      this.isOnline = true;
+      this.triggerSync();
+    });
+
+    window.addEventListener('offline', () => {
+      console.log('📱 تم قطع الاتصال بالإنترنت - التبديل للوضع المحلي');
+      this.isOnline = false;
+    });
+  }
+
+  // بدء المزامنة التلقائية
+  private startAutoSync(): void {
+    // مزامنة كل 30 ثانية عند توفر الاتصال
+    this.syncInterval = setInterval(() => {
+      if (this.isOnline && !this.syncInProgress) {
+        this.syncData();
+      }
+    }, 30000);
+
+    // مزامنة فورية عند بدء التطبيق إذا كان الاتصال متاح
+    if (this.isOnline) {
+      setTimeout(() => this.syncData(), 2000);
+    }
+  }
+
+  // تشغيل المزامنة الفورية
+  public triggerSync(): void {
+    if (this.isOnline && !this.syncInProgress) {
+      this.syncData();
+    }
+  }
+
+  // المزامنة الرئيسية
+  private async syncData(): Promise<void> {
+    if (this.syncInProgress || !this.isOnline) return;
+
+    this.syncInProgress = true;
+    console.log('🔄 بدء عملية المزامنة...');
+
+    try {
+      // 1. مزامنة البيانات المحلية إلى السحاب
+      await this.syncLocalToCloud();
+
+      // 2. مزامنة البيانات من السحاب إلى المحلي
+      await this.syncCloudToLocal();
+
+      console.log('✅ تمت المزامنة بنجاح');
+      
+      // حفظ وقت آخر مزامنة
+      await localDB.saveSetting('last_sync', new Date().toISOString());
+
+    } catch (error) {
+      console.error('❌ خطأ في المزامنة:', error);
+      this.scheduleRetry();
+    } finally {
+      this.syncInProgress = false;
+    }
+  }
+
+  // مزامنة البيانات من المحلي إلى السحاب
+  private async syncLocalToCloud(): Promise<void> {
+    try {
+      // التأكد من تهيئة قاعدة البيانات قبل الوصول للطابور
+      if (!localDB.getDatabase()) {
+        console.warn('⚠️ قاعدة البيانات غير مُهيئة، تخطي المزامنة');
+        return;
+      }
+
+      const pendingItems = await localDB.getSyncQueue();
+      
+      console.log(`📤 مزامنة ${pendingItems.length} عنصر محلي إلى السحاب`);
+
+      for (const item of pendingItems) {
+        try {
+          await this.processSyncItem(item);
+          await localDB.updateSyncQueueItem(item.id, 'completed');
+        } catch (error) {
+          console.error(`❌ فشل في مزامنة العنصر ${item.id}:`, error);
+          await localDB.updateSyncQueueItem(item.id, 'failed', error.message);
+        }
+      }
+    } catch (error) {
+      console.error('❌ خطأ في الوصول لطابور المزامنة:', error);
+      // لا نرمي الخطأ هنا لتجنب توقف المزامنة
+    }
+  }
+
+  // معالجة عنصر واحد في طابور المزامنة
+  private async processSyncItem(item: any): Promise<void> {
+    const { table_name, operation, record_id, data } = item;
+
+    switch (table_name) {
+      case 'properties':
+        await this.syncProperty(operation, record_id, data);
+        break;
+      case 'favorites':
+        await this.syncFavorite(operation, record_id, data);
+        break;
+      case 'users':
+        await this.syncUser(operation, record_id, data);
+        break;
+      default:
+        console.warn(`⚠️ نوع جدول غير مدعوم: ${table_name}`);
+    }
+  }
+
+  // مزامنة العقارات
+  private async syncProperty(operation: string, recordId: any, data: any): Promise<void> {
+    switch (operation) {
+      case 'create':
+        const { data: newProperty, error: createError } = await supabase
+          .from('properties')
+          .insert({
+            title: data.title,
+            description: data.description,
+            price: data.price,
+            property_type: data.type || data.property_type,
+            listing_type: data.status || data.listing_type || 'للبيع',
+            address: data.location || data.address,
+            images: data.images || [],
+            amenities: data.features || data.amenities || [],
+            user_id: data.user_id,
+            created_at: data.created_at
+          })
+          .select()
+          .single();
+
+        if (createError) throw createError;
+
+        // تحديث المعرف المحلي بالمعرف السحابي
+        if (newProperty) {
+          await localDB.update('properties', recordId, { 
+            cloud_id: newProperty.id,
+            sync_status: 'synced' 
+          });
+        }
+        break;
+
+      case 'update':
+        const { error: updateError } = await supabase
+          .from('properties')
+          .update({
+            title: data.title,
+            description: data.description,
+            price: data.price,
+            property_type: data.type || data.property_type,
+            listing_type: data.status || data.listing_type,
+            address: data.location || data.address,
+            images: data.images || [],
+            amenities: data.features || data.amenities || [],
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', data.cloud_id || recordId);
+
+        if (updateError) throw updateError;
+        break;
+
+      case 'delete':
+        const { error: deleteError } = await supabase
+          .from('properties')
+          .delete()
+          .eq('id', data?.cloud_id || recordId);
+
+        if (deleteError) throw deleteError;
+        break;
+    }
+  }
+
+  // مزامنة المفضلة
+  private async syncFavorite(operation: string, recordId: any, data: any): Promise<void> {
+    switch (operation) {
+      case 'create':
+        const { data: newFavorite, error: createError } = await supabase
+          .from('favorites')
+          .insert({
+            user_id: data.user_id,
+            property_id: data.property_id,
+            created_at: data.created_at
+          })
+          .select()
+          .single();
+
+        if (createError) throw createError;
+
+        if (newFavorite) {
+          await localDB.update('favorites', recordId, { 
+            cloud_id: newFavorite.id,
+            sync_status: 'synced' 
+          });
+        }
+        break;
+
+      case 'delete':
+        const { error: deleteError } = await supabase
+          .from('favorites')
+          .delete()
+          .eq('id', data?.cloud_id || recordId);
+
+        if (deleteError) throw deleteError;
+        break;
+    }
+  }
+
+  // مزامنة المستخدمين
+  private async syncUser(operation: string, recordId: any, data: any): Promise<void> {
+    // مزامنة بيانات المستخدم (ملف شخصي، إعدادات، إلخ)
+    switch (operation) {
+      case 'update':
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            display_name: data.display_name,
+            avatar_url: data.avatar_url,
+            phone: data.phone,
+            location: data.location,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', recordId);
+
+        if (error) throw error;
+        break;
+    }
+  }
+
+  // مزامنة البيانات من السحاب إلى المحلي
+  private async syncCloudToLocal(): Promise<void> {
+    console.log('📥 مزامنة البيانات من السحاب إلى المحلي');
+
+    try {
+      // الحصول على وقت آخر مزامنة
+      const lastSync = await localDB.getSetting('last_sync') || new Date(0).toISOString();
+
+      // مزامنة العقارات الجديدة/المحدثة
+      await this.syncPropertiesFromCloud(lastSync);
+
+      // مزامنة المفضلة
+      await this.syncFavoritesFromCloud(lastSync);
+
+    } catch (error) {
+      console.error('❌ خطأ في مزامنة البيانات من السحاب:', error);
+    }
+  }
+
+  // مزامنة العقارات من السحاب
+  private async syncPropertiesFromCloud(lastSync: string): Promise<void> {
+    const { data: cloudProperties, error } = await supabase
+      .from('properties')
+      .select('*')
+      .gte('updated_at', lastSync)
+      .order('updated_at', { ascending: true });
+
+    if (error) {
+      console.error('❌ خطأ في جلب العقارات من السحاب:', error);
+      return;
+    }
+
+    if (cloudProperties && cloudProperties.length > 0) {
+      console.log(`📦 تحديث ${cloudProperties.length} عقار من السحاب`);
+
+      for (const property of cloudProperties) {
+        try {
+          // البحث عن العقار محلياً
+          const existingProperties = await localDB.getAll('properties', { cloud_id: property.id });
+          
+          const localProperty = {
+            title: property.title,
+            description: property.description,
+            price: property.price,
+            type: property.property_type,
+            status: property.listing_type,
+            location: property.address,
+            images: property.images || [],
+            features: property.amenities || [],
+            user_id: property.user_id,
+            cloud_id: property.id,
+            sync_status: 'synced',
+            created_at: property.created_at,
+            updated_at: property.updated_at
+          };
+
+          if (existingProperties.length > 0) {
+            // تحديث العقار الموجود
+            await this.updateLocalProperty(existingProperties[0].id, localProperty);
+          } else {
+            // إضافة عقار جديد
+            await this.addLocalProperty(localProperty);
+          }
+        } catch (error) {
+          console.error(`❌ خطأ في مزامنة العقار ${property.id}:`, error);
+        }
+      }
+    }
+  }
+
+  // إضافة عقار محلي بدون إضافته لطابور المزامنة
+  private async addLocalProperty(property: any): Promise<void> {
+    // استخدام دالة خاصة لا تشغل نظام المزامنة
+    await localDB.addWithoutSync('properties', property);
+  }
+
+  // تحديث عقار محلي بدون إضافته لطابور المزامنة
+  private async updateLocalProperty(id: number, property: any): Promise<void> {
+    // استخدام دالة خاصة لا تشغل نظام المزامنة
+    property.id = id;
+    await localDB.updateWithoutSync('properties', id, property);
+  }
+
+  // مزامنة المفضلة من السحاب
+  private async syncFavoritesFromCloud(lastSync: string): Promise<void> {
+    // الحصول على معرف المستخدم الحالي
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data: cloudFavorites, error } = await supabase
+      .from('favorites')
+      .select('*')
+      .eq('user_id', user.id)
+      .gte('updated_at', lastSync);
+
+    if (error) {
+      console.error('❌ خطأ في جلب المفضلة من السحاب:', error);
+      return;
+    }
+
+    if (cloudFavorites && cloudFavorites.length > 0) {
+      console.log(`❤️ تحديث ${cloudFavorites.length} مفضلة من السحاب`);
+
+      for (const favorite of cloudFavorites) {
+        const localFavorite = {
+          user_id: favorite.user_id,
+          property_id: favorite.property_id,
+          cloud_id: favorite.id,
+          sync_status: 'synced',
+          created_at: favorite.created_at
+        };
+
+        try {
+          // التحقق من وجود المفضلة محلياً
+          const existing = await localDB.getAll('favorites', { 
+            cloud_id: favorite.id 
+          });
+
+          if (existing.length === 0) {
+            await this.addLocalFavorite(localFavorite);
+          }
+        } catch (error) {
+          console.error(`❌ خطأ في مزامنة المفضلة ${favorite.id}:`, error);
+        }
+      }
+    }
+  }
+
+  // إضافة مفضلة محلية بدون مزامنة
+  private async addLocalFavorite(favorite: any): Promise<void> {
+    await localDB.addWithoutSync('favorites', favorite);
+  }
+
+  // جدولة إعادة المحاولة عند فشل المزامنة
+  private scheduleRetry(): void {
+    if (this.retryTimeout) {
+      clearTimeout(this.retryTimeout);
+    }
+
+    // إعادة المحاولة بعد 5 دقائق
+    this.retryTimeout = setTimeout(() => {
+      if (this.isOnline) {
+        console.log('🔄 إعادة محاولة المزامنة...');
+        this.syncData();
+      }
+    }, 5 * 60 * 1000);
+  }
+
+  // فرض المزامنة الفورية
+  public async forcSync(): Promise<void> {
+    if (this.syncInProgress) {
+      console.log('⏳ المزامنة قيد التقدم...');
+      return;
+    }
+
+    if (!this.isOnline) {
+      console.log('📱 لا يوجد اتصال بالإنترنت');
+      return;
+    }
+
+    await this.syncData();
+  }
+
+  // الحصول على حالة المزامنة
+  public getSyncStatus(): {
+    isOnline: boolean;
+    syncInProgress: boolean;
+    lastSync: Promise<string | null>;
+  } {
+    return {
+      isOnline: this.isOnline,
+      syncInProgress: this.syncInProgress,
+      lastSync: localDB.getSetting('last_sync')
+    };
+  }
+
+  // إيقاف خدمة المزامنة
+  public stop(): void {
+    if (this.syncInterval) {
+      clearInterval(this.syncInterval);
+      this.syncInterval = null;
+    }
+
+    if (this.retryTimeout) {
+      clearTimeout(this.retryTimeout);
+      this.retryTimeout = null;
+    }
+
+    console.log('⏹️ تم إيقاف خدمة المزامنة');
+  }
+
+  // مسح طابور المزامنة
+  public async clearSyncQueue(): Promise<void> {
+    await localDB.clearSyncQueue();
+    console.log('🧹 تم مسح طابور المزامنة');
+  }
+
+  // الحصول على إحصائيات المزامنة
+  public async getSyncStats(): Promise<{
+    pendingItems: number;
+    failedItems: number;
+    totalLocalProperties: number;
+    totalLocalFavorites: number;
+  }> {
+    const pendingItems = await localDB.getAll('sync_queue', { status: 'pending' });
+    const failedItems = await localDB.getAll('sync_queue', { status: 'failed' });
+    const localProperties = await localDB.getAll('properties');
+    const localFavorites = await localDB.getAll('favorites');
+
+    return {
+      pendingItems: pendingItems.length,
+      failedItems: failedItems.length,
+      totalLocalProperties: localProperties.length,
+      totalLocalFavorites: localFavorites.length
+    };
+  }
+}
+
+// تصدير المثيل الوحيد
+export const syncService = new SyncService();

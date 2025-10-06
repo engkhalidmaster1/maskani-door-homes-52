@@ -1,0 +1,78 @@
+-- إدراج بيانات العقارات المحدثة
+-- عقار للبيع: شقة رقم 12 في العمارة 12
+INSERT INTO properties (
+  id,
+  user_id,
+  title,
+  description,
+  property_type,
+  listing_type,
+  price,
+  area,
+  bedrooms,
+  bathrooms,
+  location,
+  address,
+  amenities,
+  is_published,
+  created_at,
+  updated_at,
+  property_code
+) VALUES (
+  'property-12-sale',
+  (SELECT TOP 1 id FROM profiles),
+  'شقة رقم 12 في العمارة 12',
+  'شقة فاخرة في العمارة 12 مع إطلالة جميلة ومرافق متكاملة',
+  'apartment',
+  'sale',
+  12,
+  12,
+  1,
+  4,
+  'العمارة 12 - الطابق الأول - قرب 2',
+  'العمارة 12، الطابق الأول، قرب 2',
+  '["مكيف هواء", "مطبخ مجهز", "موقف سيارة", "بلكونة"]',
+  1,
+  GETDATE(),
+  GETDATE(),
+  'PROP-0012'
+);
+
+-- عقار للإيجار: شقة رقم 345 في العمارة 345
+INSERT INTO properties (
+  id,
+  user_id,
+  title,
+  description,
+  property_type,
+  listing_type,
+  price,
+  area,
+  bedrooms,
+  bathrooms,
+  location,
+  address,
+  amenities,
+  is_published,
+  created_at,
+  updated_at,
+  property_code
+) VALUES (
+  'property-345-rent',
+  (SELECT TOP 1 id FROM profiles),
+  'شقة رقم 345 في العمارة 345',
+  'شقة عصرية في العمارة 345 مع جميع المرافق الحديثة',
+  'apartment',
+  'rent',
+  35,
+  345,
+  1,
+  1,
+  'العمارة 345 - الطابق 3 - قرب 3',
+  'العمارة 345، الطابق الثالث، قرب 3',
+  '["مكيف هواء", "مطبخ مجهز", "مصعد", "أمان 24/7"]',
+  1,
+  GETDATE(),
+  GETDATE(),
+  'PROP-0345'
+);

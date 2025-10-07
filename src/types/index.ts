@@ -94,5 +94,3 @@ export interface PropertyFilters {
   location?: string;
   features?: string[];
 }
-
-export * from "./messaging";

@@ -321,6 +321,7 @@ export const AddProperty = () => {
 
       const propertyData = {
         user_id: user.id,
+        property_code: propertyCode,
         title,
         description: formData.description?.trim() ? formData.description.trim() : null,
         property_type: formData.property_type,

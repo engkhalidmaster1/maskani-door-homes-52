@@ -5,7 +5,6 @@ import { AppLayout } from "@/components/Layout/AppLayout";
 import { OfflineStatusIndicator } from "@/components/OfflineStatusIndicator";
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { Home } from "@/pages/Home";
-import { PropertiesOffline } from "@/pages/PropertiesOffline";
 import { Dashboard } from "@/pages/Dashboard";
 import { AddProperty } from "@/pages/AddProperty";
 import { EditProperty } from "@/pages/EditProperty";
@@ -15,7 +14,6 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Favorites } from "@/pages/Favorites";
 import { ImageDiagnostics } from "@/pages/ImageDiagnostics";
-import { TestImages } from "@/pages/TestImages";
 import { Login } from "@/pages/Auth/Login";
 import { Register } from "@/pages/Auth/Register";
 import { MapPage } from "@/pages/MapPage";
@@ -70,7 +68,7 @@ function App() {
           <Routes>
             <Route element={<AppLayout />}>
               <Route path="/" element={<Home />} />
-              <Route path="/properties" element={<PropertiesOffline />} />
+              <Route path="/properties" element={<PropertiesManagement />} />
               <Route path="/map" element={<MapPage />} />
               <Route path="/favorites" element={<Favorites />} />
               <Route path="/login" element={<Login />} />
@@ -82,7 +80,6 @@ function App() {
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/edit-office/:id" element={<ProtectedRoute><EditOffice /></ProtectedRoute>} />
               <Route path="/image-diagnostics" element={<ProtectedRoute><ImageDiagnostics /></ProtectedRoute>} />
-              <Route path="/test-images" element={<ProtectedRoute><TestImages /></ProtectedRoute>} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           </Routes>

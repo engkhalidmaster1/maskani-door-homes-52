@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Home, Building, PlusCircle, User, Menu, LogOut, Shield, Settings, LogIn, UserPlus, Heart, MapPin } from "lucide-react";
+import { Home, Building, PlusCircle, User, Menu, LogOut, Settings, LogIn, UserPlus, Heart, MapPin } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -22,7 +22,6 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
   const navItems = user ? [
     { id: "/", label: "الرئيسية", icon: Home },
     { id: "/properties", label: "العقارات", icon: Building },
-    { id: "/offices", label: "المكاتب العقارية", icon: Shield },
     { id: "/map", label: "الخريطة", icon: MapPin },
     { id: "/favorites", label: "المفضلة", icon: Heart, badge: getFavoritesCount() },
     { id: "/add-property", label: "إضافة عقار", icon: PlusCircle },
@@ -31,7 +30,6 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
   ] : [
     { id: "/", label: "الرئيسية", icon: Home },
     { id: "/properties", label: "العقارات", icon: Building },
-    { id: "/offices", label: "المكاتب العقارية", icon: Shield },
     { id: "/map", label: "الخريطة", icon: MapPin },
   ];
 

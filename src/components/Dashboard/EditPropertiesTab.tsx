@@ -11,8 +11,8 @@ import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
 export const EditPropertiesTab = () => {
-  const { userProperties } = useDashboardData();
-  const { togglePropertyPublication, deleteProperty } = useProperties();
+  const { userProperties, deleteProperty } = useDashboardData();
+  const { togglePropertyPublication } = useProperties();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
 

@@ -312,6 +312,36 @@ export const useDashboardData = () => {
     }
   };
 
+  const deleteProperty = useCallback(async (propertyId: string) => {
+    if (!isAdmin) return;
+
+    try {
+      const { error } = await supabase
+        .from('properties')
+        .delete()
+        .eq('id', propertyId);
+
+      if (error) {
+        throw error;
+      }
+
+      // Update local state by removing the deleted property
+      setUserProperties(prev => prev.filter(property => property.id !== propertyId));
+
+      toast({
+        title: "تم حذف العقار",
+        description: "تم حذف العقار بنجاح",
+      });
+    } catch (error) {
+      console.error('Error deleting property:', error);
+      toast({
+        title: "خطأ في حذف العقار",
+        description: "فشل في حذف العقار",
+        variant: "destructive",
+      });
+    }
+  }, [isAdmin]);
+
   const getDashboardStats = useCallback((): DashboardStats => {
     const totalUsers = users.length;
     const totalProperties = userProperties.length;
@@ -344,6 +374,7 @@ export const useDashboardData = () => {
     getUserProperties,
     banUserFromPublishing,
     unbanUserFromPublishing,
+    deleteProperty,
     getDashboardStats,
     refreshData: () => Promise.all([fetchUsers(), fetchUserProperties()])
   };

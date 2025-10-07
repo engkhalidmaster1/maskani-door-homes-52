@@ -14,39 +14,320 @@ export type Database = {
   }
   public: {
     Tables: {
-              profiles: {
-          Row: {
-            address: string | null
-            created_at: string
-            email: string | null
-            full_name: string | null
-            id: string
-            phone: string | null
-            updated_at: string
-            user_id: string
-          }
-          Insert: {
-            address?: string | null
-            created_at?: string
-            email?: string | null
-            full_name?: string | null
-            id?: string
-            phone?: string | null
-            updated_at?: string
-            user_id: string
-          }
-          Update: {
-            address?: string | null
-            created_at?: string
-            email?: string | null
-            full_name?: string | null
-            id?: string
-            phone?: string | null
-            updated_at?: string
-            user_id?: string
-          }
-          Relationships: []
+      admin_activity_log: {
+        Row: {
+          action: string
+          admin_user_id: string
+          created_at: string | null
+          id: string
+          notes: string | null
+          reason: string | null
+          target_office_id: string | null
         }
+        Insert: {
+          action: string
+          admin_user_id: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          reason?: string | null
+          target_office_id?: string | null
+        }
+        Update: {
+          action?: string
+          admin_user_id?: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          reason?: string | null
+          target_office_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_activity_log_admin_user_id_fkey"
+            columns: ["admin_user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "admin_activity_log_target_office_id_fkey"
+            columns: ["target_office_id"]
+            isOneToOne: false
+            referencedRelation: "real_estate_offices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_users: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          permissions: Json | null
+          role: string | null
+          user_id: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          permissions?: Json | null
+          role?: string | null
+          user_id: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          permissions?: Json | null
+          role?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      banner_settings: {
+        Row: {
+          created_at: string | null
+          end_date: string | null
+          id: string
+          is_active: boolean | null
+          start_date: string | null
+          text: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          start_date?: string | null
+          text?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          start_date?: string | null
+          text?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      favorites: {
+        Row: {
+          created_at: string
+          id: string
+          property_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          property_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          property_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string
+          read: boolean | null
+          related_office_id: string | null
+          title: string
+          type: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message: string
+          read?: boolean | null
+          related_office_id?: string | null
+          title: string
+          type?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string
+          read?: boolean | null
+          related_office_id?: string | null
+          title?: string
+          type?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_related_office_id_fkey"
+            columns: ["related_office_id"]
+            isOneToOne: false
+            referencedRelation: "real_estate_offices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      office_contact_requests: {
+        Row: {
+          contact_method: string | null
+          created_at: string | null
+          id: string
+          message: string
+          office_id: string
+          responded_at: string | null
+          sender_email: string | null
+          sender_name: string
+          sender_phone: string
+          status: string | null
+        }
+        Insert: {
+          contact_method?: string | null
+          created_at?: string | null
+          id?: string
+          message: string
+          office_id: string
+          responded_at?: string | null
+          sender_email?: string | null
+          sender_name: string
+          sender_phone: string
+          status?: string | null
+        }
+        Update: {
+          contact_method?: string | null
+          created_at?: string | null
+          id?: string
+          message?: string
+          office_id?: string
+          responded_at?: string | null
+          sender_email?: string | null
+          sender_name?: string
+          sender_phone?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "office_contact_requests_office_id_fkey"
+            columns: ["office_id"]
+            isOneToOne: false
+            referencedRelation: "real_estate_offices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      office_reviews: {
+        Row: {
+          approved: boolean | null
+          approved_at: string | null
+          approved_by: string | null
+          comment: string
+          created_at: string | null
+          id: string
+          office_id: string
+          rating: number
+          reviewer_email: string | null
+          reviewer_name: string
+          reviewer_phone: string | null
+          updated_at: string | null
+          user_id: string | null
+          verified_purchase: boolean | null
+        }
+        Insert: {
+          approved?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
+          comment: string
+          created_at?: string | null
+          id?: string
+          office_id: string
+          rating: number
+          reviewer_email?: string | null
+          reviewer_name: string
+          reviewer_phone?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          verified_purchase?: boolean | null
+        }
+        Update: {
+          approved?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
+          comment?: string
+          created_at?: string | null
+          id?: string
+          office_id?: string
+          rating?: number
+          reviewer_email?: string | null
+          reviewer_name?: string
+          reviewer_phone?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          verified_purchase?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "office_reviews_office_id_fkey"
+            columns: ["office_id"]
+            isOneToOne: false
+            referencedRelation: "real_estate_offices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       properties: {
         Row: {
           address: string | null
@@ -59,10 +340,13 @@ export type Database = {
           id: string
           images: string[] | null
           is_published: boolean
+          latitude: number | null
           listing_type: string
           location: string | null
+          longitude: number | null
           market: string | null
           price: number
+          property_code: string
           property_type: string
           title: string
           updated_at: string
@@ -79,10 +363,13 @@ export type Database = {
           id?: string
           images?: string[] | null
           is_published?: boolean
+          latitude?: number | null
           listing_type: string
           location?: string | null
+          longitude?: number | null
           market?: string | null
           price: number
+          property_code: string
           property_type: string
           title: string
           updated_at?: string
@@ -99,10 +386,13 @@ export type Database = {
           id?: string
           images?: string[] | null
           is_published?: boolean
+          latitude?: number | null
           listing_type?: string
           location?: string | null
+          longitude?: number | null
           market?: string | null
           price?: number
+          property_code?: string
           property_type?: string
           title?: string
           updated_at?: string
@@ -110,187 +400,179 @@ export type Database = {
         }
         Relationships: []
       }
-      real_estate_offices: {
+      property_documents: {
         Row: {
+          created_at: string | null
+          document_id: string
+          document_name: string | null
+          document_type: string | null
+          file_size: number | null
+          file_url: string | null
           id: string
-          user_id: string
+          mime_type: string | null
           name: string
-          license_number: string
-          description: string | null
-          services: string[] | null
-          phone: string
-          email: string | null
-          website: string | null
-          address: string
-          latitude: number | null
-          longitude: number | null
-          working_hours: Json | null
-          social_media: Json | null
-          logo_url: string | null
-          license_document_url: string | null
-          registration_certificate_url: string | null
-          verified: boolean
+          notes: string | null
+          office_id: string | null
+          property_id: string
+          size: number
+          type: string
+          updated_at: string | null
+          uploaded_by: string | null
+          url: string
+          user_id: string
+          verification_notes: string | null
+          verified: boolean | null
           verified_at: string | null
           verified_by: string | null
-          status: string
-          documents_verified_count: number | null
-          documents_pending_count: number | null
-          created_at: string
-          updated_at: string
         }
         Insert: {
+          created_at?: string | null
+          document_id: string
+          document_name?: string | null
+          document_type?: string | null
+          file_size?: number | null
+          file_url?: string | null
           id?: string
-          user_id: string
+          mime_type?: string | null
           name: string
-          license_number: string
-          description?: string | null
-          services?: string[] | null
-          phone: string
-          email?: string | null
-          website?: string | null
-          address: string
-          latitude?: number | null
-          longitude?: number | null
-          working_hours?: Json | null
-          social_media?: Json | null
-          logo_url?: string | null
-          license_document_url?: string | null
-          registration_certificate_url?: string | null
-          verified?: boolean
+          notes?: string | null
+          office_id?: string | null
+          property_id: string
+          size: number
+          type: string
+          updated_at?: string | null
+          uploaded_by?: string | null
+          url: string
+          user_id: string
+          verification_notes?: string | null
+          verified?: boolean | null
           verified_at?: string | null
           verified_by?: string | null
-          status?: string
-          documents_verified_count?: number | null
-          documents_pending_count?: number | null
-          created_at?: string
-          updated_at?: string
         }
         Update: {
+          created_at?: string | null
+          document_id?: string
+          document_name?: string | null
+          document_type?: string | null
+          file_size?: number | null
+          file_url?: string | null
           id?: string
-          user_id?: string
+          mime_type?: string | null
           name?: string
-          license_number?: string
-          description?: string | null
-          services?: string[] | null
-          phone?: string
-          email?: string | null
-          website?: string | null
-          address?: string
-          latitude?: number | null
-          longitude?: number | null
-          working_hours?: Json | null
-          social_media?: Json | null
-          logo_url?: string | null
-          license_document_url?: string | null
-          registration_certificate_url?: string | null
-          verified?: boolean
+          notes?: string | null
+          office_id?: string | null
+          property_id?: string
+          size?: number
+          type?: string
+          updated_at?: string | null
+          uploaded_by?: string | null
+          url?: string
+          user_id?: string
+          verification_notes?: string | null
+          verified?: boolean | null
           verified_at?: string | null
           verified_by?: string | null
-          status?: string
-          documents_verified_count?: number | null
-          documents_pending_count?: number | null
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      conversations: {
-        Row: {
-          id: string
-          property_id: string | null
-          buyer_id: string
-          seller_id: string
-          created_at: string
-          updated_at: string
-          is_active: boolean
-          last_message_at: string | null
-        }
-        Insert: {
-          id?: string
-          property_id?: string | null
-          buyer_id: string
-          seller_id: string
-          created_at?: string
-          updated_at?: string
-          is_active?: boolean
-          last_message_at?: string | null
-        }
-        Update: {
-          id?: string
-          property_id?: string | null
-          buyer_id?: string
-          seller_id?: string
-          created_at?: string
-          updated_at?: string
-          is_active?: boolean
-          last_message_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "conversations_property_id_fkey"
+            foreignKeyName: "property_documents_office_id_fkey"
+            columns: ["office_id"]
+            isOneToOne: false
+            referencedRelation: "real_estate_offices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_documents_property_id_fkey"
             columns: ["property_id"]
+            isOneToOne: false
             referencedRelation: "properties"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "conversations_buyer_id_fkey"
-            columns: ["buyer_id"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "conversations_seller_id_fkey"
-            columns: ["seller_id"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
         ]
       }
-      messages: {
+      real_estate_offices: {
         Row: {
+          address: string
+          created_at: string | null
+          description: string | null
+          documents_pending_count: number | null
+          documents_verified_count: number | null
+          email: string | null
           id: string
-          conversation_id: string
-          sender_id: string
-          content: string
-          message_type: string | null
-          is_read: boolean
-          created_at: string
-          updated_at: string
+          latitude: number | null
+          license_document_url: string | null
+          license_number: string
+          logo_url: string | null
+          longitude: number | null
+          name: string
+          phone: string
+          registration_certificate_url: string | null
+          services: string[] | null
+          social_media: Json | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+          verified: boolean | null
+          verified_at: string | null
+          verified_by: string | null
+          website: string | null
+          working_hours: Json | null
         }
         Insert: {
+          address: string
+          created_at?: string | null
+          description?: string | null
+          documents_pending_count?: number | null
+          documents_verified_count?: number | null
+          email?: string | null
           id?: string
-          conversation_id: string
-          sender_id: string
-          content: string
-          message_type?: string | null
-          is_read?: boolean
-          created_at?: string
-          updated_at?: string
+          latitude?: number | null
+          license_document_url?: string | null
+          license_number: string
+          logo_url?: string | null
+          longitude?: number | null
+          name: string
+          phone: string
+          registration_certificate_url?: string | null
+          services?: string[] | null
+          social_media?: Json | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+          verified?: boolean | null
+          verified_at?: string | null
+          verified_by?: string | null
+          website?: string | null
+          working_hours?: Json | null
         }
         Update: {
+          address?: string
+          created_at?: string | null
+          description?: string | null
+          documents_pending_count?: number | null
+          documents_verified_count?: number | null
+          email?: string | null
           id?: string
-          conversation_id?: string
-          sender_id?: string
-          content?: string
-          message_type?: string | null
-          is_read?: boolean
-          created_at?: string
-          updated_at?: string
+          latitude?: number | null
+          license_document_url?: string | null
+          license_number?: string
+          logo_url?: string | null
+          longitude?: number | null
+          name?: string
+          phone?: string
+          registration_certificate_url?: string | null
+          services?: string[] | null
+          social_media?: Json | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+          verified?: boolean | null
+          verified_at?: string | null
+          verified_by?: string | null
+          website?: string | null
+          working_hours?: Json | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "messages_conversation_id_fkey"
-            columns: ["conversation_id"]
-            referencedRelation: "conversations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_sender_id_fkey"
-            columns: ["sender_id"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
+        Relationships: []
       }
       user_roles: {
         Row: {
@@ -313,138 +595,88 @@ export type Database = {
         }
         Relationships: []
       }
-      banner_settings: {
-        Row: {
-          id: string
-          text: string
-          is_active: boolean
-          start_date: string | null
-          end_date: string | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          text: string
-          is_active?: boolean
-          start_date?: string | null
-          end_date?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          text?: string
-          is_active?: boolean
-          start_date?: string | null
-          end_date?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      favorites: {
-        Row: {
-          id: string;
-          user_id: string;
-          property_id: string;
-          created_at: string;
-        }
-        Insert: {
-          id?: string;
-          user_id: string;
-          property_id: string;
-          created_at?: string;
-        }
-        Update: {
-          id?: string;
-          user_id?: string;
-          property_id?: string;
-          created_at?: string;
-        }
-        Relationships: [
-          {
-            foreignKeyName: "favorites_user_id_fkey";
-            columns: ["user_id"];
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "favorites_property_id_fkey";
-            columns: ["property_id"];
-            referencedRelation: "properties";
-            referencedColumns: ["id"];
-          }
-        ]
-      }
       user_statuses: {
         Row: {
-          id: string
-          user_id: string
-          status: Database["public"]["Enums"]["user_status"]
-          properties_limit: number
-          images_limit: number
           can_publish: boolean
-          is_verified: boolean
-          verified_by: string | null
-          verified_at: string | null
           created_at: string
+          id: string
+          images_limit: number
+          is_verified: boolean
+          properties_limit: number
+          status: Database["public"]["Enums"]["user_status"]
           updated_at: string
+          user_id: string
+          verified_at: string | null
+          verified_by: string | null
         }
         Insert: {
-          id?: string
-          user_id: string
-          status?: Database["public"]["Enums"]["user_status"]
-          properties_limit?: number
-          images_limit?: number
           can_publish?: boolean
-          is_verified?: boolean
-          verified_by?: string | null
-          verified_at?: string | null
           created_at?: string
+          id?: string
+          images_limit?: number
+          is_verified?: boolean
+          properties_limit?: number
+          status?: Database["public"]["Enums"]["user_status"]
           updated_at?: string
+          user_id: string
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Update: {
-          id?: string
-          user_id?: string
-          status?: Database["public"]["Enums"]["user_status"]
-          properties_limit?: number
-          images_limit?: number
           can_publish?: boolean
-          is_verified?: boolean
-          verified_by?: string | null
-          verified_at?: string | null
           created_at?: string
+          id?: string
+          images_limit?: number
+          is_verified?: boolean
+          properties_limit?: number
+          status?: Database["public"]["Enums"]["user_status"]
           updated_at?: string
+          user_id?: string
+          verified_at?: string | null
+          verified_by?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_statuses_user_id_fkey"
-            columns: ["user_id"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_statuses_verified_by_fkey"
-            columns: ["verified_by"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
+        Relationships: []
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      generate_property_code: {
+        Args: { bedrooms_count: number; created_date?: string }
+        Returns: string
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
+      }
+      get_next_property_sequence: {
+        Args: { bedrooms_count?: number; target_date?: string }
+        Returns: number
+      }
+      get_user_status: {
+        Args: { user_id_param?: string }
+        Returns: {
+          can_publish: boolean
+          current_properties_count: number
+          images_limit: number
+          is_verified: boolean
+          properties_limit: number
+          status: Database["public"]["Enums"]["user_status"]
+        }[]
       }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
+        }
+        Returns: boolean
+      }
+      update_user_status: {
+        Args: {
+          admin_user_id?: string
+          new_status: Database["public"]["Enums"]["user_status"]
+          target_user_id: string
         }
         Returns: boolean
       }

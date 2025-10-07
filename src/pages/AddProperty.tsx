@@ -319,6 +319,21 @@ export const AddProperty = () => {
         ? formData.address.trim()
         : defaultAddress;
 
+      const priceValue = parseFloat(formData.price);
+      const areaValue = formData.area ? parseFloat(formData.area) : null;
+      const bedroomsValue = parseInt(formData.bedrooms);
+
+      // Validate numeric values
+      if (isNaN(priceValue) || priceValue <= 0) {
+        throw new Error("السعر يجب أن يكون رقماً صحيحاً أكبر من صفر");
+      }
+      if (areaValue !== null && (isNaN(areaValue) || areaValue <= 0)) {
+        throw new Error("المساحة يجب أن تكون رقماً صحيحاً أكبر من صفر");
+      }
+      if (isNaN(bedroomsValue) || bedroomsValue < 0) {
+        throw new Error("عدد الغرف يجب أن يكون رقماً صحيحاً");
+      }
+
       const propertyData = {
         user_id: user.id,
         property_code: propertyCode,
@@ -326,9 +341,9 @@ export const AddProperty = () => {
         description: formData.description?.trim() ? formData.description.trim() : null,
         property_type: formData.property_type,
         listing_type: formData.listing_type as "sale" | "rent",
-        price: parseFloat(formData.price),
-        area: formData.area ? parseFloat(formData.area) : null,
-        bedrooms: parseInt(formData.bedrooms),
+        price: priceValue,
+        area: areaValue,
+        bedrooms: bedroomsValue,
         bathrooms: 1, // قيمة افتراضية
         market: marketOption.value,
         location: locationText,

@@ -31,11 +31,28 @@ export const EditPropertiesTab = () => {
   };
 
   const handleDeleteProperty = async (propertyId: string) => {
-    if (confirm("هل أنت متأكد من حذف هذا العقار؟")) {
+    // عرض تنبيه تأكيد
+    toast({
+      title: "تأكيد الحذف",
+      description: "جاري حذف العقار...",
+      variant: "default",
+    });
+
+    try {
+      // حذف العقار من قاعدة البيانات
       await deleteProperty(propertyId);
+      
+      // عرض رسالة نجاح
       toast({
         title: "تم حذف العقار",
         description: "تم حذف العقار بنجاح",
+        variant: "destructive",
+      });
+    } catch (error) {
+      // في حالة فشل الحذف، عرض رسالة خطأ
+      toast({
+        title: "خطأ في الحذف",
+        description: "فشل في حذف العقار، يرجى المحاولة مرة أخرى",
         variant: "destructive",
       });
     }

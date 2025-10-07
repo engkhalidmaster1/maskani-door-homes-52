@@ -315,6 +315,13 @@ export const useDashboardData = () => {
   const deleteProperty = useCallback(async (propertyId: string) => {
     if (!isAdmin) return;
 
+    // احفظ العقار المراد حذفه لإعادته في حالة فشل
+    const propertyToDelete = userProperties.find(p => p.id === propertyId);
+    if (!propertyToDelete) return;
+
+    // حذف العقار فوراً من الحالة المحلية
+    setUserProperties(prev => prev.filter(property => property.id !== propertyId));
+
     try {
       const { error } = await supabase
         .from('properties')
@@ -325,22 +332,19 @@ export const useDashboardData = () => {
         throw error;
       }
 
-      // Update local state by removing the deleted property
-      setUserProperties(prev => prev.filter(property => property.id !== propertyId));
-
-      toast({
-        title: "تم حذف العقار",
-        description: "تم حذف العقار بنجاح",
-      });
+      // تم الحذف بنجاح، لا نحتاج لفعل شيء إضافي
     } catch (error) {
+      // في حالة فشل، أعد العقار إلى القائمة
+      setUserProperties(prev => [...prev, propertyToDelete]);
+
       console.error('Error deleting property:', error);
       toast({
         title: "خطأ في حذف العقار",
-        description: "فشل في حذف العقار",
+        description: "فشل في حذف العقار من قاعدة البيانات",
         variant: "destructive",
       });
     }
-  }, [isAdmin]);
+  }, [isAdmin, userProperties]);
 
   const getDashboardStats = useCallback((): DashboardStats => {
     const totalUsers = users.length;

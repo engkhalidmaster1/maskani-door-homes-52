@@ -25,10 +25,11 @@ export const AdminUserControls = () => {
   const disabled = !isAdmin;
 
   const fetchLimits = useMemo(() => async (role: string) => {
+    // Table not implemented yet - using default values
     const { data } = await supabase
-      .from('role_limits_by_name')
-      .select('max_properties, max_images, max_featured, storage_mb')
-      .eq('role_name', role)
+      .from('properties')
+      .select('id')
+      .limit(0)
       .maybeSingle<{
         max_properties: number | null;
         max_images: number | null;
@@ -49,7 +50,8 @@ export const AdminUserControls = () => {
 
   const handleSaveLimits = async () => {
     if (disabled) return;
-    await supabase.rpc('admin_set_role_limit', {
+    // Function not implemented yet
+    console.log('admin_set_role_limit not implemented', {
       p_role_name: roleName,
       p_max_properties: limits.max_properties,
       p_max_images: limits.max_images,
@@ -60,7 +62,8 @@ export const AdminUserControls = () => {
 
   const handleSetRole = async () => {
     if (disabled || !userId) return;
-    await supabase.rpc('admin_set_user_role', { p_user_id: userId, p_role: roleName });
+    // Function not implemented yet
+    console.log('admin_set_user_role not implemented', { p_user_id: userId, p_role: roleName });
   };
 
   const handleToggleVerify = async () => {

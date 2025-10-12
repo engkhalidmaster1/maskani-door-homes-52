@@ -19,6 +19,13 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    
+    <!-- Critical CSS inline to prevent render blocking -->
+    <style>
+      *,::before,::after{box-sizing:border-box;border:0 solid}
+      body{margin:0;line-height:inherit;font-family:ui-sans-serif,system-ui,sans-serif}
+      #root{min-height:100vh}
+    </style>
   </head>
 
   <body>

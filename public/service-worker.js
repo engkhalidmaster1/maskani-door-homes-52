@@ -1,6 +1,9 @@
 // service-worker.js
-const CACHE_NAME = 'maskani-cache-v4';
+const CACHE_NAME = 'maskani-cache-v5';
 const DATA_CACHE_NAME = 'maskani-data-cache-v1';
+
+// Cache duration: 1 year for static assets
+const CACHE_MAX_AGE = 31536000;
 
 const urlsToCache = [
   '/',
@@ -89,13 +92,30 @@ self.addEventListener('fetch', event => {
     event.respondWith(
       caches.match(request).then(response => {
         if (response) {
-          return response;
+          // Return cached response with proper headers
+          return new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers({
+              ...Object.fromEntries(response.headers.entries()),
+              'Cache-Control': `public, max-age=${CACHE_MAX_AGE}, immutable`
+            })
+          });
         }
         return fetch(request).then(response => {
           if (response.status === 200) {
             const responseClone = response.clone();
             caches.open(CACHE_NAME).then(cache => {
               cache.put(request, responseClone);
+            });
+            // Add cache headers to the response
+            return new Response(response.body, {
+              status: response.status,
+              statusText: response.statusText,
+              headers: new Headers({
+                ...Object.fromEntries(response.headers.entries()),
+                'Cache-Control': `public, max-age=${CACHE_MAX_AGE}, immutable`
+              })
             });
           }
           return response;
@@ -140,7 +160,11 @@ function isStaticResource(url) {
          url.endsWith('.png') ||
          url.endsWith('.jpg') ||
          url.endsWith('.svg') ||
-         url.endsWith('.ico');
+         url.endsWith('.ico') ||
+         url.endsWith('.woff') ||
+         url.endsWith('.woff2') ||
+         url.endsWith('.ttf') ||
+         url.endsWith('.eot');
 }
 
 async function syncOfflineActions() {

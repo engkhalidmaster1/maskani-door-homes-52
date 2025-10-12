@@ -16,7 +16,7 @@ export const NotificationsBell = () => {
         variant="ghost"
         className="relative text-primary-foreground hover:bg-white/20"
         onClick={() => setOpen((o) => !o)}
-        title="الإشعارات"
+        aria-label="الإشعارات"
       >
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (

@@ -46,6 +46,7 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
           <Button
             className="md:hidden flex items-center justify-center p-0 rounded-full border-4 border-white bg-blue-500 w-12 h-12 shadow-lg"
             onClick={onSidebarToggle}
+            aria-label="فتح القائمة"
           >
             <Menu className="h-7 w-7 text-white" />
           </Button>

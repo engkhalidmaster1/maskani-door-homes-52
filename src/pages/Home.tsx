@@ -125,7 +125,7 @@ export const Home = () => {
                 size="icon"
                 className="absolute top-4 left-4 text-gray-500 hover:text-gray-700"
                 onClick={() => setShowWelcomeModal(false)}
-                aria-label="إغلاق"
+                aria-label="إغلاق الرسالة الترحيبية"
               >
                 <X className="h-5 w-5" />
               </Button>

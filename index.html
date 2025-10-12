@@ -34,10 +34,16 @@
     <!-- Critical CSS inline to prevent render blocking -->
     <style>
       *,::before,::after{box-sizing:border-box;border:0 solid}
-      body{margin:0;line-height:inherit;font-family:'Tajawal',ui-sans-serif,system-ui,sans-serif;font-display:swap}
+      body{margin:0;line-height:inherit;font-family:'Tajawal',ui-sans-serif,system-ui,sans-serif}
       #root{min-height:100vh;display:flex;flex-direction:column}
       /* Prevent layout shift during load */
       .container{max-width:1280px;margin:0 auto;padding:0 1rem}
+      /* Font display optimization to prevent layout shift */
+      @font-face {
+        font-family: 'Tajawal';
+        font-display: optional;
+        size-adjust: 100%;
+      }
     </style>
   </head>
 

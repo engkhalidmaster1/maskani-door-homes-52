@@ -40,9 +40,15 @@
       .container{max-width:1280px;margin:0 auto;padding:0 1rem}
       /* Font display optimization to prevent layout shift */
       @font-face {
-        font-family: 'Tajawal';
-        font-display: optional;
-        size-adjust: 100%;
+        font-family: 'Tajawal-fallback';
+        src: local('Arial');
+        size-adjust: 105%;
+        ascent-override: 95%;
+        descent-override: 25%;
+        line-gap-override: 0%;
+      }
+      body {
+        font-family: 'Tajawal', 'Tajawal-fallback', ui-sans-serif, system-ui, sans-serif;
       }
     </style>
   </head>

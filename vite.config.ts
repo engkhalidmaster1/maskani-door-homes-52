@@ -18,6 +18,21 @@ export default defineConfig(({ mode }) => ({
         // This is a simple manual implementation since we couldn't install vite-plugin-pwa
         console.log('PWA support has been configured manually');
       }
+    },
+    {
+      name: 'vite-plugin-async-css',
+      transformIndexHtml(html: string) {
+        // Transform CSS links to use media="print" trick for async loading
+        return html.replace(
+          /<link([^>]*rel="stylesheet"[^>]*)>/gi,
+          (match: string, attrs: string) => {
+            if (!attrs.includes('media=')) {
+              return `<link${attrs} media="print" onload="this.media='all'; this.onload=null;">`;
+            }
+            return match;
+          }
+        );
+      }
     }
   ].filter(Boolean),
   resolve: {

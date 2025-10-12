@@ -35,8 +35,24 @@
     <style>
       *,::before,::after{box-sizing:border-box;border:0 solid}
       body{margin:0;line-height:inherit;font-family:'Tajawal',ui-sans-serif,system-ui,sans-serif;font-display:swap}
-      #root{min-height:100vh}
+      #root{min-height:100vh;display:flex;flex-direction:column}
+      /* Prevent layout shift during load */
+      .container{max-width:1280px;margin:0 auto;padding:0 1rem}
     </style>
+    
+    <!-- Asynchronously load CSS to prevent render blocking -->
+    <script>
+      (function() {
+        var sheets = document.getElementsByTagName('link');
+        for (var i = 0; i < sheets.length; i++) {
+          var sheet = sheets[i];
+          if (sheet.rel === 'stylesheet' && !sheet.media) {
+            sheet.media = 'print';
+            sheet.onload = function() { this.media = 'all'; };
+          }
+        }
+      })();
+    </script>
   </head>
 
   <body>

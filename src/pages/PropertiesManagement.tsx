@@ -74,8 +74,12 @@ export const PropertiesManagement = () => {
         .from('properties')
         .select('*');
 
-      if (!isAdmin && user) {
-        query = query.eq('user_id', user.id);
+      if (!isAdmin) {
+        if (user) {
+          query = query.or(`is_published.eq.true,user_id.eq.${user.id}`);
+        } else {
+          query = query.eq('is_published', true);
+        }
       }
 
       const { data, error } = await query.order('created_at', { ascending: false });
@@ -344,49 +348,51 @@ export const PropertiesManagement = () => {
         </Card>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
-          <Card>
-            <CardContent className="p-3 md:p-4">
-              <div className="text-center">
-                <div className="text-lg md:text-2xl font-bold text-primary">{properties.length}</div>
-                <div className="text-xs md:text-sm text-gray-600">إجمالي العقارات</div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-3 md:p-4">
-              <div className="text-center">
-                <div className="text-lg md:text-2xl font-bold text-green-600">
-                  {properties.filter(p => p.is_published).length}
+        {isAdmin && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
+            <Card>
+              <CardContent className="p-3 md:p-4">
+                <div className="text-center">
+                  <div className="text-lg md:text-2xl font-bold text-primary">{properties.length}</div>
+                  <div className="text-xs md:text-sm text-gray-600">إجمالي العقارات</div>
                 </div>
-                <div className="text-xs md:text-sm text-gray-600">منشور</div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-3 md:p-4">
-              <div className="text-center">
-                <div className="text-lg md:text-2xl font-bold text-orange-600">
-                  {properties.filter(p => !p.is_published).length}
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-3 md:p-4">
+                <div className="text-center">
+                  <div className="text-lg md:text-2xl font-bold text-green-600">
+                    {properties.filter(p => p.is_published).length}
+                  </div>
+                  <div className="text-xs md:text-sm text-gray-600">منشور</div>
                 </div>
-                <div className="text-xs md:text-sm text-gray-600">غير منشور</div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-3 md:p-4">
-              <div className="text-center">
-                <div className="text-lg md:text-2xl font-bold text-blue-600">
-                  {selectionStats.selectedCount}
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-3 md:p-4">
+                <div className="text-center">
+                  <div className="text-lg md:text-2xl font-bold text-orange-600">
+                    {properties.filter(p => !p.is_published).length}
+                  </div>
+                  <div className="text-xs md:text-sm text-gray-600">غير منشور</div>
                 </div>
-                <div className="text-xs md:text-sm text-gray-600">محدد</div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-3 md:p-4">
+                <div className="text-center">
+                  <div className="text-lg md:text-2xl font-bold text-blue-600">
+                    {selectionStats.selectedCount}
+                  </div>
+                  <div className="text-xs md:text-sm text-gray-600">محدد</div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Properties Grid/List */}
         {filteredProperties.length === 0 ? (
@@ -412,7 +418,7 @@ export const PropertiesManagement = () => {
                 <PropertyCardMobile
                   key={property.id}
                   property={property}
-                  showCheckbox={true}
+                  showCheckbox={isAdmin}
                   isSelected={isSelected(property)}
                   onSelectionChange={() => toggleItem(property)}
                 />
@@ -420,7 +426,7 @@ export const PropertiesManagement = () => {
                 <PropertyCard
                   key={property.id}
                   property={property}
-                  showCheckbox={true}
+                  showCheckbox={isAdmin}
                   isSelected={isSelected(property)}
                   onSelectionChange={() => toggleItem(property)}
                 />
@@ -429,27 +435,31 @@ export const PropertiesManagement = () => {
           </div>
         )}
 
-        {/* Bulk Actions Bar */}
-        <BulkActionsBar
-          selectedCount={selectionStats.selectedCount}
-          totalCount={filteredProperties.length}
-          isAllSelected={selectionStats.isAllSelected}
-          isSomeSelected={selectionStats.isSomeSelected}
-          onSelectAll={selectAll}
-          onClearAll={clearAll}
-          onBulkDelete={() => setShowDeleteConfirmation(true)}
-          onBulkPublish={handleBulkPublish}
-          onBulkUnpublish={handleBulkUnpublish}
-          isVisible={selectionStats.hasSelection}
-        />
+        {/* Bulk Actions Bar - Admins only */}
+        {isAdmin && (
+          <>
+            <BulkActionsBar
+              selectedCount={selectionStats.selectedCount}
+              totalCount={filteredProperties.length}
+              isAllSelected={selectionStats.isAllSelected}
+              isSomeSelected={selectionStats.isSomeSelected}
+              onSelectAll={selectAll}
+              onClearAll={clearAll}
+              onBulkDelete={() => setShowDeleteConfirmation(true)}
+              onBulkPublish={handleBulkPublish}
+              onBulkUnpublish={handleBulkUnpublish}
+              isVisible={selectionStats.hasSelection}
+            />
 
-        {/* Delete Confirmation Dialog */}
-        <BulkDeleteConfirmation
-          isOpen={showDeleteConfirmation}
-          selectedCount={selectionStats.selectedCount}
-          onConfirm={handleBulkDelete}
-          onCancel={() => setShowDeleteConfirmation(false)}
-        />
+            {/* Delete Confirmation Dialog */}
+            <BulkDeleteConfirmation
+              isOpen={showDeleteConfirmation}
+              selectedCount={selectionStats.selectedCount}
+              onConfirm={handleBulkDelete}
+              onCancel={() => setShowDeleteConfirmation(false)}
+            />
+          </>
+        )}
       </div>
     </div>
   );

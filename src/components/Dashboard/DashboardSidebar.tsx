@@ -14,8 +14,6 @@ export const DashboardSidebar = ({ activeTab, onTabChange, isOpen, onClose }: Da
   const sidebarItems = [
     { id: "overview", label: "نظرة عامة", icon: Home },
     { id: "properties", label: "العقارات", icon: Building2 },
-    { id: "properties-management", label: "إدارة العقارات", icon: Settings },
-    { id: "edit-properties", label: "تعديل العقارات", icon: Edit3 },
     { id: "banner-settings", label: "إدارة الشريط", icon: MessageSquare },
     { id: "users", label: "إدارة المستخدمين", icon: Users },
     { id: "profile", label: "الملف الشخصي", icon: User },

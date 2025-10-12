@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      role_limits_by_name: {
+        Row: {
+          role_name: string
+          max_properties: number
+          max_images: number
+          max_featured: number
+          storage_mb: number
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          role_name: string
+          max_properties?: number
+          max_images?: number
+          max_featured?: number
+          storage_mb?: number
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          role_name?: string
+          max_properties?: number
+          max_images?: number
+          max_featured?: number
+          storage_mb?: number
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_verifications: {
+        Row: {
+          user_id: string
+          verified: boolean
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          user_id: string
+          verified?: boolean
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          user_id?: string
+          verified?: boolean
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: []
+      }
       admin_activity_log: {
         Row: {
           action: string
@@ -672,6 +723,42 @@ export type Database = {
         }
         Returns: boolean
       }
+      log_audit_entry: {
+        Args: {
+          p_action: string
+          p_resource_type: string
+          p_resource_id: string
+          p_details: Json
+          p_user_id: string
+        }
+        Returns: void
+      }
+      admin_broadcast_notification: {
+        Args: { p_title: string; p_message: string }
+        Returns: void
+      }
+      mark_all_notifications_read: {
+        Args: Record<PropertyKey, never>
+        Returns: void
+      }
+      admin_verify_user: {
+        Args: { p_user_id: string; p_verified: boolean }
+        Returns: void
+      }
+      admin_set_role_limit: {
+        Args: {
+          p_role_name: string
+          p_max_properties: number
+          p_max_images: number
+          p_max_featured: number
+          p_storage_mb: number
+        }
+        Returns: void
+      }
+      admin_set_user_role: {
+        Args: { p_user_id: string; p_role: string }
+        Returns: void
+      }
       update_user_status: {
         Args: {
           admin_user_id?: string
@@ -704,7 +791,7 @@ export type Tables<
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

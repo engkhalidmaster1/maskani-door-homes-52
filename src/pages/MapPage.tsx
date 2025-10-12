@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import React, { useEffect, useMemo, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin, Home } from 'lucide-react';
@@ -10,6 +10,8 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { MARKET_COORDINATES, resolveMarketValue } from '@/constants/markets';
+import { supabase } from '@/integrations/supabase/client';
 
 // نوع البيانات للعقار (متوافق مع useProperties)
 interface Property {
@@ -31,8 +33,8 @@ interface Property {
   created_at: string;
   updated_at: string;
   ownership_type?: "ملك صرف" | "سر قفلية" | null;
-  latitude?: number;
-  longitude?: number;
+  latitude?: number | null;
+  longitude?: number | null;
   owner_name?: string;
   owner_phone?: string;
   owner_email?: string;
@@ -48,19 +50,41 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// أيقونة مخصصة للعقارات
-const createPropertyIcon = (type: string) => {
-  const color = type === 'للبيع' ? '#ef4444' : '#3b82f6';
+const DEFAULT_CENTER: [number, number] = [34.406075, 43.789876];
+const DEFAULT_ZOOM = 12;
+
+type MarkerSource = "precise" | "market";
+
+interface MarkerData {
+  property: Property;
+  coords: [number, number];
+  source: MarkerSource;
+}
+
+const jitterFromId = (id: string): [number, number] => {
+  const hash = Array.from(id).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const latOffset = ((Math.sin(hash) + 1) / 2) * 0.002 - 0.001;
+  const lngOffset = ((Math.cos(hash) + 1) / 2) * 0.002 - 0.001;
+  return [latOffset, lngOffset];
+};
+
+const createPropertyIcon = (type: "sale" | "rent", isApproximate: boolean) => {
+  const color = type === "sale" ? "#ef4444" : "#2563eb";
+  const glyph = isApproximate ? "📍" : "🏠";
+  const shadow = isApproximate
+    ? "box-shadow: 0 0 0 3px rgba(255,255,255,0.6), 0 0 0 6px rgba(37,99,235,0.2);"
+    : "box-shadow: 0 2px 10px rgba(0,0,0,0.3);";
+
   return L.divIcon({
     html: `
       <div style="
         background-color: ${color};
-        width: 30px;
-        height: 30px;
+        width: 34px;
+        height: 34px;
         border-radius: 50% 50% 50% 0;
         transform: rotate(-45deg);
         border: 3px solid white;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        ${shadow}
         display: flex;
         align-items: center;
         justify-content: center;
@@ -68,43 +92,133 @@ const createPropertyIcon = (type: string) => {
         <div style="
           transform: rotate(45deg);
           color: white;
-          font-size: 12px;
-        ">🏠</div>
+          font-size: 14px;
+        ">${glyph}</div>
       </div>
     `,
     className: 'custom-div-icon',
-    iconSize: [30, 30],
-    iconAnchor: [15, 30],
-    popupAnchor: [0, -30]
+    iconSize: [34, 34],
+    iconAnchor: [17, 34],
+    popupAnchor: [0, -34]
   });
 };
 
-// دالة مساعدة لاستخراج الإحداثيات من العقار
-const getPropertyCoordinates = (property: Property): [number, number] => {
-  // إذا كانت الإحداثيات محفوظة مباشرة
-  if (property.latitude && property.longitude) {
-    return [property.latitude, property.longitude];
+const resolvePropertyPosition = (property: Property): MarkerData | null => {
+  // أولاً: إحداثيات دقيقة
+  if (
+    typeof property.latitude === "number" &&
+    !Number.isNaN(property.latitude) &&
+    typeof property.longitude === "number" &&
+    !Number.isNaN(property.longitude)
+  ) {
+    return {
+      property,
+      coords: [property.latitude, property.longitude],
+      source: "precise",
+    };
   }
-  
-  // إذا كانت الإحداثيات في العنوان (مؤقتاً نستخدم موقع افتراضي)
-  // يمكن تحسين هذا لاحقاً لاستخراج الإحداثيات من address
-  return [34.406075, 43.789876]; // الموقع الافتراضي في العراق
+
+  // ثانياً: حل الموقع من السوق/المنطقة
+  const resolvedMarket = resolveMarketValue(
+    property.market ?? property.location ?? property.address ?? property.marketLabel ?? undefined
+  );
+
+  if (resolvedMarket && MARKET_COORDINATES[resolvedMarket]) {
+    const base = MARKET_COORDINATES[resolvedMarket];
+    const [latOffset, lngOffset] = jitterFromId(property.id);
+
+    return {
+      property,
+      coords: [base[0] + latOffset, base[1] + lngOffset],
+      source: "market",
+    };
+  }
+
+  // ثالثاً: موقع افتراضي (مركز المنطقة) للعقارات بدون موقع محدد
+  const [latOffset, lngOffset] = jitterFromId(property.id);
+  return {
+    property,
+    coords: [DEFAULT_CENTER[0] + latOffset, DEFAULT_CENTER[1] + lngOffset],
+    source: "market",
+  };
 };
 
+const AutoFitBounds = ({ positions }: { positions: [number, number][] }) => {
+  const map = useMap();
+  const lastKeyRef = React.useRef<string | null>(null);
 
+  useEffect(() => {
+    if (positions.length === 0) {
+      return;
+    }
+
+    const key = positions
+      .map(([lat, lng]) => `${lat.toFixed(5)},${lng.toFixed(5)}`)
+      .join('|');
+
+    if (lastKeyRef.current === key) {
+      return;
+    }
+
+    lastKeyRef.current = key;
+
+    if (positions.length === 1) {
+      map.flyTo(positions[0], 16, { duration: 0.6 });
+      return;
+    }
+
+    const bounds = L.latLngBounds(positions);
+    if (!bounds.isValid()) {
+      return;
+    }
+
+    map.flyToBounds(bounds, { padding: [60, 60], duration: 0.8, maxZoom: 16 });
+  }, [positions, map]);
+
+  return null;
+};
 
 export function MapPage() {
   const { properties, deleteProperty } = useProperties();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [mapCenter] = useState<[number, number]>([34.406075, 43.789876]); // قضاء الدور, محافظة صلاح الدين, العراق
-  const [mapZoom] = useState(12);
+  const [mapCenter, setMapCenter] = useState<[number, number]>(DEFAULT_CENTER);
+  const [mapZoom] = useState(DEFAULT_ZOOM);
+  const [debugMode, setDebugMode] = useState(false);
 
-  // تصفية العقارات التي لها إحداثيات
-  const propertiesWithLocation = properties.filter(
-    property => property.latitude && property.longitude
+  const mapProperties = useMemo<MarkerData[]>(() => {
+    return properties
+      .map(resolvePropertyPosition)
+      .filter((item): item is MarkerData => item !== null);
+  }, [properties]);
+
+  // إحصائيات للتشخيص
+  const totalProperties = properties.length;
+  const propertiesWithLocation = mapProperties.length;
+  
+  // تشخيص إضافي - سجل في console للمطور
+  useEffect(() => {
+    console.log('🗺️ Map Debug Info:', {
+      totalPropertiesFromHook: properties.length,
+      propertiesWithLocation: mapProperties.length,
+      sampleProperty: properties[0] || 'No properties found'
+    });
+  }, [properties, mapProperties]);
+
+  useEffect(() => {
+    if (mapProperties.length > 0) {
+      setMapCenter(mapProperties[0].coords);
+    } else {
+      setMapCenter(DEFAULT_CENTER);
+    }
+  }, [mapProperties]);
+
+  const preciseCount = useMemo(
+    () => mapProperties.filter((item) => item.source === "precise").length,
+    [mapProperties]
   );
+  const approximateCount = mapProperties.length - preciseCount;
 
   const handleViewProperty = (id: string) => {
     navigate(`/property/${id}`);
@@ -163,11 +277,9 @@ export function MapPage() {
               <div className="text-right">
                 <h1 className="text-2xl font-bold">خريطة العقارات</h1>
                 <p className="text-gray-600">
-                  اكتشف العقارات على الخريطة ({propertiesWithLocation.length} عقار)
+                  اكتشف العقارات على الخريطة ({mapProperties.length} عقار)
                 </p>
-                <p className="text-sm text-gray-500">
-                  📍 الموقع المحوري: قضاء الدور, محافظة صلاح الدين, العراق
-                </p>
+                
               </div>
             </div>
             
@@ -184,43 +296,23 @@ export function MapPage() {
 
       {/* خريطة */}
       <div className="h-[calc(100vh-120px)]">
-        {propertiesWithLocation.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
-            <Card className="p-8 text-center max-w-md">
-              <MapPin className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">لا توجد عقارات على الخريطة</h3>
-              <p className="text-gray-600 mb-4">
-                أضف عقارات جديدة مع تحديد مواقعها لرؤيتها على الخريطة
-              </p>
-              <div className="space-y-3">
-                <p className="text-sm text-gray-500">
-                  📍 المنطقة المركزية: قضاء الدور، محافظة صلاح الدين، العراق
-                </p>
-                <p className="text-sm text-blue-600">
-                  🏠 إجمالي العقارات: {properties.length}
-                </p>
-                <p className="text-sm text-orange-600">
-                  🗺️ عقارات بمواقع: {propertiesWithLocation.length}
-                </p>
+        <div className="relative h-full w-full">
+          {mapProperties.length > 0 && (
+            <div className="absolute top-4 right-4 z-[1000]">
+              <div className="bg-white/90 backdrop-blur-md border border-gray-200 rounded-2xl shadow-lg p-4 text-right space-y-1 min-w-[220px]">
+                <p className="text-sm font-semibold text-gray-800">ملخص المواقع</p>
+                <p className="text-xs text-gray-600">🏠 إجمالي العقارات: {mapProperties.length}</p>
+                <p className="text-xs text-emerald-600">📌 مواقع دقيقة: {preciseCount}</p>
+                <p className="text-xs text-amber-600">✳️ مواقع تقديرية: {approximateCount}</p>
+                {approximateCount > 0 && (
+                  <p className="text-[11px] text-amber-500 leading-relaxed">
+                    حدّث موقع العقار من صفحة التعديل للحصول على دقة أعلى.
+                  </p>
+                )}
               </div>
-              <div className="mt-6 space-y-2">
-                <Button 
-                  onClick={() => navigate('/add-property')}
-                  className="w-full"
-                >
-                  إضافة عقار جديد
-                </Button>
-                <Button 
-                  onClick={() => navigate('/properties')} 
-                  variant="outline"
-                  className="w-full"
-                >
-                  تصفح العقارات
-                </Button>
-              </div>
-            </Card>
-          </div>
-        ) : (
+            </div>
+          )}
+
           <MapContainer
             center={mapCenter}
             zoom={mapZoom}
@@ -231,12 +323,14 @@ export function MapPage() {
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            
-            {propertiesWithLocation.map((property) => (
+
+            <AutoFitBounds positions={mapProperties.map((item) => item.coords)} />
+
+            {mapProperties.map(({ property, coords, source }) => (
               <Marker
                 key={property.id}
-                position={getPropertyCoordinates(property)}
-                icon={createPropertyIcon(property.listing_type === 'sale' ? 'للبيع' : 'للإيجار')}
+                position={coords}
+                icon={createPropertyIcon(property.listing_type, source === "market")}
               >
                 <Popup>
                   <PropertyMapCard
@@ -247,12 +341,13 @@ export function MapPage() {
                     onContact={handleContactProperty}
                     canManage={canManageProperty(property)}
                     showActions={true}
+                    isApproximate={source === "market"}
                   />
                 </Popup>
               </Marker>
             ))}
           </MapContainer>
-        )}
+        </div>
       </div>
     </div>
   );

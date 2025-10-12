@@ -367,6 +367,22 @@ export const useDashboardData = () => {
         .finally(() => setIsLoading(false));
     }
   }, [isAdmin, fetchUsers, fetchUserProperties]);
+  
+  // Real-time subscription: refresh data when properties change
+  useEffect(() => {
+    if (!isAdmin) return;
+    // Listen to all changes on 'properties' table
+    const channel = supabase
+      .channel('public:properties')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'properties' }, () => {
+        fetchUserProperties();
+        fetchUsers();
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [isAdmin, fetchUserProperties, fetchUsers]);
 
   return {
     users,

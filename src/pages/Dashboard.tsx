@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useProperties } from "@/hooks/useProperties";
 import { useAuth } from "@/hooks/useAuth";
+import { useAuditLog } from "@/hooks/useAuditLog";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Users, Building2, Eye, EyeOff, Trash2, TrendingUp, Activity, Menu } from "lucide-react";
+import AdminUserControls from "@/components/Dashboard/AdminUserControls";
 import { toast } from "@/hooks/use-toast";
 import { DashboardSidebar } from "@/components/Dashboard/DashboardSidebar";
 import { DashboardBreadcrumb } from "@/components/Dashboard/DashboardBreadcrumb";
@@ -23,7 +25,95 @@ interface DashboardProps {
 }
 
 export const Dashboard = ({ onPageChange, onEditProperty }: DashboardProps) => {
+  // العمليات المجمعة للعقارات
+  const handleBulkPublish = async () => {
+    try {
+      const unpublished = userProperties.filter(p => !p.is_published);
+      for (const prop of unpublished) {
+        await togglePropertyPublication(prop.id, prop.is_published);
+        await logPropertyAction(
+          'update', // تحديث حالة العقار للنشر
+          prop.id,
+          {
+            property_title: prop.title,
+            bulk_action: true,
+            admin_action: true,
+            new_status: 'published'
+          }
+        );
+      }
+      toast({
+        title: "تم نشر جميع العقارات غير المنشورة",
+        description: `تم نشر ${unpublished.length} عقار`,
+      });
+    } catch (error) {
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ أثناء النشر المجمع",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleBulkUnpublish = async () => {
+    try {
+      const published = userProperties.filter(p => p.is_published);
+      for (const prop of published) {
+        await togglePropertyPublication(prop.id, prop.is_published);
+        await logPropertyAction(
+          'update', // تحديث حالة العقار للإخفاء
+          prop.id,
+          {
+            property_title: prop.title,
+            bulk_action: true,
+            admin_action: true,
+            new_status: 'unpublished'
+          }
+        );
+      }
+      toast({
+        title: "تم إخفاء جميع العقارات المنشورة",
+        description: `تم إخفاء ${published.length} عقار`,
+      });
+    } catch (error) {
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ أثناء الإخفاء المجمع",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!confirm("هل أنت متأكد من حذف جميع العقارات؟")) return;
+    try {
+      for (const prop of userProperties) {
+        await deleteProperty(prop.id);
+        await logPropertyAction(
+          'delete', // النوع الصحيح للعملية
+          prop.id,
+          {
+            property_title: prop.title,
+            bulk_action: true,
+            admin_action: true
+          }
+        );
+      }
+      toast({
+        title: "تم حذف جميع العقارات",
+        description: `تم حذف ${userProperties.length} عقار`,
+        variant: "destructive",
+      });
+    } catch (error) {
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ أثناء الحذف المجمع",
+        variant: "destructive",
+      });
+    }
+  };
   const { isAdmin } = useAuth();
+  const { logPropertyAction, logUserAction } = useAuditLog();
   const { 
     users, 
     userProperties, 
@@ -57,32 +147,102 @@ export const Dashboard = ({ onPageChange, onEditProperty }: DashboardProps) => {
   }
 
   const handleTogglePublication = async (propertyId: string, currentStatus: boolean) => {
+      try {
     await togglePropertyPublication(propertyId, currentStatus);
+      
+        // تسجيل العملية في audit log
+        await logPropertyAction(
+          'update',
+          propertyId,
+          { 
+            previous_status: currentStatus ? 'published' : 'unpublished',
+            new_status: currentStatus ? 'unpublished' : 'published',
+            admin_action: true
+          }
+        );
+      
     toast({
       title: currentStatus ? "تم إخفاء العقار" : "تم نشر العقار",
       description: currentStatus ? "العقار غير مرئي للعملاء الآن" : "العقار مرئي للعملاء الآن",
     });
+      } catch (error) {
+        console.error('Error toggling property publication:', error);
+        toast({
+          title: "خطأ",
+          description: "حدث خطأ أثناء تحديث حالة النشر",
+          variant: "destructive",
+        });
+      }
   };
 
   const handleDeleteProperty = async (propertyId: string) => {
     if (confirm("هل أنت متأكد من حذف هذا العقار؟")) {
+        try {
+          // الحصول على معلومات العقار قبل الحذف
+          const property = userProperties.find(p => p.id === propertyId);
+        
       await deleteProperty(propertyId);
+        
+          // تسجيل العملية في audit log
+          await logPropertyAction(
+            'delete',
+            propertyId,
+            { 
+              property_title: property?.title,
+              property_owner: property?.owner_name,
+              admin_action: true
+            }
+          );
+        
       toast({
         title: "تم حذف العقار",
         description: "تم حذف العقار بنجاح",
         variant: "destructive",
       });
+        } catch (error) {
+          console.error('Error deleting property:', error);
+          toast({
+            title: "خطأ",
+            description: "حدث خطأ أثناء حذف العقار",
+            variant: "destructive",
+          });
+        }
     }
   };
 
   const handleDeleteUser = async (userId: string) => {
     if (confirm("هل أنت متأكد من حذف هذا المستخدم؟ سيتم حذف جميع عقاراته أيضاً")) {
+        try {
+          // الحصول على معلومات المستخدم قبل الحذف
+          const user = users.find(u => u.id === userId);
+        
       await deleteUser(userId);
+        
+          // تسجيل العملية في audit log
+          await logUserAction(
+            'delete',
+            userId,
+            { 
+              user_email: user?.email,
+              user_role: user?.role,
+              properties_count: user?.properties_count,
+              admin_action: true
+            }
+          );
+        
       toast({
         title: "تم حذف المستخدم",
         description: "تم حذف المستخدم وجميع عقاراته بنجاح",
         variant: "destructive",
       });
+        } catch (error) {
+          console.error('Error deleting user:', error);
+          toast({
+            title: "خطأ",
+            description: "حدث خطأ أثناء حذف المستخدم",
+            variant: "destructive",
+          });
+        }
     }
   };
 
@@ -199,6 +359,14 @@ export const Dashboard = ({ onPageChange, onEditProperty }: DashboardProps) => {
       <CardHeader>
         <CardTitle>إدارة العقارات</CardTitle>
         <p className="text-sm text-muted-foreground">إدارة شاملة لجميع العقارات في النظام</p>
+        {/* شريط العمليات المجمعة */}
+        {isAdmin && (
+          <div className="flex gap-2 mt-4">
+            <Button size="sm" onClick={handleBulkPublish}>نشر جميع العقارات غير المنشورة</Button>
+            <Button size="sm" onClick={handleBulkUnpublish}>إخفاء جميع العقارات المنشورة</Button>
+            <Button variant="destructive" size="sm" onClick={handleBulkDelete}>حذف جميع العقارات</Button>
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
@@ -477,6 +645,12 @@ export const Dashboard = ({ onPageChange, onEditProperty }: DashboardProps) => {
 
             {/* Content */}
             {renderTabContent()}
+            {/* Admin user controls */}
+            {isAdmin && (
+              <div className="mt-8">
+                <AdminUserControls />
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { MapPicker } from "@/components/MapPicker";
 import { useAuth } from "@/hooks/useAuth";
 import { useOptimizedImageUpload } from "@/hooks/useOptimizedImageUpload";
+import { useAuditLog } from "@/hooks/useAuditLog";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useUserStatus } from "@/hooks/useUserStatus";
@@ -20,12 +21,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MARKET_OPTIONS, MarketValue, resolveMarketValue } from "@/constants/markets";
+import { MARKET_OPTIONS, MarketValue, resolveMarketValue, MarketOption } from "@/constants/markets";
 
 export const AddProperty = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { uploadOptimizedImages, uploadProgress, isUploading } = useOptimizedImageUpload();
+  const { logPropertyAction } = useAuditLog();
   const navigate = useNavigate();
   const { userStatus, canAddProperty, getRemainingProperties } = useUserStatus();
   const [isLoading, setIsLoading] = useState(false);
@@ -230,8 +232,12 @@ export const AddProperty = () => {
       { field: formData.apartment, name: "رقم الشقة" },
       { field: formData.price, name: "السعر" },
       { field: formData.bedrooms, name: "غرف النوم" },
-      { field: formData.market, name: "السوق" },
     ];
+
+    // إضافة السوق كحقل مطلوب فقط للمدير
+    if (isAdmin) {
+      requiredFields.push({ field: formData.market, name: "السوق" });
+    }
 
     const missingFields = requiredFields.filter(item => !item.field || item.field.trim() === "");
 
@@ -244,18 +250,22 @@ export const AddProperty = () => {
       return;
     }
 
-    const resolvedMarket = resolveMarketValue(formData.market);
-    const marketOption = resolvedMarket
-      ? MARKET_OPTIONS.find((option) => option.value === resolvedMarket)
-      : undefined;
+    // التحقق من صحة السوق فقط للمدير
+    let marketOption: MarketOption | undefined = undefined;
+    if (isAdmin) {
+      const resolvedMarket = resolveMarketValue(formData.market);
+      marketOption = resolvedMarket
+        ? MARKET_OPTIONS.find((option) => option.value === resolvedMarket)
+        : undefined;
 
-    if (!marketOption) {
-      toast({
-        title: "سوق غير معروف",
-        description: "يرجى اختيار سوق صحيح من القائمة لربط العقار بالموقع المناسب.",
-        variant: "destructive",
-      });
-      return;
+      if (!marketOption) {
+        toast({
+          title: "سوق غير معروف",
+          description: "يرجى اختيار سوق صحيح من القائمة لربط العقار بالموقع المناسب.",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     // Check if user can add more properties
@@ -278,7 +288,7 @@ export const AddProperty = () => {
         property_type: formData.property_type,
         bedrooms: formData.bedrooms,
         price: formData.price,
-        market: marketOption.value,
+        market: marketOption?.value || null,
       });
       
       // Upload images first
@@ -297,7 +307,7 @@ export const AddProperty = () => {
       const title = `شقة رقم ${formData.apartment} في العمارة ${formData.building}`;
       
       // Prepare data for insertion (including required property_code and coordinates)
-      const marketLabel = marketOption.label;
+      const marketLabel = marketOption?.label || null;
 
       const locationSegments = [
         formData.building ? `العمارة ${formData.building}` : null,
@@ -345,18 +355,20 @@ export const AddProperty = () => {
         area: areaValue,
         bedrooms: bedroomsValue,
         bathrooms: 1, // قيمة افتراضية
-        market: marketOption.value,
+        market: marketOption?.value || null,
         location: locationText,
         address: addressText,
         amenities: formData.furnished ? [formData.furnished === "yes" ? "مؤثثة" : "غير مؤثثة"] : [],
         images: uploadedImageUrls,
         is_published: true,
+        latitude: formData.latitude,
+        longitude: formData.longitude,
       };
 
       console.log('Inserting property data:', propertyData);
       
       // First, try to insert with all fields
-      let { error } = await supabase
+      const { error } = await supabase
         .from('properties')
         .insert([propertyData]);
 
@@ -367,6 +379,18 @@ export const AddProperty = () => {
       }
 
       console.log('Property created successfully');
+      
+      // تسجيل عملية إنشاء العقار في audit log
+      await logPropertyAction('create', propertyCode, {
+        title,
+        property_type: formData.property_type,
+        listing_type: formData.listing_type,
+        price: priceValue,
+        bedrooms: bedroomsValue,
+        market: marketOption?.value || null,
+        images_count: uploadedImageUrls.length,
+        location: locationText
+      });
       
       toast({
         title: "تم نشر العقار بنجاح!",
@@ -408,7 +432,7 @@ export const AddProperty = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [user, formData, canAddProperty, navigate, uploadImages, userStatus?.properties_limit, toast]);
+  }, [user, formData, canAddProperty, navigate, uploadImages, userStatus?.properties_limit, toast, isAdmin, logPropertyAction]);
 
   // Memoized values for better performance
   const isFormValid = useMemo(() => {
@@ -756,67 +780,69 @@ export const AddProperty = () => {
               </div>
             </Card>
 
-            {/* Row 4: Market, Price, Bedrooms */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              {/* السوق */}
-              <Card className={`p-4 border-2 shadow-md hover:shadow-lg transition-all duration-300 ${
-                formData.market ? 'border-gray-300 bg-gradient-to-br from-gray-100 to-gray-200' : 'border-teal-200 bg-gradient-to-br from-teal-50 to-teal-100'
-              }`}>
-                <Label htmlFor="market" className={`flex items-center gap-2 text-sm font-bold mb-3 ${
-                  formData.market ? 'text-gray-600' : 'text-teal-800'
+            {/* Row 4: Market (Admin only), Price, Bedrooms */}
+            <div className={`grid grid-cols-1 ${isAdmin ? 'lg:grid-cols-3' : 'lg:grid-cols-2'} gap-4`}>
+              {/* السوق - للمدير فقط */}
+              {isAdmin && (
+                <Card className={`p-4 border-2 shadow-md hover:shadow-lg transition-all duration-300 ${
+                  formData.market ? 'border-gray-300 bg-gradient-to-br from-gray-100 to-gray-200' : 'border-teal-200 bg-gradient-to-br from-teal-50 to-teal-100'
                 }`}>
-                  <div className={`p-2 text-white rounded-lg ${
-                    formData.market ? 'bg-gray-500' : 'bg-teal-500'
+                  <Label htmlFor="market" className={`flex items-center gap-2 text-sm font-bold mb-3 ${
+                    formData.market ? 'text-gray-600' : 'text-teal-800'
                   }`}>
-                    <Store className="h-4 w-4" />
-                  </div>
-                  قرب أي سوق <span className="text-red-500">*</span>
-                </Label>
-                <Select
-                  value={formData.market}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, market: value }))}
-                  required
-                >
-                  <SelectTrigger className="h-12 text-sm border-2 border-teal-300 bg-white hover:border-teal-400 focus:border-teal-500 transition-colors">
-                    <SelectValue placeholder="اختر السوق" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {MARKET_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.icon ? `${option.icon} ` : ""}{option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {selectedMarketOption ? (
-                  <div className="mt-3 rounded-lg border border-teal-200 bg-white/70 px-3 py-2 text-teal-800">
-                    <div className="flex items-center gap-2 text-sm font-semibold">
+                    <div className={`p-2 text-white rounded-lg ${
+                      formData.market ? 'bg-gray-500' : 'bg-teal-500'
+                    }`}>
                       <Store className="h-4 w-4" />
-                      {selectedMarketOption.icon && (
-                        <span className="text-base" aria-hidden="true">{selectedMarketOption.icon}</span>
-                      )}
-                      <span>{selectedMarketOption.label}</span>
                     </div>
-                    {locationPreview && (
-                      <p className="mt-1 text-xs text-teal-700/80">
-                        الموقع الناتج: <span className="font-semibold">{locationPreview}</span>
+                    قرب أي سوق <span className="text-red-500">*</span>
+                  </Label>
+                  <Select
+                    value={formData.market}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, market: value }))}
+                    required
+                  >
+                    <SelectTrigger className="h-12 text-sm border-2 border-teal-300 bg-white hover:border-teal-400 focus:border-teal-500 transition-colors">
+                      <SelectValue placeholder="اختر السوق" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {MARKET_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.icon ? `${option.icon} ` : ""}{option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {selectedMarketOption ? (
+                    <div className="mt-3 rounded-lg border border-teal-200 bg-white/70 px-3 py-2 text-teal-800">
+                      <div className="flex items-center gap-2 text-sm font-semibold">
+                        <Store className="h-4 w-4" />
+                        {selectedMarketOption.icon && (
+                          <span className="text-base" aria-hidden="true">{selectedMarketOption.icon}</span>
+                        )}
+                        <span>{selectedMarketOption.label}</span>
+                      </div>
+                      {locationPreview && (
+                        <p className="mt-1 text-xs text-teal-700/80">
+                          الموقع الناتج: <span className="font-semibold">{locationPreview}</span>
+                        </p>
+                      )}
+                      {(!formData.address || formData.address.trim().length === 0) && addressPreview && (
+                        <p className="mt-1 text-[11px] text-teal-600/80">
+                          العنوان المقترح: {addressPreview}
+                        </p>
+                      )}
+                      <p className="mt-1 text-[11px] text-teal-700/70">
+                        سيتم حفظ هذا السوق كما هو في قاعدة البيانات وربطه بفلترة العقارات.
                       </p>
-                    )}
-                    {(!formData.address || formData.address.trim().length === 0) && addressPreview && (
-                      <p className="mt-1 text-[11px] text-teal-600/80">
-                        العنوان المقترح: {addressPreview}
-                      </p>
-                    )}
-                    <p className="mt-1 text-[11px] text-teal-700/70">
-                      سيتم حفظ هذا السوق كما هو في قاعدة البيانات وربطه بفلترة العقارات.
+                    </div>
+                  ) : (
+                    <p className="mt-3 text-xs text-teal-700/80">
+                      اختر السوق الأقرب لضمان ربط العقار بشكل صحيح مع قاعدة البيانات.
                     </p>
-                  </div>
-                ) : (
-                  <p className="mt-3 text-xs text-teal-700/80">
-                    اختر السوق الأقرب لضمان ربط العقار بشكل صحيح مع قاعدة البيانات.
-                  </p>
-                )}
-              </Card>
+                  )}
+                </Card>
+              )}
 
               {/* السعر */}
               <Card className="p-4 border-2 border-yellow-200 bg-gradient-to-br from-yellow-50 to-yellow-100 shadow-md hover:shadow-lg transition-all duration-300">

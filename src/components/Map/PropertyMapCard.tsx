@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Eye, Edit, Trash2, Phone, Mail, Store } from 'lucide-react';
+import VerifiedBadge from '@/components/VerifiedBadge';
+import useVerification from '@/hooks/useVerification';
 import { formatCurrency } from '@/lib/utils';
 import { getMarketLabel, resolveMarketValue } from '@/constants/markets';
 
@@ -42,6 +44,7 @@ interface PropertyMapCardProps {
   onContact?: (property: Property) => void;
   canManage?: boolean;
   showActions?: boolean;
+  isApproximate?: boolean;
 }
 
 export const PropertyMapCard: React.FC<PropertyMapCardProps> = ({
@@ -51,7 +54,8 @@ export const PropertyMapCard: React.FC<PropertyMapCardProps> = ({
   onView,
   onContact,
   canManage = false,
-  showActions = true
+  showActions = true,
+  isApproximate = false
 }) => {
   const mainImage = property.images && property.images.length > 0 
     ? property.images[0] 
@@ -64,6 +68,8 @@ export const PropertyMapCard: React.FC<PropertyMapCardProps> = ({
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     e.currentTarget.src = '/placeholder.svg';
   };
+  // Show verified badge for owner/publisher. Currently based on property.user_id
+  const { verified: isVerified } = useVerification(property.user_id);
 
   return (
     <Card className="w-80 shadow-lg border-0">
@@ -122,6 +128,12 @@ export const PropertyMapCard: React.FC<PropertyMapCardProps> = ({
               )}
             </div>
           )}
+
+          {isApproximate && (
+            <div className="bg-amber-50 border border-amber-200 text-amber-700 text-xs rounded-md p-2 text-right">
+              📍 تم تحديد هذا الموقع بناءً على السوق الأقرب، وقد يختلف الموقع الدقيق على الواقع.
+            </div>
+          )}
           
           <div className="flex justify-between items-center">
             <div className="text-xs text-gray-500">
@@ -144,7 +156,10 @@ export const PropertyMapCard: React.FC<PropertyMapCardProps> = ({
           {(property.owner_name || property.owner_phone) && (
             <div className="bg-gray-50 p-2 rounded-md">
               {property.owner_name && (
-                <p className="text-xs font-medium">👤 {property.owner_name}</p>
+                <p className="text-xs font-medium flex items-center gap-1">
+                  👤 {property.owner_name}
+                  <VerifiedBadge verified={!!isVerified} />
+                </p>
               )}
               {property.owner_phone && (
                 <div className="flex items-center gap-1 text-xs text-gray-600">

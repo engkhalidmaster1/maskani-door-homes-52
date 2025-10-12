@@ -1,5 +1,5 @@
 // service-worker.js
-const CACHE_NAME = 'maskani-cache-v3';
+const CACHE_NAME = 'maskani-cache-v4';
 const DATA_CACHE_NAME = 'maskani-data-cache-v1';
 
 const urlsToCache = [
@@ -57,6 +57,11 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
+
+  // Skip non-HTTP(S) schemes like chrome-extension
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    return;
+  }
 
   // Handle API requests with network-first strategy
   if (isDataRequest(request.url)) {

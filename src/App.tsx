@@ -18,6 +18,7 @@ import { Login } from "@/pages/Auth/Login";
 import { Register } from "@/pages/Auth/Register";
 import { MapPage } from "@/pages/MapPage";
 import { EditOffice } from "@/pages/EditOffice";
+import { PropertyDetails } from "@/pages/PropertyDetails";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -80,6 +81,7 @@ function App() {
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/edit-office/:id" element={<ProtectedRoute><EditOffice /></ProtectedRoute>} />
               <Route path="/image-diagnostics" element={<ProtectedRoute><ImageDiagnostics /></ProtectedRoute>} />
+              <Route path="/property/:id" element={<PropertyDetails />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           </Routes>

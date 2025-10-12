@@ -13,7 +13,6 @@ export const DashboardBreadcrumb = ({ activeTab, onNavigate }: DashboardBreadcru
     switch (tab) {
       case "overview": return "نظرة عامة";
       case "properties": return "العقارات";
-      case "edit-properties": return "تعديل العقارات";
       case "banner-settings": return "إدارة الشريط";
       case "users": return "إدارة المستخدمين";
       case "profile": return "الملف الشخصي";

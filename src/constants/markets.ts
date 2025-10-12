@@ -183,3 +183,13 @@ export const getMarketLabel = (value: MarketValue | ""): string => {
   const option = MARKET_OPTIONS.find((item) => item.value === value);
   return option?.label ?? value;
 };
+
+export const MARKET_COORDINATES: Record<MarketValue, [number, number]> = {
+  "السوق الاول": [34.4065, 43.7895],
+  "السوق الثاني": [34.4098, 43.7935],
+  "السوق الثالث": [34.4032, 43.7948],
+  "السوق الرابع": [34.4001, 43.7875],
+  "السوق الخامس": [34.4057, 43.7832],
+  "السوق السادس": [34.4109, 43.7854],
+  "الفنادق": [34.4142, 43.7991],
+};

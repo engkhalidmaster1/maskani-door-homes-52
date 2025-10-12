@@ -26,13 +26,22 @@ interface Property {
   updated_at: string;
   ownership_type?: "ملك صرف" | "سر قفلية" | null;
   property_code?: string;
-  latitude?: number;
-  longitude?: number;
+  latitude?: number | null;
+  longitude?: number | null;
   market?: MarketValue | null;
   marketLabel?: string | null;
 }
 
 type RawProperty = Record<string, unknown>;
+
+const parseCoordinate = (value: unknown): number | null => {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  const numericValue = typeof value === "string" ? parseFloat(value) : Number(value);
+  return Number.isFinite(numericValue) ? numericValue : null;
+};
 
 const toProperty = (item: RawProperty | Property): Property => {
   const raw = item as RawProperty;
@@ -40,6 +49,9 @@ const toProperty = (item: RawProperty | Property): Property => {
 
   const listingTypeRaw = raw["listing_type"];
   const listing_type: "sale" | "rent" = listingTypeRaw === "rent" ? "rent" : "sale";
+
+  const latitude = parseCoordinate(raw["latitude"]);
+  const longitude = parseCoordinate(raw["longitude"]);
 
   const resolvedMarket = resolveMarketValue(
     (raw["market"] as string | null | undefined) ??
@@ -54,6 +66,8 @@ const toProperty = (item: RawProperty | Property): Property => {
   return {
     ...existing,
     listing_type,
+    latitude: latitude ?? existing.latitude ?? null,
+    longitude: longitude ?? existing.longitude ?? null,
     market: resolvedMarket ?? null,
     marketLabel: resolvedMarket ? getMarketLabel(resolvedMarket) : existing.marketLabel ?? null,
   };

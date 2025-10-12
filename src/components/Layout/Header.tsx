@@ -6,12 +6,14 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useUserStatus } from "@/hooks/useUserStatus";
 import { Badge } from "@/components/ui/badge";
+import NotificationsBell from "@/components/NotificationsBell";
 
 interface HeaderProps {
   onSidebarToggle: () => void;
 }
 
 export const Header = ({ onSidebarToggle }: HeaderProps) => {
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const { user, signOut, isAdmin } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -42,16 +44,10 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
         <div className="flex items-center justify-between h-16">
           {/* Menu button - Mobile Only */}
           <Button
-            variant="ghost"
-            className="md:hidden flex items-center gap-3 px-4 py-2.5 hover:bg-white/20 text-primary-foreground group rounded-xl"
+            className="md:hidden flex items-center justify-center p-0 rounded-full border-4 border-white bg-blue-500 w-12 h-12 shadow-lg"
             onClick={onSidebarToggle}
           >
-            <div className="flex flex-col items-end gap-2 min-w-[28px]">
-              <div className="w-7 h-[3px] bg-white rounded-full transition-all duration-300 group-hover:w-6"></div>
-              <div className="w-6 h-[3px] bg-white rounded-full transition-all duration-300 group-hover:w-7"></div>
-              <div className="w-7 h-[3px] bg-white rounded-full transition-all duration-300 group-hover:w-5"></div>
-            </div>
-            <span className="font-medium text-[15px] tracking-wide">قائمة</span>
+            <Menu className="h-7 w-7 text-white" />
           </Button>
 
           {/* Logo */}
@@ -88,8 +84,46 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
             })}
           </nav>
 
-          {/* User Actions */}
+          {/* User Actions + Profile Icon */}
           <div className="flex items-center gap-2">
+            {/* Notifications bell */}
+            {user && (
+              <div className="block">
+                <NotificationsBell />
+              </div>
+            )}
+            {/* زر الملف الشخصي يظهر فقط في الجوال */}
+            <div className="relative md:hidden">
+              <Button
+                className="flex items-center justify-center p-0 rounded-full border-4 border-white bg-blue-500 w-12 h-12 shadow-lg"
+                onClick={() => {
+                  if (!user) {
+                    navigate("/login");
+                  } else {
+                    setShowProfileMenu((prev) => !prev);
+                  }
+                }}
+                title={user ? "الملف الشخصي" : "تسجيل الدخول"}
+              >
+                <User className="h-7 w-7 text-white" />
+              </Button>
+              {/* قائمة تسجيل خروج تظهر عند الضغط */}
+              {user && showProfileMenu && (
+                <div className="absolute left-0 mt-2 w-36 bg-white rounded-xl shadow-lg z-50 border">
+                  <Button
+                    className="w-full text-red-600 rounded-xl"
+                    variant="ghost"
+                    onClick={async () => {
+                      setShowProfileMenu(false);
+                      await signOut();
+                      navigate("/");
+                    }}
+                  >
+                    تسجيل الخروج
+                  </Button>
+                </div>
+              )}
+            </div>
             {!user ? (
               <div className="hidden md:flex items-center gap-2">
                 <Link to="/login">

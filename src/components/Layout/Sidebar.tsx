@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useFavorites } from "@/hooks/useFavorites";
 import { Badge } from "@/components/ui/badge";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -16,12 +17,13 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { getFavoritesCount } = useFavorites();
+  const isMobile = useIsMobile();
   
   // Different navigation items based on authentication status
   const navItems = user ? [
     { id: "/", label: "الرئيسية", icon: Home },
     { id: "/properties", label: "العقارات", icon: Building },
-    { id: "/offices", label: "المكاتب العقارية", icon: Shield },
+    ...(!isMobile ? [{ id: "/offices", label: "المكاتب العقارية", icon: Shield }] : []),
     { id: "/favorites", label: "المفضلة", icon: Heart, badge: getFavoritesCount() },
     { id: "/add-property", label: "إضافة عقار", icon: PlusCircle },
     { id: "/profile", label: "الملف الشخصي", icon: User },
@@ -29,7 +31,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   ] : [
     { id: "/", label: "الرئيسية", icon: Home },
     { id: "/properties", label: "العقارات", icon: Building },
-    { id: "/offices", label: "المكاتب العقارية", icon: Shield },
+    ...(!isMobile ? [{ id: "/offices", label: "المكاتب العقارية", icon: Shield }] : []),
   ];
 
   const handleNavClick = (path: string) => {

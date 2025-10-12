@@ -8,6 +8,12 @@
     <link rel="preconnect" href="https://ugefzrktqeyspnzhxzzw.supabase.co" crossorigin />
     <link rel="dns-prefetch" href="https://ugefzrktqeyspnzhxzzw.supabase.co" />
     
+    <!-- Preload critical fonts to prevent layout shift -->
+    <link rel="preload" href="/assets/tajawal-arabic-700-normal-c-WwFYr-.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/assets/tajawal-arabic-500-normal-DoitJjou.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/assets/tajawal-latin-400-normal-BVNSOH3d.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/assets/tajawal-latin-700-normal-BypgxfGb.woff2" as="font" type="font/woff2" crossorigin />
+    
     <title>سكني - تطبيق العقارات</title>
     <meta name="description" content="منصة متكاملة للعثور على أفضل العقارات للبيع والإيجار في مجمع الدور" />
     <meta name="author" content="سكني" />
@@ -28,7 +34,7 @@
     <!-- Critical CSS inline to prevent render blocking -->
     <style>
       *,::before,::after{box-sizing:border-box;border:0 solid}
-      body{margin:0;line-height:inherit;font-family:ui-sans-serif,system-ui,sans-serif}
+      body{margin:0;line-height:inherit;font-family:'Tajawal',ui-sans-serif,system-ui,sans-serif;font-display:swap}
       #root{min-height:100vh}
     </style>
   </head>

@@ -110,6 +110,7 @@ export const Home = () => {
         <Button
           onClick={() => setShowWelcomeModal(true)}
           className="fixed top-20 left-4 z-50 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg rounded-full w-10 h-10 flex items-center justify-center"
+          aria-label="عرض رسالة الترحيب"
         >
           <AlertCircle className="h-5 w-5" />
         </Button>
@@ -124,6 +125,7 @@ export const Home = () => {
                 size="icon"
                 className="absolute top-4 left-4 text-gray-500 hover:text-gray-700"
                 onClick={() => setShowWelcomeModal(false)}
+                aria-label="إغلاق"
               >
                 <X className="h-5 w-5" />
               </Button>

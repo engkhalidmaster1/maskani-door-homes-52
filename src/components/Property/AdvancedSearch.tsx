@@ -65,7 +65,7 @@ export const AdvancedSearch = ({ onSearch, isVisible, onClose }: AdvancedSearchP
             <Filter className="h-5 w-5" />
             البحث المتقدم
           </CardTitle>
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <Button variant="ghost" size="icon" onClick={onClose} aria-label="إغلاق البحث المتقدم">
             <X className="h-5 w-5" />
           </Button>
         </CardHeader>

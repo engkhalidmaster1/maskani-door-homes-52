@@ -27,18 +27,7 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     cssCodeSplit: true,
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: mode === 'production',
-        pure_funcs: mode === 'production' ? ['console.log'] : [],
-        dead_code: true,
-        drop_debugger: true
-      },
-      mangle: {
-        safari10: true
-      }
-    },
+    minify: 'esbuild',
     rollupOptions: {
       output: {
         manualChunks(id) {

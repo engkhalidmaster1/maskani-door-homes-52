@@ -26,7 +26,22 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
+    cssCodeSplit: true,
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: mode === 'production',
+        pure_funcs: mode === 'production' ? ['console.log'] : []
+      }
+    },
     rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select'],
+          'vendor-utils': ['date-fns', 'clsx', 'tailwind-merge']
+        }
+      },
       // Make sure to include service worker and manifest in the build
       input: {
         main: path.resolve(__dirname, 'index.html'),

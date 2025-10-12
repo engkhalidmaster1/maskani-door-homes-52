@@ -161,17 +161,50 @@ export const AdminUserControls = () => {
       {/* Admin broadcast notification */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div className="space-y-2 md:col-span-2">
-          <label className="text-sm">إرسال إشعار عام (لكل المستخدمين)</label>
-          <Input placeholder="عنوان الإشعار" value={broadcastTitle} onChange={(e) => setBroadcastTitle(e.target.value)} />
-          <Textarea placeholder="نص الإشعار" value={broadcastMessage} onChange={(e) => setBroadcastMessage(e.target.value)} rows={4} />
+          <label className="text-sm font-semibold">إرسال إشعار عام (لكل المستخدمين)</label>
+          <Input 
+            placeholder="عنوان الإشعار" 
+            value={broadcastTitle} 
+            onChange={(e) => setBroadcastTitle(e.target.value)} 
+          />
+          <Textarea 
+            placeholder="نص الإشعار" 
+            value={broadcastMessage} 
+            onChange={(e) => setBroadcastMessage(e.target.value)} 
+            rows={4} 
+          />
         </div>
         <div className="flex items-end">
           <Button
             disabled={!isAdmin || !broadcastMessage.trim()}
             onClick={async () => {
-              await supabase.rpc('admin_broadcast_notification', { p_title: broadcastTitle || 'إشعار', p_message: broadcastMessage });
-              setBroadcastTitle('');
-              setBroadcastMessage('');
+              try {
+                console.log('📢 إرسال إشعار للمستخدمين...', { 
+                  title: broadcastTitle || 'إشعار', 
+                  message: broadcastMessage 
+                });
+                
+                const { data, error } = await supabase.rpc('admin_broadcast_notification', { 
+                  p_title: broadcastTitle || 'إشعار', 
+                  p_message: broadcastMessage 
+                });
+                
+                if (error) {
+                  console.error('❌ خطأ في إرسال الإشعار:', error);
+                  throw error;
+                }
+                
+                console.log('✅ تم إرسال الإشعار بنجاح', data);
+                
+                setBroadcastTitle('');
+                setBroadcastMessage('');
+                
+                // إظهار رسالة نجاح
+                alert('✅ تم إرسال الإشعار لجميع المستخدمين بنجاح!');
+              } catch (err) {
+                console.error('❌ فشل إرسال الإشعار:', err);
+                alert('❌ حدث خطأ أثناء إرسال الإشعار: ' + (err as Error).message);
+              }
             }}
           >
             إرسال الإشعار للجميع

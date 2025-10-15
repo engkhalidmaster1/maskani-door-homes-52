@@ -23,11 +23,46 @@ END;
 $$;
 
 -- =============================================================================
--- STEP 2: Notifications Table Setup and Policies
+-- STEP 2: Create/Fix Notifications Table and Policies
 -- =============================================================================
 
+-- Create notifications table with proper structure (if not exists)
+CREATE TABLE IF NOT EXISTS public.notifications (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  title text NOT NULL,
+  message text NOT NULL,
+  read boolean DEFAULT false,
+  type text DEFAULT 'system',
+  created_at timestamp with time zone DEFAULT now()
+);
+
+-- CRITICAL FIX: Drop existing type constraint and recreate with correct values
+DO $$
+BEGIN
+  -- Drop existing constraint (all variations)
+  BEGIN
+    ALTER TABLE public.notifications DROP CONSTRAINT IF EXISTS notifications_type_check;
+  EXCEPTION WHEN OTHERS THEN NULL; END;
+  
+  BEGIN
+    ALTER TABLE public.notifications DROP CONSTRAINT IF EXISTS notifications_check;  
+  EXCEPTION WHEN OTHERS THEN NULL; END;
+  
+  BEGIN
+    ALTER TABLE public.notifications DROP CONSTRAINT IF EXISTS check_type;
+  EXCEPTION WHEN OTHERS THEN NULL; END;
+  
+  -- Add the correct constraint that allows 'broadcast'
+  ALTER TABLE public.notifications 
+    ADD CONSTRAINT notifications_type_check 
+    CHECK (type IN ('system', 'broadcast', 'personal', 'alert', 'info', 'announcement', 'warning'));
+    
+  RAISE NOTICE 'Type constraint updated to allow broadcast notifications';
+END $$;
+
 -- Ensure RLS is enabled on notifications table
-ALTER TABLE IF EXISTS public.notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 
 -- Policy: users can select their own notifications
 DO $$

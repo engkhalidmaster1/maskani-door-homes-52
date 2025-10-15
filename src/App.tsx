@@ -19,6 +19,9 @@ import { Register } from "@/pages/Auth/Register";
 import { MapPage } from "@/pages/MapPage";
 import { EditOffice } from "@/pages/EditOffice";
 import { PropertyDetails } from "@/pages/PropertyDetails";
+import { UsersManagement } from "@/pages/UsersManagement";
+import { AdminDebug } from "@/pages/AdminDebug";
+// import { SmartSearchPage } from "@/pages/SmartSearchPage"; // مخفي مؤقتاً  
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -71,6 +74,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/properties" element={<PropertiesManagement />} />
               <Route path="/map" element={<MapPage />} />
+              {/* <Route path="/smart-search" element={<SmartSearchPage />} /> */} {/* مخفي مؤقتاً */}
               <Route path="/favorites" element={<Favorites />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
@@ -81,6 +85,8 @@ function App() {
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/edit-office/:id" element={<ProtectedRoute><EditOffice /></ProtectedRoute>} />
               <Route path="/image-diagnostics" element={<ProtectedRoute><ImageDiagnostics /></ProtectedRoute>} />
+              <Route path="/admin/debug" element={<ProtectedRoute><AdminDebug /></ProtectedRoute>} />
+              <Route path="/admin/users" element={<ProtectedRoute><UsersManagement /></ProtectedRoute>} />
               <Route path="/property/:id" element={<PropertyDetails />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>

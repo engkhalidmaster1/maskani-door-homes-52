@@ -18,6 +18,10 @@ import { Profile } from "@/pages/Profile";
 import { UserActions } from "@/components/Dashboard/UserActions";
 import { UserStatusControl } from "@/components/Dashboard/UserStatusControl";
 import { useUserStatus } from "@/hooks/useUserStatus";
+import { UserRolesManagement } from "@/components/Dashboard/UserRolesManagement";
+import { VerificationSettings } from "@/components/Dashboard/VerificationSettings";
+import { BroadcastNotification } from "@/components/Dashboard/BroadcastNotification";
+import { FloatingButtonManagement } from "@/components/Dashboard/FloatingButtonManagement";
 
 interface DashboardProps {
   onPageChange?: (page: string) => void;
@@ -271,8 +275,16 @@ export const Dashboard = ({ onPageChange, onEditProperty }: DashboardProps) => {
         return <EditPropertiesTab />;
       case "banner-settings":
         return <BannerSettingsTab />;
+      case "floating-button":
+        return <FloatingButtonManagement />;
       case "users":
         return renderUsersTab();
+      case "user-roles":
+        return <UserRolesManagement />;
+      case "verification-settings":
+        return <VerificationSettings />;
+      case "broadcast-notification":
+        return <BroadcastNotification />;
       case "profile":
         return <Profile />;
       default:
@@ -493,84 +505,84 @@ export const Dashboard = ({ onPageChange, onEditProperty }: DashboardProps) => {
   const renderUsersTab = () => (
     <Card>
       <CardHeader>
-        <CardTitle>إدارة المستخدمين</CardTitle>
-        <p className="text-sm text-muted-foreground">عرض وإدارة جميع المستخدمين المسجلين</p>
+        <CardTitle>قائمة جميع المستخدمين</CardTitle>
+        <p className="text-sm text-muted-foreground">عرض وإدارة جميع المستخدمين المسجلين في النظام</p>
       </CardHeader>
-      <CardContent>
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>الاسم</TableHead>
-                <TableHead>البريد الإلكتروني</TableHead>
-                <TableHead>الهاتف</TableHead>
-                <TableHead>الدور</TableHead>
-                <TableHead>حالة المستخدم</TableHead>
-                <TableHead>الحدود</TableHead>
-                <TableHead>عدد العقارات</TableHead>
-                <TableHead>تاريخ التسجيل</TableHead>
-                <TableHead>الإجراءات</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {allUsersWithStatus.map((userWithStatus) => {
-                const user = users.find(u => u.id === userWithStatus.id);
-                if (!user || !userWithStatus.status_data) return null;
-                
-                return (
-                  <TableRow key={userWithStatus.id}>
-                    <TableCell>{userWithStatus.full_name || "غير محدد"}</TableCell>
-                    <TableCell>{userWithStatus.email}</TableCell>
-                    <TableCell>{userWithStatus.phone || "غير محدد"}</TableCell>
-                    <TableCell>
-                      <Badge variant={user.role === 'admin' ? "default" : "secondary"}>
-                        {user.role === 'admin' ? "مدير" : "مستخدم"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <UserStatusControl
-                        userId={userWithStatus.id}
-                        currentStatus={userWithStatus.status_data.status}
-                        userName={userWithStatus.full_name || userWithStatus.email}
-                        onStatusUpdate={fetchAllUsersWithStatus}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        <div>العقارات: {userWithStatus.status_data.properties_limit}</div>
-                        <div>الصور: {userWithStatus.status_data.images_limit}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="font-medium">
-                        {user.properties_count || 0}
-                      </span>
-                      <span className="text-muted-foreground">
-                        /{userWithStatus.status_data.properties_limit}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(user.created_at).toLocaleDateString('en-US')}
-                    </TableCell>
-                    <TableCell>
-                      <UserActions
-                        user={user}
-                        onDelete={handleDeleteUser}
-                        onUpdateRole={updateUserRole}
-                        onBanUser={banUserFromPublishing}
-                        onUnbanUser={unbanUserFromPublishing}
-                        getUserProfile={getUserProfile}
-                        getUserProperties={getUserProperties}
-                      />
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent>
-    </Card>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>الاسم</TableHead>
+                  <TableHead>البريد الإلكتروني</TableHead>
+                  <TableHead>الهاتف</TableHead>
+                  <TableHead>الدور</TableHead>
+                  <TableHead>حالة المستخدم</TableHead>
+                  <TableHead>الحدود</TableHead>
+                  <TableHead>عدد العقارات</TableHead>
+                  <TableHead>تاريخ التسجيل</TableHead>
+                  <TableHead>الإجراءات</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {allUsersWithStatus.map((userWithStatus) => {
+                  const user = users.find(u => u.id === userWithStatus.id);
+                  if (!user || !userWithStatus.status_data) return null;
+                  
+                  return (
+                    <TableRow key={userWithStatus.id}>
+                      <TableCell>{userWithStatus.full_name || "غير محدد"}</TableCell>
+                      <TableCell>{userWithStatus.email}</TableCell>
+                      <TableCell>{userWithStatus.phone || "غير محدد"}</TableCell>
+                      <TableCell>
+                        <Badge variant={user.role === 'admin' ? "default" : "secondary"}>
+                          {user.role === 'admin' ? "مدير" : "مستخدم"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <UserStatusControl
+                          userId={userWithStatus.id}
+                          currentStatus={userWithStatus.status_data.status}
+                          userName={userWithStatus.full_name || userWithStatus.email}
+                          onStatusUpdate={fetchAllUsersWithStatus}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          <div>العقارات: {userWithStatus.status_data.properties_limit}</div>
+                          <div>الصور: {userWithStatus.status_data.images_limit}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="font-medium">
+                          {user.properties_count || 0}
+                        </span>
+                        <span className="text-muted-foreground">
+                          /{userWithStatus.status_data.properties_limit}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(user.created_at).toLocaleDateString('en-US')}
+                      </TableCell>
+                      <TableCell>
+                        <UserActions
+                          user={user}
+                          onDelete={handleDeleteUser}
+                          onUpdateRole={updateUserRole}
+                          onBanUser={banUserFromPublishing}
+                          onUnbanUser={unbanUserFromPublishing}
+                          getUserProfile={getUserProfile}
+                          getUserProperties={getUserProperties}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
   );
 
   return (
@@ -645,12 +657,6 @@ export const Dashboard = ({ onPageChange, onEditProperty }: DashboardProps) => {
 
             {/* Content */}
             {renderTabContent()}
-            {/* Admin user controls */}
-            {isAdmin && (
-              <div className="mt-8">
-                <AdminUserControls />
-              </div>
-            )}
           </div>
         </div>
       </div>

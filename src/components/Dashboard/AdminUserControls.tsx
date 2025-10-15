@@ -7,13 +7,14 @@ import VerifiedBadge from '@/components/VerifiedBadge';
 import useVerification from '@/hooks/useVerification';
 import { useAuth } from '@/hooks/useAuth';
 import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
 
 const ROLE_OPTIONS = ['admin', 'agency', 'pro', 'user'] as const;
 
 type Limits = { max_properties: number; max_images: number; max_featured: number; storage_mb: number };
 
 export const AdminUserControls = () => {
-  const { user, userRole, isAdmin } = useAuth();
+  const { userRole, isAdmin } = useAuth();
   const [userId, setUserId] = useState<string>('');
   const [roleName, setRoleName] = useState<string>('user');
   const [limits, setLimits] = useState<Limits>({ max_properties: 20, max_images: 200, max_featured: 0, storage_mb: 2000 });
@@ -21,6 +22,8 @@ export const AdminUserControls = () => {
   const [badgeTarget, setBadgeTarget] = useState<string>(() => (typeof window !== 'undefined' && window.localStorage?.getItem('verifiedBadgeTarget')) || 'owner');
   const [broadcastTitle, setBroadcastTitle] = useState('');
   const [broadcastMessage, setBroadcastMessage] = useState('');
+  const [selectedSection, setSelectedSection] = useState<'users' | 'verify' | 'broadcast'>('users');
+  const { toast } = useToast();
 
   const disabled = !isAdmin;
 
@@ -63,7 +66,7 @@ export const AdminUserControls = () => {
   const handleSetRole = async () => {
     if (disabled || !userId) return;
     // Function not implemented yet
-    console.log('admin_set_user_role not implemented', { p_user_id: userId, p_role: roleName });
+        console.log('admin_set_user_role not implemented', { p_user_id: userId, p_role: roleName });
   };
 
   const handleToggleVerify = async () => {
@@ -94,130 +97,202 @@ export const AdminUserControls = () => {
   }, [userId]);
 
   return (
-    <div className={`rounded-lg border p-4 space-y-4 ${disabled ? 'opacity-70 pointer-events-none' : ''}`}>
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">إدارة المستخدمين والصلاحيات</h3>
-        <span className="text-sm text-gray-500">دورك: {userRole ?? 'unknown'}</span>
-      </div>
+    <div className={`flex rounded-lg border min-h-[600px] ${disabled ? 'opacity-70 pointer-events-none' : ''}`}>
+      {/* القائمة الجانبية */}
+      <aside className="w-64 bg-muted/30 border-r flex flex-col p-4 gap-2">
+        <h2 className="text-lg font-bold mb-4 text-center">لوحة التحكم الإدارية</h2>
+        <button
+          className={`text-right px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 ${
+            selectedSection === 'users' 
+              ? 'bg-primary text-primary-foreground shadow-md' 
+              : 'hover:bg-muted/60 text-muted-foreground hover:text-foreground'
+          }`}
+          onClick={() => setSelectedSection('users')}
+        >
+          👥 إدارة المستخدمين والصلاحيات
+        </button>
+        <button
+          className={`text-right px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 ${
+            selectedSection === 'verify' 
+              ? 'bg-primary text-primary-foreground shadow-md' 
+              : 'hover:bg-muted/60 text-muted-foreground hover:text-foreground'
+          }`}
+          onClick={() => setSelectedSection('verify')}
+        >
+          ✅ إعدادات التوثيق
+        </button>
+        <button
+          className={`text-right px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 ${
+            selectedSection === 'broadcast' 
+              ? 'bg-primary text-primary-foreground shadow-md' 
+              : 'hover:bg-muted/60 text-muted-foreground hover:text-foreground'
+          }`}
+          onClick={() => setSelectedSection('broadcast')}
+        >
+          📢 إرسال إشعار عام
+        </button>
+      </aside>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="space-y-2">
-          <label className="text-sm">معرّف المستخدم (UUID)</label>
-          <Input value={userId} onChange={(e) => setUserId(e.target.value.trim())} placeholder="85c5601e-...." />
-          <div className="flex items-center gap-2">
-            <span className="text-sm">توثيق:</span>
-            <VerifiedBadge verified={verified} />
-            <Button size="sm" onClick={handleToggleVerify} disabled={!isAdmin || !userId || verLoading}>
-              {verified ? 'إلغاء التوثيق' : 'توثيق'}
-            </Button>
+      {/* المحتوى الرئيسي */}
+      <main className="flex-1 p-6">
+        {selectedSection === 'users' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold">إدارة المستخدمين والصلاحيات</h3>
+              <span className="text-sm text-muted-foreground bg-muted px-3 py-1 rounded-full">
+                دورك: {userRole ?? 'unknown'}
+              </span>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="space-y-3">
+                <label className="text-sm font-medium">معرّف المستخدم (UUID)</label>
+                <Input 
+                  value={userId} 
+                  onChange={(e) => setUserId(e.target.value.trim())} 
+                  placeholder="85c5601e-...." 
+                  className="font-mono text-xs"
+                />
+                <div className="flex items-center gap-2 mt-3">
+                  <span className="text-sm font-medium">حالة التوثيق:</span>
+                  <VerifiedBadge verified={verified} />
+                  <Button size="sm" onClick={handleToggleVerify} disabled={!isAdmin || !userId || verLoading}>
+                    {verified ? 'إلغاء التوثيق' : 'توثيق'}
+                  </Button>
+                </div>
+                <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+                  📊 عدد العقارات: {counters.properties} — عدد الصور: {counters.images}
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <label className="text-sm font-medium">الدور</label>
+                <Select value={roleName} onValueChange={setRoleName}>
+                  <SelectTrigger><SelectValue placeholder="اختر الدور" /></SelectTrigger>
+                  <SelectContent>
+                    {ROLE_OPTIONS.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                <Button onClick={handleSetRole} disabled={!isAdmin || !userId} className="w-full">
+                  تحديث الدور للمستخدم
+                </Button>
+              </div>
+              
+              <div className="space-y-3">
+                <label className="text-sm font-medium">حدود الدور المختار</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input 
+                    type="number" 
+                    value={limits.max_properties}
+                    onChange={(e) => setLimits(s => ({ ...s, max_properties: Number(e.target.value) }))}
+                    placeholder="عدد العقارات" 
+                  />
+                  <Input 
+                    type="number" 
+                    value={limits.max_images}
+                    onChange={(e) => setLimits(s => ({ ...s, max_images: Number(e.target.value) }))}
+                    placeholder="عدد الصور" 
+                  />
+                  <Input 
+                    type="number" 
+                    value={limits.max_featured}
+                    onChange={(e) => setLimits(s => ({ ...s, max_featured: Number(e.target.value) }))}
+                    placeholder="المميزة" 
+                  />
+                  <Input 
+                    type="number" 
+                    value={limits.storage_mb}
+                    onChange={(e) => setLimits(s => ({ ...s, storage_mb: Number(e.target.value) }))}
+                    placeholder="المساحة (MB)" 
+                  />
+                </div>
+                <Button onClick={handleSaveLimits} disabled={!isAdmin} className="w-full">
+                  حفظ حدود الدور
+                </Button>
+              </div>
+            </div>
           </div>
-          <div className="text-xs text-muted-foreground">
-            عدد العقارات: {counters.properties} — عدد الصور: {counters.images}
+        )}
+
+        {selectedSection === 'verify' && (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold mb-4">إعدادات التوثيق</h3>
+            <div className="max-w-md space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">إظهار شارة التوثيق على</label>
+                <Select 
+                  value={badgeTarget} 
+                  onValueChange={(v) => { 
+                    setBadgeTarget(v); 
+                    if (typeof window !== 'undefined') window.localStorage?.setItem('verifiedBadgeTarget', v); 
+                  }}
+                >
+                  <SelectTrigger><SelectValue placeholder="اختر الهدف" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="owner">المالك</SelectItem>
+                    <SelectItem value="publisher">الناشر</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <p className="text-xs text-muted-foreground">
+                  💡 <strong>ملاحظة:</strong> مؤقتاً يتم حفظ الإعداد محلياً في المتصفح. يمكن لاحقاً نقله إلى إعدادات قاعدة البيانات.
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="space-y-2">
-          <label className="text-sm">الدور</label>
-          <Select value={roleName} onValueChange={setRoleName}>
-            <SelectTrigger><SelectValue placeholder="اختر الدور" /></SelectTrigger>
-            <SelectContent>
-              {ROLE_OPTIONS.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Button onClick={handleSetRole} disabled={!isAdmin || !userId}>تحديث الدور للمستخدم</Button>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm">حدود الدور المختار</label>
-          <div className="grid grid-cols-2 gap-2">
-            <Input type="number" value={limits.max_properties}
-              onChange={(e) => setLimits(s => ({ ...s, max_properties: Number(e.target.value) }))}
-              placeholder="Max properties" />
-            <Input type="number" value={limits.max_images}
-              onChange={(e) => setLimits(s => ({ ...s, max_images: Number(e.target.value) }))}
-              placeholder="Max images" />
-            <Input type="number" value={limits.max_featured}
-              onChange={(e) => setLimits(s => ({ ...s, max_featured: Number(e.target.value) }))}
-              placeholder="Max featured" />
-            <Input type="number" value={limits.storage_mb}
-              onChange={(e) => setLimits(s => ({ ...s, storage_mb: Number(e.target.value) }))}
-              placeholder="Storage (MB)" />
+        {selectedSection === 'broadcast' && (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold mb-4">إرسال إشعار عام (لكل المستخدمين)</h3>
+            <div className="max-w-lg space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">عنوان الإشعار</label>
+                <Input 
+                  placeholder="أدخل عنوان الإشعار..." 
+                  value={broadcastTitle} 
+                  onChange={(e) => setBroadcastTitle(e.target.value)} 
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">نص الإشعار</label>
+                <Textarea 
+                  placeholder="أدخل نص الإشعار المراد إرساله لجميع المستخدمين..." 
+                  value={broadcastMessage} 
+                  onChange={(e) => setBroadcastMessage(e.target.value)} 
+                  rows={5} 
+                />
+              </div>
+              <Button
+                size="lg"
+                disabled={!isAdmin || !broadcastMessage.trim()}
+                onClick={async () => {
+                  try {
+                    const { data, error } = await supabase.rpc('admin_broadcast_notification', { 
+                      p_title: broadcastTitle || 'إشعار', 
+                      p_message: broadcastMessage 
+                    });
+                    if (error) throw error;
+                    setBroadcastTitle('');
+                    setBroadcastMessage('');
+                    alert('✅ تم إرسال الإشعار لجميع المستخدمين بنجاح!');
+                  } catch (err) {
+                    alert('❌ حدث خطأ أثناء إرسال الإشعار: ' + (err as Error).message);
+                  }
+                }}
+                className="w-full"
+              >
+                📢 إرسال الإشعار للجميع
+              </Button>
+              <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
+                <p className="text-xs text-yellow-800">
+                  ⚠️ <strong>ملاحظة:</strong> الإدراج محكوم بحصص الدور عبر تريغر قاعدة البيانات. دوال الإدارة محمية وفق RLS و SECURITY DEFINER للأدمن فقط.
+                </p>
+              </div>
+            </div>
           </div>
-          <Button onClick={handleSaveLimits} disabled={!isAdmin}>حفظ حدود الدور</Button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="space-y-2">
-          <label className="text-sm">إظهار شارة التوثيق على</label>
-          <Select value={badgeTarget} onValueChange={(v) => { setBadgeTarget(v); if (typeof window !== 'undefined') window.localStorage?.setItem('verifiedBadgeTarget', v); }}>
-            <SelectTrigger><SelectValue placeholder="اختر الهدف" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="owner">المالك</SelectItem>
-              <SelectItem value="publisher">الناشر</SelectItem>
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-muted-foreground">مؤقتاً يتم حفظ الإعداد محلياً في المتصفح. يمكن لاحقاً نقله إلى إعدادات قاعدة البيانات.</p>
-        </div>
-      </div>
-
-      {/* Admin broadcast notification */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="space-y-2 md:col-span-2">
-          <label className="text-sm font-semibold">إرسال إشعار عام (لكل المستخدمين)</label>
-          <Input 
-            placeholder="عنوان الإشعار" 
-            value={broadcastTitle} 
-            onChange={(e) => setBroadcastTitle(e.target.value)} 
-          />
-          <Textarea 
-            placeholder="نص الإشعار" 
-            value={broadcastMessage} 
-            onChange={(e) => setBroadcastMessage(e.target.value)} 
-            rows={4} 
-          />
-        </div>
-        <div className="flex items-end">
-          <Button
-            disabled={!isAdmin || !broadcastMessage.trim()}
-            onClick={async () => {
-              try {
-                console.log('📢 إرسال إشعار للمستخدمين...', { 
-                  title: broadcastTitle || 'إشعار', 
-                  message: broadcastMessage 
-                });
-                
-                const { data, error } = await supabase.rpc('admin_broadcast_notification', { 
-                  p_title: broadcastTitle || 'إشعار', 
-                  p_message: broadcastMessage 
-                });
-                
-                if (error) {
-                  console.error('❌ خطأ في إرسال الإشعار:', error);
-                  throw error;
-                }
-                
-                console.log('✅ تم إرسال الإشعار بنجاح', data);
-                
-                setBroadcastTitle('');
-                setBroadcastMessage('');
-                
-                // إظهار رسالة نجاح
-                alert('✅ تم إرسال الإشعار لجميع المستخدمين بنجاح!');
-              } catch (err) {
-                console.error('❌ فشل إرسال الإشعار:', err);
-                alert('❌ حدث خطأ أثناء إرسال الإشعار: ' + (err as Error).message);
-              }
-            }}
-          >
-            إرسال الإشعار للجميع
-          </Button>
-        </div>
-      </div>
-
-      <p className="text-xs text-gray-500">
-        ملاحظة: الإدراج محكوم بحصص الدور عبر تريغر قاعدة البيانات. دوال الإدارة محمية وفق RLS و SECURITY DEFINER للأدمن فقط.
-      </p>
+        )}
+      </main>
     </div>
   );
 };

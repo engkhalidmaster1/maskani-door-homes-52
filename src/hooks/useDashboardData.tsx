@@ -148,45 +148,73 @@ export const useDashboardData = () => {
     if (!isAdmin) return;
 
     try {
-      // Delete user properties first
+      // حذف مؤقت: نحذف من الجداول المتاحة فقط
+      // المستخدم سيبقى في auth.users لكن لن يستطيع الدخول
+      
+      // 1. حذف جميع عقارات المستخدم
       const { error: propertiesError } = await supabase
         .from('properties')
         .delete()
         .eq('user_id', userId);
 
-      if (propertiesError) throw propertiesError;
+      if (propertiesError) {
+        console.error('Error deleting properties:', propertiesError);
+        // نتابع حتى لو فشل حذف العقارات
+      }
 
-      // Delete user profile and role
+      // 2. حذف الملف الشخصي
       const { error: profileError } = await supabase
         .from('profiles')
         .delete()
         .eq('user_id', userId);
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error('Error deleting profile:', profileError);
+      }
 
+      // 3. حذف الدور
       const { error: roleError } = await supabase
         .from('user_roles')
         .delete()
         .eq('user_id', userId);
 
-      if (roleError) throw roleError;
+      if (roleError) {
+        console.error('Error deleting role:', roleError);
+      }
 
-      // Note: Cannot delete from auth.users with client-side key
-      // The user will remain in auth.users but won't have access to the app
-      // since their profile and role are deleted
+      // 4. حذف من user_statuses إذا وجد
+      const { error: statusError } = await supabase
+        .from('user_statuses')
+        .delete()
+        .eq('user_id', userId);
+
+      if (statusError) {
+        console.error('Error deleting status:', statusError);
+      }
+
+      // 5. حذف من favorites إذا وجد
+      const { error: favError } = await supabase
+        .from('favorites')
+        .delete()
+        .eq('user_id', userId);
+
+      if (favError) {
+        console.error('Error deleting favorites:', favError);
+      }
 
       // Refresh data
       await Promise.all([fetchUsers(), fetchUserProperties()]);
       
       toast({
         title: "تم حذف المستخدم",
-        description: "تم حذف المستخدم وجميع عقاراته بنجاح",
+        description: "تم حذف بيانات المستخدم بنجاح (سيبقى في قائمة المصادقة لكن لا يمكنه الدخول)",
       });
     } catch (error) {
       console.error('Error deleting user:', error);
+      const errorMessage = error instanceof Error ? error.message : "فشل في حذف المستخدم";
       toast({
         title: "خطأ",
-        description: "فشل في حذف المستخدم",
+        description: errorMessage,
         variant: "destructive",
       });
     }

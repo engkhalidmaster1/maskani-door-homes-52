@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PropertyStatusBadge } from "@/components/Property/PropertyStatusBadge";
 import { Building, Home as HomeIcon, MapPin, Bed, Bath, Ruler, Heart, Store } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -25,6 +26,7 @@ interface Property {
   amenities?: string[] | null;
   images?: string[] | null;
   is_published: boolean;
+  status?: string; // available, sold, rented, under_negotiation
   created_at: string;
   updated_at: string;
   marketLabel?: string | null;

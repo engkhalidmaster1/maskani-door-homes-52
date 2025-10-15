@@ -1,5 +1,5 @@
 // service-worker.js
-const CACHE_NAME = 'maskani-cache-v5';
+const CACHE_NAME = 'maskani-cache-v6';
 const DATA_CACHE_NAME = 'maskani-data-cache-v1';
 
 // Cache duration: 1 year for static assets
@@ -64,6 +64,11 @@ self.addEventListener('fetch', event => {
   // Skip non-HTTP(S) schemes like chrome-extension
   if (url.protocol !== 'http:' && url.protocol !== 'https:') {
     return;
+  }
+
+  // Skip intercepting Supabase Edge Functions to avoid CORS/caching issues
+  if (url.href.includes('/functions/v1/')) {
+    return; // Let the browser handle it directly
   }
 
   // Handle API requests with network-first strategy

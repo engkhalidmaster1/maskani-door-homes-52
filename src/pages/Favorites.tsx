@@ -13,7 +13,6 @@ type PropertyRow = Database["public"]["Tables"]["properties"]["Row"];
 
 interface FavoriteCardProperty extends PropertyRow {
   listing_type: "sale" | "rent";
-  ownership_type: null;
 }
 
 export const Favorites = () => {
@@ -87,7 +86,6 @@ export const Favorites = () => {
                 ...property,
                 updated_at: property.updated_at ?? property.created_at,
                 user_id: property.user_id,
-                ownership_type: null,
                 listing_type: listingType,
               };
 

@@ -12,6 +12,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LazyImage } from "@/components/ui/lazy-image";
+import { PropertyStatusBadge } from "@/components/Property/PropertyStatusBadge";
+import { PropertyStatusBadgeEnhanced } from "@/components/Property/PropertyStatusBadgeEnhanced";
 import { cn, formatCurrency, formatDate, getPropertyTypeLabel } from "@/lib/utils";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import useVerification from "@/hooks/useVerification";
@@ -48,11 +50,11 @@ interface Property {
   location: string | null;
   address: string | null;
   amenities: string[] | null;
+  status?: string; // available, sold, rented, under_negotiation
   images: string[] | null;
   is_published: boolean;
   created_at: string;
   updated_at: string;
-  ownership_type?: string | null;
   property_code?: string | null;
   latitude?: number | null;
   longitude?: number | null;
@@ -143,7 +145,6 @@ export const PropertyDetails = () => {
         is_published: Boolean(rawData["is_published"]),
         created_at: (rawData["created_at"] as string) ?? new Date().toISOString(),
         updated_at: (rawData["updated_at"] as string) ?? new Date().toISOString(),
-        ownership_type: (rawData["ownership_type"] as string | null) ?? null,
         property_code: (rawData["property_code"] as string | null) ?? null,
         latitude: rawData["latitude"] !== null ? Number(rawData["latitude"]) : null,
         longitude: rawData["longitude"] !== null ? Number(rawData["longitude"]) : null,
@@ -316,6 +317,12 @@ export const PropertyDetails = () => {
     return (
       <div className="space-y-4">
         <div className="relative w-full overflow-hidden rounded-3xl border">
+          {/* Property Status Badge - Deal Status */}
+          <PropertyStatusBadgeEnhanced 
+            status={property.status} 
+            listingType={property.listing_type}
+          />
+          
           <LazyImage
             src={activeImage}
             alt={property.title}
@@ -574,13 +581,6 @@ export const PropertyDetails = () => {
                       <p className="text-sm text-gray-500">المساحة</p>
                       <p className="text-xl font-semibold text-gray-900">
                         {property.area ? `${property.area} م²` : "غير محددة"}
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border bg-slate-50 p-4 text-center">
-                      <Tag className="mx-auto mb-2 h-6 w-6 text-primary" />
-                      <p className="text-sm text-gray-500">نوع الملكية</p>
-                      <p className="text-xl font-semibold text-gray-900">
-                        {property.ownership_type ?? "غير محدد"}
                       </p>
                     </div>
                   </div>

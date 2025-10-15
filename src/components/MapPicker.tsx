@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MapPin, Search, RotateCcw } from 'lucide-react';
+import { MapPin, Search, RotateCcw, Navigation } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -78,6 +79,7 @@ const searchLocation = async (query: string): Promise<{ lat: number; lng: number
 };
 
 export function MapPicker({ initialPosition, onLocationSelect, height = '400px' }: MapPickerProps) {
+  const { toast } = useToast();
   const [selectedPosition, setSelectedPosition] = useState<[number, number] | null>(
     initialPosition || null
   );
@@ -87,6 +89,7 @@ export function MapPicker({ initialPosition, onLocationSelect, height = '400px' 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<{ lat: number; lng: number; name: string }[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isLoadingGPS, setIsLoadingGPS] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState('');
   const mapContainerStyle = useMemo<React.CSSProperties>(
     () => ({ height, width: '100%' }),
@@ -134,6 +137,68 @@ export function MapPicker({ initialPosition, onLocationSelect, height = '400px' 
     setSelectedPosition(null);
     setSelectedAddress('');
     setSearchResults([]);
+  };
+
+  // استخدام GPS لتحديد الموقع الحالي
+  const useCurrentLocation = () => {
+    if (!('geolocation' in navigator)) {
+      toast({
+        title: "غير مدعوم",
+        description: "جهازك لا يدعم خدمة تحديد الموقع (GPS)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoadingGPS(true);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude, accuracy } = position.coords;
+        const newPosition: [number, number] = [latitude, longitude];
+        
+        setSelectedPosition(newPosition);
+        setMapCenter(newPosition);
+        setIsLoadingGPS(false);
+
+        console.log(`✓ GPS موقعك: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+        console.log(`✓ دقة الموقع: ${Math.round(accuracy)} متر`);
+
+        toast({
+          title: "تم تحديد موقعك",
+          description: `دقة GPS: ${Math.round(accuracy)} متر`,
+        });
+      },
+      (error) => {
+        setIsLoadingGPS(false);
+        let errorMessage = 'فشل في تحديد الموقع';
+        
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = 'يرجى السماح للتطبيق بالوصول إلى موقعك من إعدادات المتصفح';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = 'معلومات الموقع غير متوفرة. تأكد من تفعيل GPS في جهازك';
+            break;
+          case error.TIMEOUT:
+            errorMessage = 'انتهت مهلة طلب الموقع. يرجى المحاولة مرة أخرى';
+            break;
+        }
+        
+        console.error('GPS Error:', errorMessage, error);
+        
+        toast({
+          title: "خطأ في تحديد الموقع",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      },
+      {
+        enableHighAccuracy: true,  // استخدام GPS بدقة عالية
+        timeout: 15000,            // 15 ثانية (وقت أطول للحصول على دقة أفضل)
+        maximumAge: 0              // طلب موقع جديد دائماً (عدم استخدام cache)
+      }
+    );
   };
 
   return (
@@ -188,17 +253,40 @@ export function MapPicker({ initialPosition, onLocationSelect, height = '400px' 
 
         {/* الخريطة */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={resetLocation}
-              className="flex items-center gap-1"
-            >
-              <RotateCcw className="h-3 w-3" />
-              إعادة تعيين
-            </Button>
-            <Label>انقر على الخريطة لتحديد الموقع</Label>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={resetLocation}
+                className="flex items-center gap-1"
+              >
+                <RotateCcw className="h-3 w-3" />
+                إعادة تعيين
+              </Button>
+              
+              <Button
+                variant="default"
+                size="sm"
+                onClick={useCurrentLocation}
+                disabled={isLoadingGPS}
+                className="flex items-center gap-1 bg-green-600 hover:bg-green-700"
+              >
+                {isLoadingGPS ? (
+                  <>
+                    <div className="animate-spin w-3 h-3 border-2 border-white border-t-transparent rounded-full" />
+                    <span>جاري تحديد موقعك...</span>
+                  </>
+                ) : (
+                  <>
+                    <Navigation className="h-3 w-3" />
+                    <span>استخدم موقعي الحالي (GPS)</span>
+                  </>
+                )}
+              </Button>
+            </div>
+            
+            <Label>أو انقر على الخريطة</Label>
           </div>
           
           <div className="border rounded-lg overflow-hidden">
@@ -243,11 +331,18 @@ export function MapPicker({ initialPosition, onLocationSelect, height = '400px' 
         <div className="text-xs text-gray-600 bg-blue-50 p-3 rounded-md text-right">
           <p className="font-medium mb-1">كيفية استخدام الخريطة:</p>
           <ul className="space-y-1">
-            <li>• انقر على أي مكان في الخريطة لتحديد موقع العقار</li>
-            <li>• استخدم شريط البحث للعثور على مواقع محددة</li>
-            <li>• يمكنك التكبير والتصغير باستخدام الماوس</li>
-            <li>• الموقع المحدد سيظهر على شكل علامة حمراء</li>
+            <li className="flex items-center gap-1">
+              <Navigation className="h-3 w-3 text-green-600" />
+              <strong>الطريقة الأولى (GPS):</strong> اضغط على "استخدم موقعي الحالي" لتحديد موقعك بدقة عبر GPS
+            </li>
+            <li>• <strong>الطريقة الثانية:</strong> انقر على أي مكان في الخريطة لتحديد الموقع يدوياً</li>
+            <li>• <strong>الطريقة الثالثة:</strong> استخدم شريط البحث للعثور على مواقع محددة</li>
+            <li>• يمكنك التكبير والتصغير باستخدام الماوس أو الأزرار</li>
+            <li>• الموقع المحدد سيظهر على شكل علامة حمراء على الخريطة</li>
           </ul>
+          <p className="mt-2 text-amber-700 font-medium">
+            💡 نوصي باستخدام GPS للحصول على موقع دقيق جداً
+          </p>
         </div>
       </CardContent>
     </Card>

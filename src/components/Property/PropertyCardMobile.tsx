@@ -4,6 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { LazyImage } from "@/components/ui/lazy-image";
+import { PropertyStatusBadge } from "@/components/Property/PropertyStatusBadge";
+import { PropertyStatusBadgeEnhanced } from "@/components/Property/PropertyStatusBadgeEnhanced";
 import { getOptimizedImageUrl } from "@/utils/imageOptimization";
 import { Heart, MapPin, BedDouble, Bath, Square, Phone, Eye, Edit, Trash2, Store } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -27,6 +29,7 @@ interface Property {
   address?: string | null;
   images?: string[] | null;
   is_published: boolean;
+  status?: string; // available, sold, rented, under_negotiation
   created_at: string;
   updated_at: string;
   user_id: string;
@@ -101,6 +104,12 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
       <div onClick={handleCardClick}>
         {/* Image Section */}
         <div className="relative h-48 bg-gray-100">
+          {/* Property Status Badge - Deal Status */}
+          <PropertyStatusBadgeEnhanced 
+            status={property.status} 
+            listingType={property.listing_type}
+          />
+
           {property.images && property.images.length > 0 ? (
             <LazyImage
               src={getOptimizedImageUrl(property.images[0], 'small')}

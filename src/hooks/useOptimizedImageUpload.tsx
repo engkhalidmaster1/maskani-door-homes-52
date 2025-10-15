@@ -37,69 +37,111 @@ export const useOptimizedImageUpload = () => {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         
-        // Update progress: validating
-        setUploadProgress(prev => prev.map((item, index) => 
-          index === i ? { ...item, status: 'pending', progress: 10 } : item
-        ));
-
-        // Validate file
-        const validation = validateImageFile(file);
-        if (!validation.isValid) {
+        try {
+          // Update progress: validating
           setUploadProgress(prev => prev.map((item, index) => 
-            index === i ? { ...item, status: 'error', error: validation.error } : item
+            index === i ? { ...item, status: 'pending', progress: 10 } : item
           ));
-          continue;
-        }
 
-        // Update progress: optimizing
-        setUploadProgress(prev => prev.map((item, index) => 
-          index === i ? { ...item, status: 'optimizing', progress: 30 } : item
-        ));
+          // Validate file
+          const validation = validateImageFile(file);
+          if (!validation.isValid) {
+            console.error(`❌ فشل التحقق من ${file.name}:`, validation.error);
+            setUploadProgress(prev => prev.map((item, index) => 
+              index === i ? { ...item, status: 'error', error: validation.error } : item
+            ));
+            toast({
+              title: `فشل التحقق من ${file.name}`,
+              description: validation.error,
+              variant: "destructive",
+            });
+            continue;
+          }
 
-        // Optimize image
-        const optimizedFile = await optimizeImage(file, {
-          maxWidth: 1200,
-          maxHeight: 900,
-          quality: 0.85,
-          format: 'jpeg'
-        });
+          // Update progress: optimizing
+          setUploadProgress(prev => prev.map((item, index) => 
+            index === i ? { ...item, status: 'optimizing', progress: 30 } : item
+          ));
 
-        // Update progress: uploading
-        setUploadProgress(prev => prev.map((item, index) => 
-          index === i ? { ...item, status: 'uploading', progress: 60 } : item
-        ));
-
-        // Generate unique filename
-        const fileExt = optimizedFile.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-        const filePath = folder ? `${folder}/${fileName}` : fileName;
-
-        // Upload to Supabase
-        const { data, error } = await supabase.storage
-          .from(bucket)
-          .upload(filePath, optimizedFile, {
-            cacheControl: '3600',
-            upsert: false
+          // Optimize image
+          console.log(`🔄 تحسين الصورة ${file.name}...`);
+          const optimizedFile = await optimizeImage(file, {
+            maxWidth: 1200,
+            maxHeight: 900,
+            quality: 0.85,
+            format: 'jpeg'
           });
+          console.log(`✅ تم تحسين ${file.name}`);
 
-        if (error) {
+          // Update progress: uploading
           setUploadProgress(prev => prev.map((item, index) => 
-            index === i ? { ...item, status: 'error', error: error.message } : item
+            index === i ? { ...item, status: 'uploading', progress: 60 } : item
           ));
-          continue;
+
+          // Generate unique filename
+          const fileExt = optimizedFile.name.split('.').pop();
+          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+          const filePath = folder ? `${folder}/${fileName}` : fileName;
+
+          console.log(`📤 رفع ${file.name} إلى Supabase...`);
+          // Upload to Supabase
+          const { data, error } = await supabase.storage
+            .from(bucket)
+            .upload(filePath, optimizedFile, {
+              cacheControl: '3600',
+              upsert: false
+            });
+
+          if (error) {
+            console.error(`❌ خطأ Supabase في رفع ${file.name}:`, error);
+            setUploadProgress(prev => prev.map((item, index) => 
+              index === i ? { ...item, status: 'error', error: error.message } : item
+            ));
+            toast({
+              title: `فشل رفع ${file.name}`,
+              description: error.message,
+              variant: "destructive",
+            });
+            continue;
+          }
+
+          if (!data) {
+            console.error(`❌ لم يتم إرجاع بيانات من Supabase للصورة ${file.name}`);
+            setUploadProgress(prev => prev.map((item, index) => 
+              index === i ? { ...item, status: 'error', error: 'لم يتم إرجاع بيانات' } : item
+            ));
+            continue;
+          }
+
+          // Get public URL
+          console.log(`✅ تم رفع ${file.name} بنجاح`);
+          const { data: urlData } = supabase.storage
+            .from(bucket)
+            .getPublicUrl(data.path);
+
+          uploadedUrls.push(urlData.publicUrl);
+
+          // Update progress: completed
+          setUploadProgress(prev => prev.map((item, index) => 
+            index === i ? { ...item, status: 'completed', progress: 100 } : item
+          ));
+          
+        } catch (fileError) {
+          // معالجة أخطاء الصورة الفردية
+          console.error(`❌ خطأ في معالجة ${file.name}:`, fileError);
+          setUploadProgress(prev => prev.map((item, index) => 
+            index === i ? { 
+              ...item, 
+              status: 'error', 
+              error: fileError instanceof Error ? fileError.message : 'خطأ غير معروف' 
+            } : item
+          ));
+          toast({
+            title: `فشل في معالجة ${file.name}`,
+            description: fileError instanceof Error ? fileError.message : 'خطأ غير معروف',
+            variant: "destructive",
+          });
         }
-
-        // Get public URL
-        const { data: urlData } = supabase.storage
-          .from(bucket)
-          .getPublicUrl(data.path);
-
-        uploadedUrls.push(urlData.publicUrl);
-
-        // Update progress: completed
-        setUploadProgress(prev => prev.map((item, index) => 
-          index === i ? { ...item, status: 'completed', progress: 100 } : item
-        ));
       }
 
       // Show success message

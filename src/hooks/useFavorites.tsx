@@ -46,7 +46,12 @@ export const useFavorites = () => {
             bathrooms,
             area,
             description,
-            amenities
+            amenities,
+            status,
+            address,
+            market,
+            updated_at,
+            user_id
           )
         `)
         .eq('user_id', user.id)

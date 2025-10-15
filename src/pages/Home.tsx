@@ -1,19 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { HomePropertyCard } from "@/components/Property/HomePropertyCard";
 import { ScrollingBanner } from "@/components/Layout/ScrollingBanner";
-import { Search, PlusCircle, Shield, Home as HomeIcon, User, Building2, X, AlertCircle } from "lucide-react";
+import { FloatingWelcomeButton } from "@/components/FloatingWelcomeButton";
+import { Search, PlusCircle, Shield, Home as HomeIcon, User, Building2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useProperties } from "@/hooks/useProperties";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect } from "react";
 
 export const Home = () => {
   const navigate = useNavigate();
   const { properties, isLoading } = useProperties();
   const { user } = useAuth();
   const { toast } = useToast();
-  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   
   // Get the latest 3 published properties
   const featuredProperties = properties.slice(0, 3);
@@ -36,21 +35,12 @@ export const Home = () => {
   const navigationCards = [
     {
       icon: Search,
-      title: "ابدأ البحث",
-      description: "ابحث عن العقارات المناسبة باستخدام فلاتر متقدمة",
-      path: "/properties",
+      title: "وين اسكن",
+      description: "اختر سكنك بسرعة و سهولة على الخريطة",
+      path: "/map",
       requiresAuth: false,
       bgColor: "bg-blue-50",
       iconColor: "bg-blue-500",
-    },
-    {
-      icon: PlusCircle,
-      title: "إضافة عقار جديد",
-      description: "أضف عقارك للبيع أو الإيجار في دقائق",
-      path: "/add-property",
-      requiresAuth: true,
-      bgColor: "bg-green-50",
-      iconColor: "bg-green-500",
     },
     {
       icon: Building2,
@@ -60,6 +50,15 @@ export const Home = () => {
       requiresAuth: false,
       bgColor: "bg-purple-50",
       iconColor: "bg-purple-500",
+    },
+    {
+      icon: PlusCircle,
+      title: "إضافة عقار جديد",
+      description: "أضف عقارك للبيع أو الإيجار في دقائق",
+      path: "/add-property",
+      requiresAuth: true,
+      bgColor: "bg-green-50",
+      iconColor: "bg-green-500",
     },
     {
       icon: User,
@@ -75,8 +74,8 @@ export const Home = () => {
   const features = [
     {
       icon: Search,
-      title: "ابحث بسهولة",
-      description: "ابحث عن العقارات المناسبة باستخدام فلاتر متقدمة",
+      title: "وين اسكن",
+      description: "اختر سكنك بسرعة و سهولة على الخريطة",
     },
     {
       icon: PlusCircle,
@@ -91,67 +90,15 @@ export const Home = () => {
     },
   ];
 
-  // Auto-close modal after 2 seconds
-  useEffect(() => {
-    if (showWelcomeModal) {
-      const timer = setTimeout(() => {
-        setShowWelcomeModal(false);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [showWelcomeModal]);
+  // Auto-close modal functionality moved to FloatingWelcomeButton component
 
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <ScrollingBanner />
         
-        {/* Welcome Button */}
-        <Button
-          onClick={() => setShowWelcomeModal(true)}
-          className="fixed top-20 left-4 z-50 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg rounded-full w-10 h-10 flex items-center justify-center"
-          aria-label="عرض رسالة الترحيب"
-        >
-          <AlertCircle className="h-5 w-5" />
-        </Button>
-
-        {/* Welcome Modal */}
-        {showWelcomeModal && (
-          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
-              {/* Close Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-4 left-4 text-gray-500 hover:text-gray-700"
-                onClick={() => setShowWelcomeModal(false)}
-                aria-label="إغلاق الرسالة الترحيبية"
-              >
-                <X className="h-5 w-5" />
-              </Button>
-              
-              {/* Modal Content */}
-              <div className="text-center">
-                <h1 className="text-2xl font-bold mb-4 text-gray-800">
-                  مرحباً بك في تطبيق "سكني"
-                </h1>
-                <p className="text-gray-600 mb-6 leading-relaxed">
-                  منصة متكاملة للعثور على أفضل العقارات للبيع والإيجار في مجمع الدور
-                </p>
-                <Button
-                  onClick={() => {
-                    setShowWelcomeModal(false);
-                    handleNavigation("/properties");
-                  }}
-                  className="gap-2"
-                >
-                  <Search className="h-4 w-4" />
-                  ابدأ البحث
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Floating Welcome Button */}
+        <FloatingWelcomeButton currentPage="home" />
 
         {/* Main Navigation Cards - مثل الصورة */}
         <section className="mb-16">
@@ -234,7 +181,7 @@ export const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {features.map((feature, index) => {
               const Icon = feature.icon;
-              // جعل المربع الأول (ابحث بسهولة) قابلاً للنقر
+              // جعل المربع الأول (وين اسكن) قابلاً للنقر
               const isSearchFeature = index === 0; // التحقق من أنه المربع الأول
               // جعل المربع الثاني (أضف عقارك) قابلاً للنقر
               const isAddFeature = index === 1; // التحقق من أنه المربع الثاني

@@ -2,6 +2,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LazyImage } from "@/components/ui/lazy-image";
+import { PropertyStatusBadge } from "@/components/Property/PropertyStatusBadge";
+import { PropertyStatusBadgeEnhanced } from "@/components/Property/PropertyStatusBadgeEnhanced";
 import { getOptimizedImageUrl } from "@/utils/imageOptimization";
 import { Building, Home as HomeIcon, MapPin, Bed, Bath, Ruler, Heart, CheckSquare, Square, Edit, Trash2, Eye, EyeOff, Store } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -27,6 +29,7 @@ interface Property {
   amenities?: string[] | null;
   images?: string[] | null;
   is_published: boolean;
+  status?: string; // available, sold, rented, under_negotiation
   created_at: string;
   updated_at: string;
   market?: string | null;
@@ -161,10 +164,16 @@ export const PropertyCard = ({
             );
           })()}
 
-          {/* Status Badges */}
+          {/* Property Status Badge - Deal Status */}
+          <PropertyStatusBadgeEnhanced 
+            status={property.status} 
+            listingType={property.listing_type}
+          />
+
+          {/* Listing Type Badge */}
           <Badge
             variant="default"
-            className={`absolute top-3 right-3 backdrop-blur-sm font-bold ${
+            className={`absolute top-3 right-3 backdrop-blur-sm font-bold z-10 ${
               property.listing_type === "sale" 
                 ? "bg-red-500 text-white" 
                 : "bg-green-500 text-white"
@@ -176,7 +185,7 @@ export const PropertyCard = ({
           {!property.is_published && (
             <Badge
               variant="secondary"
-              className="absolute top-3 right-20 bg-white/90 backdrop-blur-sm"
+              className="absolute top-3 right-20 bg-white/90 backdrop-blur-sm z-10"
             >
               غير منشور
             </Badge>

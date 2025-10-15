@@ -22,9 +22,10 @@ interface Property {
   amenities: string[] | null;
   images: string[] | null;
   is_published: boolean;
+  status?: string; // available, sold, rented, under_negotiation
   created_at: string;
   updated_at: string;
-  ownership_type?: "ملك صرف" | "سر قفلية" | null;
+  ownership_type?: string | null;
   property_code?: string;
   latitude?: number | null;
   longitude?: number | null;
@@ -63,9 +64,12 @@ const toProperty = (item: RawProperty | Property): Property => {
       null
   );
 
+  const status = (raw["status"] as string) || existing.status || 'available';
+
   return {
     ...existing,
     listing_type,
+    status,
     latitude: latitude ?? existing.latitude ?? null,
     longitude: longitude ?? existing.longitude ?? null,
     market: resolvedMarket ?? null,
@@ -97,7 +101,17 @@ export const useProperties = () => {
       // التأكد من أن listing_type يتوافق مع الأنواع المتوقعة
       const validatedData = (data || []).map((item) => toProperty(item as RawProperty));
 
-      setProperties(validatedData);
+      // فلترة العقارات لإخفاء المباعة والمؤجرة من العرض العام
+      const filteredData = validatedData.filter(property => {
+        // إذا لم يكن هناك حقل status، نعتبر العقار متاح
+        if (!property.status) {
+          return true;
+        }
+        // إخفاء العقارات المباعة والمؤجرة من الصفحة الرئيسية
+        return property.status !== 'sold' && property.status !== 'rented';
+      });
+
+      setProperties(filteredData);
     } catch (error: unknown) {
       console.error('Error fetching properties:', error);
       const errorMessage = error instanceof Error ? error.message : 'حدث خطأ غير متوقع';
@@ -325,12 +339,37 @@ export const useProperties = () => {
     loadData();
   }, [user, isAdmin, fetchProperties, fetchUserProperties, toast]);
 
+  // Fetch all published properties without filtering (for management pages)
+  const fetchAllPublishedProperties = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('properties')
+        .select('*')
+        .eq('is_published', true)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      // التأكد من أن listing_type يتوافق مع الأنواع المتوقعة - بدون فلترة للحالة
+      const validatedData = (data || []).map((item) => toProperty(item as RawProperty));
+
+      return validatedData;
+    } catch (error: unknown) {
+      console.error('Error fetching all published properties:', error);
+      const errorMessage = error instanceof Error ? error.message : 'حدث خطأ غير متوقع';
+      throw new Error(errorMessage);
+    }
+  }, []);
+
   return {
     properties,
     userProperties,
     isLoading,
     fetchProperties,
     fetchAllProperties,
+    fetchAllPublishedProperties,
     fetchUserProperties,
     togglePropertyPublication,
     updateProperty,

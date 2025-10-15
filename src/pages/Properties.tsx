@@ -28,7 +28,6 @@ export const Properties = () => {
   const [filters, setFilters] = useState({
     listing_type: "" as "" | "sale" | "rent",
     location: "all",
-    ownership_type: "all" as "all" | "ملك صرف" | "سر قفلية",
     price_range: "",
   });
 
@@ -38,9 +37,6 @@ export const Properties = () => {
         return false;
       }
       if (filters.location && filters.location !== "all" && !property.location?.includes(filters.location)) {
-        return false;
-      }
-      if (filters.ownership_type && filters.ownership_type !== "all" && property.ownership_type !== filters.ownership_type) {
         return false;
       }
       return true;
@@ -147,20 +143,9 @@ export const Properties = () => {
                   </SelectContent>
                 </Select>
 
-                <Select value={filters.ownership_type} onValueChange={(value) => setFilters({ ...filters, ownership_type: value as "all" | "ملك صرف" | "سر قفلية" })}>
-                  <SelectTrigger className="text-right" dir="rtl">
-                    <SelectValue placeholder="نوع التملك" className="text-right" />
-                  </SelectTrigger>
-                  <SelectContent className="text-right" dir="rtl">
-                    <SelectItem value="all" className="text-right">جميع الأنواع</SelectItem>
-                    <SelectItem value="ملك صرف" className="text-right">ملك صرف</SelectItem>
-                    <SelectItem value="سر قفلية" className="text-right">سر قفلية</SelectItem>
-                  </SelectContent>
-                </Select>
-
                 <Button 
                   variant="outline" 
-                  onClick={() => setFilters({ listing_type: "", location: "all", ownership_type: "all", price_range: "" })}
+                  onClick={() => setFilters({ listing_type: "", location: "all", price_range: "" })}
                 >
                   مسح الفلاتر
                 </Button>

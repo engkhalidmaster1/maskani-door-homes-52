@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Home, Building, PlusCircle, User, LogOut, X, Phone, Mail, Shield, Settings, LogIn, UserPlus, Heart, MapPin } from "lucide-react";
+import { Home, Building, PlusCircle, User, LogOut, X, Phone, Mail, Shield, Settings, LogIn, UserPlus, Heart, MapPin, Search, Users } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -23,14 +23,19 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const navItems = user ? [
     { id: "/", label: "الرئيسية", icon: Home },
     { id: "/properties", label: "العقارات", icon: Building },
+    // { id: "/smart-search", label: "البحث الذكي", icon: Search }, // مخفي مؤقتاً
     ...(!isMobile ? [{ id: "/offices", label: "المكاتب العقارية", icon: Shield }] : []),
     { id: "/favorites", label: "المفضلة", icon: Heart, badge: getFavoritesCount() },
     { id: "/add-property", label: "إضافة عقار", icon: PlusCircle },
     { id: "/profile", label: "الملف الشخصي", icon: User },
-    ...(isAdmin ? [{ id: "/dashboard", label: "لوحة التحكم", icon: Settings }] : []),
+    ...(isAdmin ? [
+      { id: "/dashboard", label: "لوحة التحكم", icon: Settings },
+      { id: "/admin/users", label: "إدارة المستخدمين", icon: Users }
+    ] : []),
   ] : [
     { id: "/", label: "الرئيسية", icon: Home },
     { id: "/properties", label: "العقارات", icon: Building },
+    // { id: "/smart-search", label: "البحث الذكي", icon: Search }, // مخفي مؤقتاً
     ...(!isMobile ? [{ id: "/offices", label: "المكاتب العقارية", icon: Shield }] : []),
   ];
 

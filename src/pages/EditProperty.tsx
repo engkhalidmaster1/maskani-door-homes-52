@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Save, Upload, X, CheckCircle, AlertCircle, Check, Store, Building, Home, Layers, Tag, PlusCircle, Lock } from "lucide-react";
+import { Edit, Save, Upload, X, CheckCircle, AlertCircle, Check, Store, Building, Home, Layers, Tag, PlusCircle, Lock, Activity } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useParams, useNavigate } from "react-router-dom";
@@ -76,7 +76,6 @@ interface PropertyForm {
   title: string;
   property_type: 'apartment' | 'house' | 'commercial';
   listing_type: 'sale' | 'rent' | '';
-  ownership_type: 'tamlik' | 'sar_qafliya' | '';
   building: string;
   apartment: string;
   floor: string;
@@ -87,6 +86,7 @@ interface PropertyForm {
   bedrooms: number;
   area: number;
   is_published: boolean;
+  status: 'available' | 'sold' | 'rented';
   property_code?: string;
   location: string;
   address: string;
@@ -106,7 +106,6 @@ export const EditProperty = () => {
     title: "",
     property_type: "apartment", 
     listing_type: "",
-    ownership_type: "",
     building: "",
     apartment: "",
     floor: "",
@@ -117,6 +116,7 @@ export const EditProperty = () => {
     bedrooms: 2,
     area: 0,
     is_published: false,
+    status: 'available',
     property_code: '',
     location: '',
     address: '',
@@ -175,7 +175,6 @@ export const EditProperty = () => {
           title: (rawData.title as string) || "",
           property_type: ['apartment', 'house', 'commercial'].includes(rawData.property_type as 'apartment' | 'house' | 'commercial') ? (rawData.property_type as 'apartment' | 'house' | 'commercial') : 'apartment',
           listing_type: ['sale', 'rent'].includes(rawData.listing_type as 'sale' | 'rent') ? (rawData.listing_type as 'sale' | 'rent') : '',
-          ownership_type: ['tamlik', 'sar_qafliya'].includes(rawData.ownership_type as 'tamlik' | 'sar_qafliya') ? (rawData.ownership_type as 'tamlik' | 'sar_qafliya') : '',
           building: extracted.building,
           apartment: extracted.apartment,
           floor: extracted.floor,
@@ -186,6 +185,7 @@ export const EditProperty = () => {
           bedrooms: Number(rawData.bedrooms) || 2,
           area: Number(rawData.area) || 0,
           is_published: Boolean(rawData.is_published),
+          status: ['available', 'sold', 'rented'].includes(rawData.status as string) ? (rawData.status as 'available' | 'sold' | 'rented') : 'available',
           property_code: (rawData.property_code as string) || '',
           location: (rawData.location as string) || '',
           address: (rawData.address as string) || '',
@@ -293,6 +293,7 @@ export const EditProperty = () => {
         bedrooms: property.bedrooms,
         area: property.area,
         is_published: property.is_published,
+        status: property.status,
         location: mergedLocation,
         address: mergedAddress,
         latitude: property.latitude,
@@ -422,31 +423,6 @@ export const EditProperty = () => {
                 required
               />
             </Card>
-
-            <Card className="p-6 border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100 shadow-md">
-              <Label className="flex items-center gap-2 text-sm font-bold mb-4 text-purple-800">
-                <div className="p-2 bg-purple-500 text-white rounded-lg"><Building className="h-4 w-4" /></div>
-                نوع الملكية <span className="text-red-500">*</span>
-              </Label>
-              <div className="flex gap-3">
-                <Button
-                  type="button"
-                  variant={property.ownership_type === "tamlik" ? "default" : "outline"}
-                  className={`flex-1 h-12 text-sm font-semibold border-2 ${property.ownership_type === "tamlik" ? "bg-blue-500 border-blue-600 text-white" : "bg-gray-200 border-gray-300"}`}
-                  onClick={() => setProperty(prev => ({ ...prev, ownership_type: "tamlik" }))}
-                >
-                  📜 تمليك {property.ownership_type === "tamlik" && "✓"}
-                </Button>
-                <Button
-                  type="button"
-                  variant={property.ownership_type === "sar_qafliya" ? "default" : "outline"}
-                  className={`flex-1 h-12 text-sm font-semibold border-2 ${property.ownership_type === "sar_qafliya" ? "bg-blue-500 border-blue-600 text-white" : "bg-gray-200 border-gray-300"}`}
-                  onClick={() => setProperty(prev => ({ ...prev, ownership_type: "sar_qafliya" }))}
-                >
-                  🔑 سر قفلية {property.ownership_type === "sar_qafliya" && "✓"}
-                </Button>
-              </div>
-            </Card>
           </div>
 
           {/* Row 1: Property Type and Listing Type */}
@@ -469,14 +445,78 @@ export const EditProperty = () => {
                 نوع العرض <span className="text-red-500">*</span>
               </Label>
               <div className="flex gap-3">
-                <Button type="button" variant={property.listing_type === "sale" ? "default" : "outline"} className="flex-1" onClick={() => setProperty(prev => ({ ...prev, listing_type: "sale" }))}>💰 للبيع</Button>
-                <Button type="button" variant={property.listing_type === "rent" ? "default" : "outline"} className="flex-1" onClick={() => setProperty(prev => ({ ...prev, listing_type: "rent" }))}>🏠 للإيجار</Button>
+                <Button 
+                  type="button" 
+                  variant={property.listing_type === "sale" ? "default" : "outline"} 
+                  className="flex-1" 
+                  onClick={() => setProperty(prev => ({ 
+                    ...prev, 
+                    listing_type: "sale",
+                    // تغيير الحالة تلقائياً: إذا كانت "تم الإيجار"، غيّرها إلى "متاح"
+                    status: prev.status === "rented" ? "available" : prev.status === "sold" ? "sold" : "available"
+                  }))}
+                >
+                  💰 للبيع
+                </Button>
+                <Button 
+                  type="button" 
+                  variant={property.listing_type === "rent" ? "default" : "outline"} 
+                  className="flex-1" 
+                  onClick={() => setProperty(prev => ({ 
+                    ...prev, 
+                    listing_type: "rent",
+                    // تغيير الحالة تلقائياً: إذا كانت "تم البيع"، غيّرها إلى "متاح"
+                    status: prev.status === "sold" ? "available" : prev.status === "rented" ? "rented" : "available"
+                  }))}
+                >
+                  🏠 للإيجار
+                </Button>
               </div>
             </Card>
+
+            {/* حالة الصفقة - يظهر فقط لصاحب العقار أو الأدمن */}
+            {(isOwner || isAdmin) && (
+              <Card className="p-4 border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 shadow-md">
+                <Label className="flex items-center gap-2 text-sm font-bold mb-4 text-blue-800">
+                  <div className="p-2 bg-blue-500 text-white rounded-lg"><Activity className="h-4 w-4" /></div>
+                  حالة الصفقة
+                </Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button 
+                    type="button" 
+                    variant={property.status === "available" ? "default" : "outline"} 
+                    className="text-xs" 
+                    onClick={() => setProperty(prev => ({ ...prev, status: "available" }))}
+                  >
+                    ✅ متاح
+                  </Button>
+                  {property.listing_type === "sale" && (
+                    <Button 
+                      type="button" 
+                      variant={property.status === "sold" ? "default" : "outline"} 
+                      className="text-xs bg-red-500 hover:bg-red-600 text-white" 
+                      onClick={() => setProperty(prev => ({ ...prev, status: "sold" }))}
+                    >
+                      🔴 تم البيع
+                    </Button>
+                  )}
+                  {property.listing_type === "rent" && (
+                    <Button 
+                      type="button" 
+                      variant={property.status === "rented" ? "default" : "outline"} 
+                      className="text-xs bg-green-500 hover:bg-green-600 text-white" 
+                      onClick={() => setProperty(prev => ({ ...prev, status: "rented" }))}
+                    >
+                      � تم الإيجار
+                    </Button>
+                  )}
+                </div>
+              </Card>
+            )}
           </div>
 
           {/* Row 2: Area, Building, Apartment */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className={`grid grid-cols-1 ${property.property_type === 'apartment' ? 'md:grid-cols-3' : 'md:grid-cols-1'} gap-4`}>
             <Card className="p-4 border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100 shadow-md">
               <Label htmlFor="area" className="flex items-center gap-2 text-sm font-bold mb-3 text-purple-800">
                 <div className="p-2 bg-purple-500 text-white rounded-lg"><Building className="h-4 w-4" /></div>
@@ -484,38 +524,44 @@ export const EditProperty = () => {
               </Label>
               <Input id="area" type="number" value={property.area} onChange={(e) => setProperty(prev => ({ ...prev, area: Number(e.target.value) }))} required />
             </Card>
-            <Card className="p-4 border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100 shadow-md">
-              <Label htmlFor="building" className="flex items-center gap-2 text-sm font-bold mb-3 text-orange-800">
-                <div className="p-2 bg-orange-500 text-white rounded-lg"><Building className="h-4 w-4" /></div>
-                رقم العمارة <span className="text-red-500">*</span>
-              </Label>
-              <Input id="building" value={property.building} onChange={(e) => setProperty(prev => ({ ...prev, building: e.target.value }))} required />
-            </Card>
-            <Card className="p-4 border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-indigo-100 shadow-md">
-              <Label htmlFor="apartment" className="flex items-center gap-2 text-sm font-bold mb-3 text-indigo-800">
-                <div className="p-2 bg-indigo-500 text-white rounded-lg"><Home className="h-4 w-4" /></div>
-                رقم الشقة <span className="text-red-500">*</span>
-              </Label>
-              <Input id="apartment" value={property.apartment} onChange={(e) => setProperty(prev => ({ ...prev, apartment: e.target.value }))} required />
-            </Card>
+            {property.property_type === 'apartment' && (
+              <>
+                <Card className="p-4 border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100 shadow-md">
+                  <Label htmlFor="building" className="flex items-center gap-2 text-sm font-bold mb-3 text-orange-800">
+                    <div className="p-2 bg-orange-500 text-white rounded-lg"><Building className="h-4 w-4" /></div>
+                    رقم العمارة <span className="text-red-500">*</span>
+                  </Label>
+                  <Input id="building" value={property.building} onChange={(e) => setProperty(prev => ({ ...prev, building: e.target.value }))} required />
+                </Card>
+                <Card className="p-4 border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-indigo-100 shadow-md">
+                  <Label htmlFor="apartment" className="flex items-center gap-2 text-sm font-bold mb-3 text-indigo-800">
+                    <div className="p-2 bg-indigo-500 text-white rounded-lg"><Home className="h-4 w-4" /></div>
+                    رقم الشقة <span className="text-red-500">*</span>
+                  </Label>
+                  <Input id="apartment" value={property.apartment} onChange={(e) => setProperty(prev => ({ ...prev, apartment: e.target.value }))} required />
+                </Card>
+              </>
+            )}
           </div>
 
           {/* Row 3: Floor */}
-          <Card className="p-6 border-2 border-red-200 bg-gradient-to-br from-red-50 to-red-100 shadow-md">
-            <Label className="flex items-center gap-2 text-sm font-bold mb-4 text-red-800">
-              <div className="p-2 bg-red-500 text-white rounded-lg"><Layers className="h-4 w-4" /></div>
-              اختيار الطابق <span className="text-red-500">*</span>
-            </Label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <Button type="button" variant={property.floor === "الأرضي" ? "default" : "outline"} onClick={() => setProperty(prev => ({ ...prev, floor: "الأرضي" }))}>🏢 الأرضي</Button>
-              <Button type="button" variant={property.floor === "الطابق الأول" ? "default" : "outline"} onClick={() => setProperty(prev => ({ ...prev, floor: "الطابق الأول" }))}>1️⃣ الأول</Button>
-              <Button type="button" variant={property.floor === "الطابق الثاني" ? "default" : "outline"} onClick={() => setProperty(prev => ({ ...prev, floor: "الطابق الثاني" }))}>2️⃣ الثاني</Button>
-              <Button type="button" variant={property.floor === "الطابق الثالث" ? "default" : "outline"} onClick={() => setProperty(prev => ({ ...prev, floor: "الطابق الثالث" }))}>3️⃣ الثالث</Button>
-            </div>
-          </Card>
+          {property.property_type === 'apartment' && (
+            <Card className="p-6 border-2 border-red-200 bg-gradient-to-br from-red-50 to-red-100 shadow-md">
+              <Label className="flex items-center gap-2 text-sm font-bold mb-4 text-red-800">
+                <div className="p-2 bg-red-500 text-white rounded-lg"><Layers className="h-4 w-4" /></div>
+                اختيار الطابق <span className="text-red-500">*</span>
+              </Label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <Button type="button" variant={property.floor === "الأرضي" ? "default" : "outline"} onClick={() => setProperty(prev => ({ ...prev, floor: "الأرضي" }))}>🏢 الأرضي</Button>
+                <Button type="button" variant={property.floor === "الطابق الأول" ? "default" : "outline"} onClick={() => setProperty(prev => ({ ...prev, floor: "الطابق الأول" }))}>1️⃣ الأول</Button>
+                <Button type="button" variant={property.floor === "الطابق الثاني" ? "default" : "outline"} onClick={() => setProperty(prev => ({ ...prev, floor: "الطابق الثاني" }))}>2️⃣ الثاني</Button>
+                <Button type="button" variant={property.floor === "الطابق الثالث" ? "default" : "outline"} onClick={() => setProperty(prev => ({ ...prev, floor: "الطابق الثالث" }))}>3️⃣ الثالث</Button>
+              </div>
+            </Card>
+          )}
 
           {/* Row 4: Market, Price, Bedrooms */}
-          <div className={`grid grid-cols-1 ${isAdmin ? 'lg:grid-cols-3' : 'lg:grid-cols-2'} gap-4`}>
+          <div className={`grid grid-cols-1 ${isAdmin && property.property_type !== 'commercial' ? 'lg:grid-cols-3' : isAdmin || property.property_type !== 'commercial' ? 'lg:grid-cols-2' : 'lg:grid-cols-1'} gap-4`}>
             {isAdmin && (
               <Card className="p-4 border-2 border-teal-200 bg-gradient-to-br from-teal-50 to-teal-100 shadow-md">
                 <Label htmlFor="market" className="flex items-center gap-2 text-sm font-bold mb-3 text-teal-800">
@@ -539,13 +585,15 @@ export const EditProperty = () => {
               </Label>
               <Input id="price" type="number" value={property.price} onChange={(e) => setProperty(prev => ({ ...prev, price: Number(e.target.value) }))} required />
             </Card>
-            <Card className="p-4 border-2 border-cyan-200 bg-gradient-to-br from-cyan-50 to-cyan-100 shadow-md">
-              <Label htmlFor="bedrooms" className="flex items-center gap-2 text-sm font-bold mb-3 text-cyan-800">
-                <div className="p-2 bg-cyan-500 text-white rounded-lg"><Home className="h-4 w-4" /></div>
-                عدد غرف النوم <span className="text-red-500">*</span>
-              </Label>
-              <Input id="bedrooms" type="number" value={property.bedrooms} onChange={(e) => setProperty(prev => ({ ...prev, bedrooms: Number(e.target.value) }))} required />
-            </Card>
+            {property.property_type !== 'commercial' && (
+              <Card className="p-4 border-2 border-cyan-200 bg-gradient-to-br from-cyan-50 to-cyan-100 shadow-md">
+                <Label htmlFor="bedrooms" className="flex items-center gap-2 text-sm font-bold mb-3 text-cyan-800">
+                  <div className="p-2 bg-cyan-500 text-white rounded-lg"><Home className="h-4 w-4" /></div>
+                  عدد غرف النوم <span className="text-red-500">*</span>
+                </Label>
+                <Input id="bedrooms" type="number" value={property.bedrooms} onChange={(e) => setProperty(prev => ({ ...prev, bedrooms: Number(e.target.value) }))} required />
+              </Card>
+            )}
           </div>
 
           {/* Furnished option for rent */}

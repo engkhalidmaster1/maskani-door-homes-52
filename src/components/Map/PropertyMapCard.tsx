@@ -26,7 +26,6 @@ interface Property {
   is_published: boolean;
   created_at: string;
   updated_at: string;
-  ownership_type?: "ملك صرف" | "سر قفلية" | null;
   latitude?: number;
   longitude?: number;
   owner_name?: string;
@@ -89,11 +88,6 @@ export const PropertyMapCard: React.FC<PropertyMapCardProps> = ({
               <Badge variant="outline" className="text-xs">
                 {property.property_type}
               </Badge>
-              {property.ownership_type && (
-                <Badge variant="secondary" className="text-xs">
-                  {property.ownership_type}
-                </Badge>
-              )}
             </div>
           </div>
         </div>

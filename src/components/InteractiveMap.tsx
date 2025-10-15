@@ -51,6 +51,8 @@ export const InteractiveMap = React.memo(({
   useEffect(() => {
     const initializeMap = async () => {
       try {
+        if (!mapRef.current) return;
+
         // Note: You'll need to add your Google Maps API key
         const loader = new Loader({
           apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
@@ -58,9 +60,8 @@ export const InteractiveMap = React.memo(({
           libraries: ['places', 'geometry']
         });
 
-        await loader.load();
-        
-        if (!mapRef.current) return;
+        // Load the Maps JavaScript API using the instance method
+        await (loader as any).load();
 
         const mapOptions: google.maps.MapOptions = {
           center: { lat: center.latitude, lng: center.longitude },

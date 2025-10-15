@@ -19,6 +19,7 @@ export interface JWTPayload {
   ip?: string; // Client IP
   ua?: string; // User Agent hash
   device?: string; // Device fingerprint
+  [key: string]: any; // Index signature for jose compatibility
 }
 
 export interface RefreshTokenPayload {
@@ -30,6 +31,7 @@ export interface RefreshTokenPayload {
   aud: string;
   jti: string;
   type: 'refresh';
+  [key: string]: any; // Index signature for jose compatibility
 }
 
 export interface TokenPair {

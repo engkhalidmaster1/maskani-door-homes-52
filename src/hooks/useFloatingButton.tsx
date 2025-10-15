@@ -16,19 +16,11 @@ export const useFloatingButton = (currentPage: string = 'home') => {
 
   const fetchConfig = async () => {
     try {
-      const { data, error } = await supabase.rpc('get_active_floating_button_config');
-      if (error) {
-        console.error('Error fetching floating button config:', error);
-        return;
-      }
-      if (data && data.length > 0) {
-        setConfig(data[0]);
-      } else {
-        setConfig(null);
-      }
+      // Since the RPC function doesn't exist, we'll disable the floating button
+      setConfig(null);
+      setLoading(false);
     } catch (error) {
       console.error('Error in fetchConfig:', error);
-    } finally {
       setLoading(false);
     }
   };

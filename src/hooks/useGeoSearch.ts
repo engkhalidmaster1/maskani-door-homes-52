@@ -75,10 +75,10 @@ export const useGeoSearch = (options: UseGeoSearchOptions = {}): UseGeoSearchRet
       const propertyLocations: PropertyLocation[] = properties.map(property => ({
         id: property.id.toString(),
         title: property.title,
-        description: property.description,
+        description: property.description || '',
         price: property.price,
-        propertyType: property.type,
-        features: property.features || [],
+        propertyType: property.property_type || 'apartment',
+        features: property.amenities || [],
         address: property.location || property.address,
         neighborhood: property.location, // Using location as neighborhood for now
         city: property.location, // Using location as city for now  

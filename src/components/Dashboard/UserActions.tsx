@@ -156,17 +156,18 @@ export const UserActions: React.FC<UserActionsProps> = ({
 
   return (
     <>
-      <div className="flex gap-2 items-center">
+      <div className="flex gap-2 items-center flex-wrap">
         {/* View Button */}
         <Button
           variant="outline"
           size="sm"
           onClick={handleViewUser}
           disabled={isLoading}
-          className="h-10 w-10 p-0"
-          title="عرض تفاصيل المستخدم"
+          className="gap-2 h-9"
+          aria-label="عرض تفاصيل المستخدم"
         >
-          <Eye className="w-5 h-5" />
+          <Eye className="w-4 h-4" />
+          <span className="hidden sm:inline">عرض</span>
         </Button>
 
         {/* Edit Button */}
@@ -174,10 +175,11 @@ export const UserActions: React.FC<UserActionsProps> = ({
           variant="outline"
           size="sm"
           onClick={handleEditUser}
-          className="h-10 w-10 p-0"
-          title="تعديل دور المستخدم"
+          className="gap-2 h-9"
+          aria-label="تعديل دور المستخدم"
         >
-          <Edit3 className="w-5 h-5" />
+          <Edit3 className="w-4 h-4" />
+          <span className="hidden sm:inline">تعديل</span>
         </Button>
 
         {/* Ban/Unban Button - Show for all users */}
@@ -186,20 +188,22 @@ export const UserActions: React.FC<UserActionsProps> = ({
             variant="outline"
             size="sm"
             onClick={handleBanUser}
-            className="h-10 w-10 p-0 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
-            title="حظر من النشر"
+            className="gap-2 h-9 text-orange-600 border-orange-200 hover:text-orange-700 hover:bg-orange-50 hover:border-orange-300"
+            aria-label="حظر من النشر"
           >
-            <Ban className="w-5 h-5" />
+            <Ban className="w-4 h-4" />
+            <span className="hidden sm:inline">حظر</span>
           </Button>
         ) : (
           <Button
             variant="outline"
             size="sm"
             onClick={handleUnbanUser}
-            className="h-10 w-10 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
-            title="إلغاء الحظر"
+            className="gap-2 h-9 text-green-600 border-green-200 hover:text-green-700 hover:bg-green-50 hover:border-green-300"
+            aria-label="إلغاء الحظر"
           >
-            <Unlock className="w-5 h-5" />
+            <Unlock className="w-4 h-4" />
+            <span className="hidden sm:inline">إلغاء الحظر</span>
           </Button>
         )}
 
@@ -208,10 +212,11 @@ export const UserActions: React.FC<UserActionsProps> = ({
           variant="destructive"
           size="sm"
           onClick={handleDeleteUser}
-          className="h-10 w-10 p-0"
-          title="حذف المستخدم"
+          className="gap-2 h-9"
+          aria-label="حذف المستخدم"
         >
-          <Trash2 className="w-5 h-5" />
+          <Trash2 className="w-4 h-4" />
+          <span className="hidden sm:inline">حذف</span>
         </Button>
       </div>
 

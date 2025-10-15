@@ -8,19 +8,10 @@ const CACHE_MAX_AGE = 31536000;
 const urlsToCache = [
   '/',
   '/index.html',
-  '/manifest.json',
-  '/favicon.ico',
-  '/maskani-icon-192x192.png',
-  '/maskani-icon-512x512.png',
-  '/static/js/bundle.js',
-  '/static/css/main.css'
+  '/manifest.json'
 ];
 
-const dataUrls = [
-  '/api/properties',
-  '/api/favorites',
-  '/api/users'
-];
+const dataUrls = [];
 
 // Install event - cache static resources
 self.addEventListener('install', event => {
@@ -29,10 +20,19 @@ self.addEventListener('install', event => {
     caches.open(CACHE_NAME)
       .then(cache => {
         console.log('[ServiceWorker] Caching app shell');
-        return cache.addAll(urlsToCache);
+        // Try to cache files, but don't fail if some are missing
+        return Promise.allSettled(
+          urlsToCache.map(url => 
+            cache.add(url).catch(err => console.log('[ServiceWorker] Failed to cache:', url, err))
+          )
+        );
       })
       .then(() => {
         return self.skipWaiting();
+      })
+      .catch(err => {
+        console.error('[ServiceWorker] Install failed:', err);
+        return self.skipWaiting(); // Continue anyway
       })
   );
 });

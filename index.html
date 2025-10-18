@@ -56,14 +56,6 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/service-worker.js')
-            .then(reg => console.log('Service worker registered', reg))
-            .catch(err => console.log('Service worker registration failed', err));
-        });
-      }
-    </script>
+    <!-- Service Worker تم تعطيله مؤقتاً -->
   </body>
 </html>

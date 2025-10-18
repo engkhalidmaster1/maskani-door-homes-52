@@ -50,20 +50,7 @@ function ConditionalOfflineStatusIndicator() {
 }
 
 function App() {
-  // تسجيل Service Worker
-  useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js')
-          .then((registration) => {
-            console.log('SW registered: ', registration);
-          })
-          .catch((registrationError) => {
-            console.log('SW registration failed: ', registrationError);
-          });
-      });
-    }
-  }, []);
+  // Service Worker تم تعطيله مؤقتاً لحل مشكلة الشاشة البيضاء
 
   return (
     <QueryClientProvider client={queryClient}>

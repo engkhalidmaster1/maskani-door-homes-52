@@ -79,12 +79,7 @@ export default defineConfig(({ mode }) => ({
       treeshake: {
         moduleSideEffects: false,
         propertyReadSideEffects: false
-      },
-      // Make sure to include service worker and manifest in the build
-      input: {
-        main: path.resolve(__dirname, 'index.html'),
-        'service-worker': path.resolve(__dirname, 'public/service-worker.js'),
-      },
+      }
     },
   },
 }));

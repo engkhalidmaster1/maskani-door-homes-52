@@ -19,8 +19,11 @@ import { Register } from "@/pages/Auth/Register";
 import { MapPage } from "@/pages/MapPage";
 import { EditOffice } from "@/pages/EditOffice";
 import { PropertyDetails } from "@/pages/PropertyDetails";
-import { UsersManagement } from "@/pages/UsersManagement";
+import { UsersView } from "@/pages/UsersView";
 import { AdminDebug } from "@/pages/AdminDebug";
+import AdminUsers from "@/pages/AdminUsers";
+import AdminAddUser from "@/pages/AdminAddUser";
+import SystemDocumentation from "@/pages/SystemDocumentation";
 // import { SmartSearchPage } from "@/pages/SmartSearchPage"; // مخفي مؤقتاً  
 import { useEffect } from "react";
 
@@ -86,7 +89,10 @@ function App() {
               <Route path="/edit-office/:id" element={<ProtectedRoute><EditOffice /></ProtectedRoute>} />
               <Route path="/image-diagnostics" element={<ProtectedRoute><ImageDiagnostics /></ProtectedRoute>} />
               <Route path="/admin/debug" element={<ProtectedRoute><AdminDebug /></ProtectedRoute>} />
-              <Route path="/admin/users" element={<ProtectedRoute><UsersManagement /></ProtectedRoute>} />
+              <Route path="/admin/users" element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} />
+              <Route path="/admin/add-user" element={<ProtectedRoute><AdminAddUser /></ProtectedRoute>} />
+              <Route path="/system-documentation" element={<ProtectedRoute><SystemDocumentation /></ProtectedRoute>} />
+              <Route path="/users-view" element={<ProtectedRoute><UsersView /></ProtectedRoute>} />
               <Route path="/property/:id" element={<PropertyDetails />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>

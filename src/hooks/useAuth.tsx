@@ -43,6 +43,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const fetchUserRole = useCallback(async (userId: string): Promise<string | null> => {
     try {
       console.log('Fetching role for user:', userId);
+      
+      // Use the old system for now - will work with both old and new data
+      // Migration keeps user_roles in sync with user_permissions
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')

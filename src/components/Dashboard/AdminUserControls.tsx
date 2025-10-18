@@ -109,7 +109,7 @@ export const AdminUserControls = () => {
           }`}
           onClick={() => setSelectedSection('users')}
         >
-          👥 إدارة المستخدمين والصلاحيات
+          👥 إدارة الصلاحيات
         </button>
         <button
           className={`text-right px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 ${
@@ -138,7 +138,7 @@ export const AdminUserControls = () => {
         {selectedSection === 'users' && (
           <div className="space-y-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold">إدارة المستخدمين والصلاحيات</h3>
+              <h3 className="text-xl font-semibold">إدارة الصلاحيات</h3>
               <span className="text-sm text-muted-foreground bg-muted px-3 py-1 rounded-full">
                 دورك: {userRole ?? 'unknown'}
               </span>

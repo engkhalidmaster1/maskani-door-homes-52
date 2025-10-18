@@ -7,11 +7,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAuditLog } from "@/hooks/useAuditLog";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, Building2, Eye, EyeOff, Trash2, TrendingUp, Activity, Menu } from "lucide-react";
+import { Users, Building2, Eye, EyeOff, Trash2, TrendingUp, Activity } from "lucide-react";
 import AdminUserControls from "@/components/Dashboard/AdminUserControls";
 import { toast } from "@/hooks/use-toast";
-import { DashboardSidebar } from "@/components/Dashboard/DashboardSidebar";
-import { DashboardBreadcrumb } from "@/components/Dashboard/DashboardBreadcrumb";
+import { DashboardTabs } from "@/components/Dashboard/DashboardTabs";
 import { EditPropertiesTab } from "@/components/Dashboard/EditPropertiesTab";
 import { BannerSettingsTab } from "@/components/Dashboard/BannerSettingsTab";
 import { Profile } from "@/pages/Profile";
@@ -22,6 +21,9 @@ import { UserRolesManagement } from "@/components/Dashboard/UserRolesManagement"
 import { VerificationSettings } from "@/components/Dashboard/VerificationSettings";
 import { BroadcastNotification } from "@/components/Dashboard/BroadcastNotification";
 import { FloatingButtonManagement } from "@/components/Dashboard/FloatingButtonManagement";
+import { UsersTable } from "@/components/Dashboard/UsersTable";
+import UsersView from "@/pages/UsersView";
+import AdminUsers from "@/pages/AdminUsers";
 
 interface DashboardProps {
   onPageChange?: (page: string) => void;
@@ -134,7 +136,6 @@ export const Dashboard = ({ onPageChange, onEditProperty }: DashboardProps) => {
   const { allUsersWithStatus, fetchAllUsersWithStatus } = useUserStatus();
   
   const [selectedTab, setSelectedTab] = useState("overview");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const stats = useMemo(() => getDashboardStats(), [getDashboardStats]);
 
@@ -277,8 +278,10 @@ export const Dashboard = ({ onPageChange, onEditProperty }: DashboardProps) => {
         return <BannerSettingsTab />;
       case "floating-button":
         return <FloatingButtonManagement />;
-      case "users":
-        return renderUsersTab();
+      case "users-view":
+        return <UsersView />;
+      case "admin-users":
+        return <AdminUsers />;
       case "user-roles":
         return <UserRolesManagement />;
       case "verification-settings":
@@ -502,163 +505,17 @@ export const Dashboard = ({ onPageChange, onEditProperty }: DashboardProps) => {
     </Card>
   );
 
-  const renderUsersTab = () => (
-    <Card>
-      <CardHeader>
-        <CardTitle>قائمة جميع المستخدمين</CardTitle>
-        <p className="text-sm text-muted-foreground">عرض وإدارة جميع المستخدمين المسجلين في النظام</p>
-      </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>الاسم</TableHead>
-                  <TableHead>البريد الإلكتروني</TableHead>
-                  <TableHead>الهاتف</TableHead>
-                  <TableHead>الدور</TableHead>
-                  <TableHead>حالة المستخدم</TableHead>
-                  <TableHead>الحدود</TableHead>
-                  <TableHead>عدد العقارات</TableHead>
-                  <TableHead>تاريخ التسجيل</TableHead>
-                  <TableHead>الإجراءات</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {allUsersWithStatus.map((userWithStatus) => {
-                  const user = users.find(u => u.id === userWithStatus.id);
-                  if (!user || !userWithStatus.status_data) return null;
-                  
-                  return (
-                    <TableRow key={userWithStatus.id}>
-                      <TableCell>{userWithStatus.full_name || "غير محدد"}</TableCell>
-                      <TableCell>{userWithStatus.email}</TableCell>
-                      <TableCell>{userWithStatus.phone || "غير محدد"}</TableCell>
-                      <TableCell>
-                        <Badge variant={user.role === 'admin' ? "default" : "secondary"}>
-                          {user.role === 'admin' ? "مدير" : "مستخدم"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <UserStatusControl
-                          userId={userWithStatus.id}
-                          currentStatus={userWithStatus.status_data.status}
-                          userName={userWithStatus.full_name || userWithStatus.email}
-                          onStatusUpdate={fetchAllUsersWithStatus}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          <div>العقارات: {userWithStatus.status_data.properties_limit}</div>
-                          <div>الصور: {userWithStatus.status_data.images_limit}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="font-medium">
-                          {user.properties_count || 0}
-                        </span>
-                        <span className="text-muted-foreground">
-                          /{userWithStatus.status_data.properties_limit}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        {new Date(user.created_at).toLocaleDateString('en-US')}
-                      </TableCell>
-                      <TableCell>
-                        <UserActions
-                          user={user}
-                          onDelete={handleDeleteUser}
-                          onUpdateRole={updateUserRole}
-                          onBanUser={banUserFromPublishing}
-                          onUnbanUser={unbanUserFromPublishing}
-                          getUserProfile={getUserProfile}
-                          getUserProperties={getUserProperties}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
-  );
-
   return (
-    <div className="min-h-screen bg-background">
-      <div className="flex">
-        {/* Sidebar */}
-        <DashboardSidebar 
-          activeTab={selectedTab}
-          onTabChange={(tab) => {
-            setSelectedTab(tab);
-          }}
-          isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-        />
-        
-        {/* Main content */}
-        <div className="flex-1 lg:mr-0">
-          <div className="p-6">
-            {/* Mobile menu button */}
-            <div className="flex items-center justify-between mb-6 lg:hidden">
-              <h1 className="text-2xl font-bold">لوحة التحكم</h1>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setSidebarOpen(true)}
-              >
-                <Menu className="h-5 w-5" />
-              </Button>
-            </div>
-            
-            {/* Breadcrumb */}
-            <DashboardBreadcrumb 
-              activeTab={selectedTab}
-              onNavigate={(page) => {
-                switch (page) {
-                  case 'overview':
-                    setSelectedTab('overview');
-                    break;
-                  case 'properties':
-                    setSelectedTab('properties');
-                    break;
-                  case 'properties-management':
-                    setSelectedTab('properties-management');
-                    break;
-                  case 'edit-properties':
-                    setSelectedTab('edit-properties');
-                    break;
-                  case 'banner-settings':
-                    setSelectedTab('banner-settings');
-                    break;
-                  case 'users':
-                    setSelectedTab('users');
-                    break;
-                  case 'profile':
-                    setSelectedTab('profile');
-                    break;
-                }
-              }}
-            />
-            
-            {/* Header for desktop */}
-            <div className="hidden lg:flex items-center justify-between mb-8">
-              <div>
-                <h1 className="text-2xl lg:text-3xl font-bold">لوحة التحكم الإدارية</h1>
-                <p className="text-muted-foreground">إدارة شاملة للمستخدمين والعقارات</p>
-              </div>
-              <Badge variant="secondary" className="text-lg px-4 py-2">
-                <Activity className="w-4 h-4 mr-2" />
-                مدير النظام
-              </Badge>
-            </div>
-
-            {/* Content */}
-            {renderTabContent()}
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      {/* Top Tabs Navigation */}
+      <DashboardTabs 
+        activeTab={selectedTab}
+        onTabChange={setSelectedTab}
+      />
+      
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-6">
+        {renderTabContent()}
       </div>
     </div>
   );

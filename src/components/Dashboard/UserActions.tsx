@@ -45,10 +45,10 @@ interface UserActionsProps {
     created_at: string;
     properties_count: number;
   };
-  onDelete: (userId: string) => void;
-  onUpdateRole: (userId: string, newRole: 'admin' | 'user') => void;
-  onBanUser: (userId: string) => void;
-  onUnbanUser: (userId: string) => void;
+  onDelete: (userId: string) => Promise<void>;
+  onUpdateRole: (userId: string, newRole: 'admin' | 'user') => Promise<void>;
+  onBanUser: (userId: string) => Promise<void>;
+  onUnbanUser: (userId: string) => Promise<void>;
   getUserProfile: (userId: string) => Promise<ProfileRow | null>;
   getUserProperties: (userId: string) => Promise<PropertyRow[]>;
 }
@@ -134,23 +134,60 @@ export const UserActions: React.FC<UserActionsProps> = ({
     }
   };
 
-  const handleDeleteUser = () => {
+  const handleDeleteUser = async () => {
     if (confirm(`هل أنت متأكد من حذف المستخدم "${user.full_name || user.email}"؟ سيتم حذف جميع عقاراته أيضاً`)) {
-      onDelete(user.id);
+      try {
+        await onDelete(user.id);
+        toast({
+          title: "تم الحذف",
+          description: "تم حذف المستخدم بنجاح",
+          variant: "destructive",
+        });
+      } catch (error) {
+        toast({
+          title: "خطأ",
+          description: "فشل في حذف المستخدم",
+          variant: "destructive",
+        });
+      }
     }
   };
 
-  const handleBanUser = () => {
+  const handleBanUser = async () => {
     if (confirm(`هل أنت متأكد من حظر المستخدم "${user.full_name || user.email}" من النشر؟ سيتم إخفاء جميع عقاراته`)) {
-      onBanUser(user.id);
-      setIsUserBanned(true);
+      try {
+        await onBanUser(user.id);
+        setIsUserBanned(true);
+        toast({
+          title: "تم الحظر",
+          description: "تم حظر المستخدم من النشر بنجاح",
+        });
+      } catch (error) {
+        toast({
+          title: "خطأ",
+          description: "فشل في حظر المستخدم",
+          variant: "destructive",
+        });
+      }
     }
   };
 
-  const handleUnbanUser = () => {
+  const handleUnbanUser = async () => {
     if (confirm(`هل أنت متأكد من إلغاء حظر المستخدم "${user.full_name || user.email}"؟ سيتم نشر جميع عقاراته`)) {
-      onUnbanUser(user.id);
-      setIsUserBanned(false);
+      try {
+        await onUnbanUser(user.id);
+        setIsUserBanned(false);
+        toast({
+          title: "تم إلغاء الحظر",
+          description: "تم إلغاء حظر المستخدم بنجاح",
+        });
+      } catch (error) {
+        toast({
+          title: "خطأ",
+          description: "فشل في إلغاء حظر المستخدم",
+          variant: "destructive",
+        });
+      }
     }
   };
 

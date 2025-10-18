@@ -124,8 +124,7 @@ export default function AdminAddUser() {
       // استدعاء Edge Function لإنشاء المستخدم بشكل آمن
       const { data: { session } } = await supabase.auth.getSession();
       
-      const functionUrl = import.meta.env.VITE_SUPABASE_FUNCTION_CREATE_USER || 
-                         `${supabase.supabaseUrl}/functions/v1/create-user`;
+      const functionUrl = `https://ugefzrktqeyspnzhxzzw.supabase.co/functions/v1/create-user`;
 
       const response = await fetch(functionUrl, {
         method: 'POST',

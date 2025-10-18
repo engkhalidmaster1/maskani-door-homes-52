@@ -90,15 +90,47 @@ export default function AdminUsers() {
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('users_with_permissions')
-        .select('*')
-        .order('account_created', { ascending: false });
+      
+      // جلب المستخدمين من profiles + user_permissions
+      const { data: profiles, error: profilesError } = await (supabase as any)
+        .from('profiles')
+        .select('*');
 
-      if (error) throw error;
+      if (profilesError) throw profilesError;
 
-      setUsers(data || []);
-      setFilteredUsers(data || []);
+      const { data: permissions, error: permError } = await (supabase as any)
+        .from('user_permissions')
+        .select('*');
+
+      if (permError) throw permError;
+
+      // دمج البيانات
+      const combinedUsers: UserWithPermissions[] = (profiles || []).map(profile => {
+        const perm = permissions?.find(p => p.user_id === profile.user_id);
+        const limits = perm?.limits as any;
+        
+        return {
+          id: profile.user_id,
+          email: profile.email || '',
+          full_name: profile.full_name,
+          phone: profile.phone,
+          role: (perm?.role || 'publisher') as any,
+          role_name_ar: perm?.role === 'admin' ? '🔑 مدير النظام' :
+                        perm?.role === 'office' ? '🏢 مكتب عقارات' :
+                        perm?.role === 'agent' ? '🏆 وكيل عقاري' : '👤 ناشر عادي',
+          properties_count: perm?.properties_count || 0,
+          properties_limit: limits?.properties || 3,
+          can_publish: perm?.can_publish ?? true,
+          is_verified: perm?.is_verified ?? false,
+          is_active: perm?.is_active ?? true,
+          status_indicator: perm?.can_publish ? 'نشط' : 'محظور',
+          account_created: profile.created_at,
+          last_sign_in_at: null,
+        };
+      });
+
+      setUsers(combinedUsers);
+      setFilteredUsers(combinedUsers);
     } catch (error: any) {
       toast({
         title: "خطأ",
@@ -152,10 +184,13 @@ export default function AdminUsers() {
     try {
       const shouldBan = selectedUser.can_publish; // إذا كان نشط، نحظره
 
-      const { error } = await supabase.rpc('toggle_user_ban', {
-        target_user_id: selectedUser.id,
-        should_ban: shouldBan,
-      });
+      const { error } = await (supabase as any)
+        .from('user_permissions')
+        .update({
+          can_publish: !shouldBan,
+          is_active: !shouldBan,
+        })
+        .eq('user_id', selectedUser.id);
 
       if (error) throw error;
 
@@ -184,10 +219,37 @@ export default function AdminUsers() {
   // تغيير الدور
   const handleRoleChange = async (userId: string, newRole: string) => {
     try {
-      const { error } = await supabase.rpc('update_user_role', {
-        target_user_id: userId,
-        new_role: newRole,
-      });
+      // تحديد الحدود بناءً على الدور
+      const limits = newRole === 'admin' ? {
+        properties: -1,
+        images_per_property: -1,
+        featured_properties: -1,
+        storage_mb: -1
+      } : newRole === 'office' ? {
+        properties: -1,
+        images_per_property: 10,
+        featured_properties: 50,
+        storage_mb: 5000
+      } : newRole === 'agent' ? {
+        properties: 10,
+        images_per_property: 10,
+        featured_properties: 3,
+        storage_mb: 500
+      } : {
+        properties: 3,
+        images_per_property: 10,
+        featured_properties: 0,
+        storage_mb: 100
+      };
+
+      const { error } = await (supabase as any)
+        .from('user_permissions')
+        .update({
+          role: newRole,
+          limits: limits,
+          is_verified: ['agent', 'office', 'admin'].includes(newRole),
+        })
+        .eq('user_id', userId);
 
       if (error) throw error;
 

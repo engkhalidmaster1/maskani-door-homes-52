@@ -28,7 +28,7 @@ export default function SystemDocumentation() {
 
   const roles = [
     {
-      value: 'admin',
+      value: 'admin' as const,
       title: '👑 مدير النظام',
       icon: Shield,
       gradient: 'from-purple-500 to-pink-600',
@@ -55,7 +55,7 @@ export default function SystemDocumentation() {
       color: 'purple'
     },
     {
-      value: 'office',
+      value: 'office' as const,
       title: '🏢 مكتب عقاري',
       icon: Building2,
       gradient: 'from-blue-500 to-cyan-600',
@@ -80,7 +80,7 @@ export default function SystemDocumentation() {
       color: 'blue'
     },
     {
-      value: 'agent',
+      value: 'agent' as const,
       title: '🏠 وكيل عقاري',
       icon: User,
       gradient: 'from-green-500 to-emerald-600',
@@ -104,7 +104,7 @@ export default function SystemDocumentation() {
       color: 'green'
     },
     {
-      value: 'publisher',
+      value: 'publisher' as const,
       title: '📝 ناشر عقارات',
       icon: FileText,
       gradient: 'from-gray-500 to-gray-600',

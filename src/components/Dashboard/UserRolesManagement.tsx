@@ -41,15 +41,15 @@ export const UserRolesManagement = () => {
       
       setLoading(true);
       try {
-        const { data, error } = await supabase
-          .from('users_with_permissions')
+        const { data: perm, error } = await (supabase as any)
+          .from('user_permissions')
           .select('*')
-          .eq('id', selectedUserId)
+          .eq('user_id', selectedUserId)
           .single();
         
         if (error) throw error;
-        setUserData(data);
-        setSelectedRole(data.role);
+        setUserData(perm);
+        setSelectedRole(perm.role);
       } catch (error: any) {
         toast({
           title: "خطأ",
@@ -73,24 +73,27 @@ export const UserRolesManagement = () => {
 
     setLoading(true);
     try {
-      // نجلب من العرض users_with_permissions لأنه يحتوي على الحقول الضرورية
-      const { data, error } = await supabase
-        .from('users_with_permissions')
-        .select('id, email')
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('user_id, email')
         .ilike('email', searchEmail)
         .limit(1)
         .maybeSingle();
 
       if (error) throw error;
-      if (!data) {
-        toast({ title: 'غير موجود', description: 'لم يتم العثور على مستخدم بهذا البريد', variant: 'warning' });
+      if (!profile) {
+        toast({ 
+          title: 'غير موجود', 
+          description: 'لم يتم العثور على مستخدم بهذا البريد', 
+          variant: 'destructive' 
+        });
         setSelectedUserId('');
         setUserData(null);
         return;
       }
 
-      setSelectedUserId(data.id);
-      toast({ title: 'تم العثور', description: `المستخدم ${data.email} جاهز للتحرير` });
+      setSelectedUserId(profile.user_id);
+      toast({ title: 'تم العثور', description: `المستخدم ${profile.email} جاهز للتحرير` });
     } catch (err: any) {
       toast({ title: 'خطأ', description: err.message || 'فشل البحث عن المستخدم', variant: 'destructive' });
     } finally {
@@ -111,10 +114,37 @@ export const UserRolesManagement = () => {
 
     setLoading(true);
     try {
-      const { error } = await supabase.rpc('update_user_role', {
-        target_user_id: selectedUserId,
-        new_role: selectedRole,
-      });
+      // تحديد الحدود بناءً على الدور
+      const limits = selectedRole === 'admin' ? {
+        properties: -1,
+        images_per_property: -1,
+        featured_properties: -1,
+        storage_mb: -1
+      } : selectedRole === 'office' ? {
+        properties: -1,
+        images_per_property: -1,
+        featured_properties: 50,
+        storage_mb: -1
+      } : selectedRole === 'agent' ? {
+        properties: 100,
+        images_per_property: 20,
+        featured_properties: 10,
+        storage_mb: 10240
+      } : {
+        properties: 20,
+        images_per_property: 10,
+        featured_properties: 2,
+        storage_mb: 2048
+      };
+
+      const { error } = await (supabase as any)
+        .from('user_permissions')
+        .update({
+          role: selectedRole,
+          limits: limits,
+          is_verified: ['agent', 'office', 'admin'].includes(selectedRole),
+        })
+        .eq('user_id', selectedUserId);
 
       if (error) throw error;
 
@@ -124,10 +154,10 @@ export const UserRolesManagement = () => {
       });
 
       // إعادة جلب البيانات
-      const { data } = await supabase
-        .from('users_with_permissions')
+      const { data } = await (supabase as any)
+        .from('user_permissions')
         .select('*')
-        .eq('id', selectedUserId)
+        .eq('user_id', selectedUserId)
         .single();
       
       setUserData(data);

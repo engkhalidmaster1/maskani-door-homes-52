@@ -57,6 +57,7 @@ type UserData = {
   images_limit?: number;
   account_created?: string | null;
   last_sign_in_at?: string | null;
+  status_indicator?: string | null;
 };
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/hooks/useAuth';
@@ -112,7 +113,7 @@ export const UsersView = () => {
     full_name: string;
     phone: string;
     address: string;
-    role: Database['public']['Enums']['app_role'];
+    role: AppRole;
   }>({
     full_name: '',
     phone: '',
@@ -128,7 +129,7 @@ export const UsersView = () => {
     email?: string | null;
     full_name?: string | null;
     phone?: string | null;
-    role?: Database['public']['Enums']['app_role'];
+    role?: AppRole;
     properties_count?: number;
     properties_limit?: number;
     images_limit?: number;
@@ -154,7 +155,7 @@ export const UsersView = () => {
     }
   };
 
-  const computeLimitsForRole = (role: Database['public']['Enums']['app_role']) => {
+  const computeLimitsForRole = (role: AppRole) => {
     switch (role) {
       case 'admin':
         return { properties: -1, images_per_property: -1, featured_properties: -1, storage_mb: -1 };
@@ -219,11 +220,11 @@ export const UsersView = () => {
         full_name: profile?.full_name ?? user.full_name ?? '',
         phone: profile?.phone ?? user.phone ?? '',
         address: profile?.address ?? '',
-        role: user.role as Database['public']['Enums']['app_role'],
+        role: user.role ?? 'publisher',
       });
     } catch (err) {
       // fallback to minimal data
-      setEditForm({ full_name: user.full_name ?? '', phone: user.phone ?? '', address: '', role: user.role as Database['public']['Enums']['app_role'] });
+      setEditForm({ full_name: user.full_name ?? '', phone: user.phone ?? '', address: '', role: user.role ?? 'publisher' });
     } finally {
       setEditDialogOpen(true);
     }
@@ -241,8 +242,12 @@ export const UsersView = () => {
       // change role by updating/ upserting user_permissions directly (RPC removed)
       const newLimits = computeLimitsForRole(editForm.role);
       const promoteVerified = ['agent', 'office', 'admin'].includes(editForm.role as string);
-      type UpsertPerm = Partial<Database['public']['Tables']['user_permissions']['Insert']> & { user_id: string };
-      const upsertPayload: UpsertPerm = {
+      const upsertPayload: {
+        user_id: string;
+        role: AppRole;
+        limits: Record<string, number>;
+        is_verified?: boolean;
+      } = {
         user_id: selectedUser.id,
         role: editForm.role,
         limits: newLimits,
@@ -281,7 +286,7 @@ export const UsersView = () => {
 
       for (const table of tables) {
         const { error: cleanupError } = await supabase
-          .from(table.name)
+          .from(table.name as 'properties' | 'favorites' | 'user_statuses' | 'user_roles' | 'user_permissions' | 'profiles')
           .delete()
           .eq('user_id', id);
 
@@ -334,7 +339,7 @@ export const UsersView = () => {
     }
   };
 
-  const handleRoleChange = async (userId: string, newRole: Database['public']['Enums']['app_role']) => {
+  const handleRoleChange = async (userId: string, newRole: AppRole) => {
     try {
       // Use the secure RPC function instead of direct table update
       const { error } = await supabase.rpc('set_user_role', {
@@ -526,7 +531,7 @@ export const UsersView = () => {
                           </Badge>
                           <Select 
                             value={user.role} 
-                            onValueChange={(value: Database['public']['Enums']['app_role']) => handleRoleChange(user.id, value)}
+                            onValueChange={(value: AppRole) => handleRoleChange(user.id, value)}
                             disabled={user.email === 'eng.khalid.work@gmail.com'} // Protect super admin
                           >
                             <SelectTrigger className="w-32 h-8">
@@ -652,7 +657,7 @@ export const UsersView = () => {
               <div><label className="text-sm font-medium">الاسم الكامل</label><Input value={editForm.full_name} onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })} placeholder="الاسم الكامل" /></div>
               <div><label className="text-sm font-medium">رقم الهاتف</label><Input value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} placeholder="رقم الهاتف" /></div>
               <div><label className="text-sm font-medium">العنوان</label><Input value={editForm.address} onChange={(e) => setEditForm({ ...editForm, address: e.target.value })} placeholder="العنوان" /></div>
-              <div><label className="text-sm font-medium">الدور</label><Select value={editForm.role} onValueChange={(v: Database['public']['Enums']['app_role']) => setEditForm({ ...editForm, role: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="user">مستخدم</SelectItem><SelectItem value="admin">مدير</SelectItem><SelectItem value="publisher">ناشر</SelectItem></SelectContent></Select></div>
+              <div><label className="text-sm font-medium">الدور</label><Select value={editForm.role} onValueChange={(v: AppRole) => setEditForm({ ...editForm, role: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="publisher">ناشر</SelectItem><SelectItem value="agent">وكيل</SelectItem><SelectItem value="office">مكتب</SelectItem><SelectItem value="admin">مدير</SelectItem></SelectContent></Select></div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setEditDialogOpen(false)}>إلغاء</Button>

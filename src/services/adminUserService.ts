@@ -117,14 +117,9 @@ export const createUserSimple = async (userData: CreateUserData) => {
       throw new Error('فشل إنشاء المستخدم');
     }
 
-    // إضافة الدور الأساسي في جدول user_roles (map to canonical AppRole values)
-    const basicRole: AppRole = userData.role === 'admin'
-      ? 'admin'
-      : userData.role === 'office'
-      ? 'office'
-      : userData.role === 'agent'
-      ? 'agent'
-      : 'publisher';
+    // إضافة الدور الأساسي في جدول user_roles (uses app_role enum: admin | user)
+    // Map our 4-role system to the 2-role system in user_roles table
+    const basicRole: 'admin' | 'user' = userData.role === 'admin' ? 'admin' : 'user';
     const { error: roleError } = await supabase
       .from('user_roles')
       .insert({

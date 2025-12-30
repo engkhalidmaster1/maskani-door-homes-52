@@ -262,7 +262,6 @@ export const EditProperty = () => {
         furnished: property.furnished && property.furnished.trim() !== '' ? property.furnished.trim() : null,
       };
 
-      // @ts-expect-error: RPC may not be present in generated Supabase types
       const { data: validationResult, error: validationError } = await supabase.rpc('validate_property_payload', { p_payload: validationPayload });
       if (validationError) {
         console.error('Validation RPC error:', validationError);

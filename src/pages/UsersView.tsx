@@ -38,7 +38,26 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Toaster } from "@/components/ui/toaster";
-import type { Database, UserData } from '@/integrations/supabase/types';
+import type { Database } from '@/integrations/supabase/types';
+import type { AppRole } from '@/types/appRoles';
+
+// Local UserData type definition
+type UserData = {
+  id: string;
+  email?: string | null;
+  full_name?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  role?: AppRole;
+  is_active?: boolean;
+  is_verified?: boolean;
+  can_publish?: boolean;
+  properties_count?: number;
+  properties_limit?: number;
+  images_limit?: number;
+  account_created?: string | null;
+  last_sign_in_at?: string | null;
+};
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/hooks/useAuth';
 import {

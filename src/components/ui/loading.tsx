@@ -110,7 +110,9 @@ export const LoadingList = ({ loading = false, count = 3, children }: LoadingLis
     return (
       <div className="space-y-4">
         {Array.from({ length: count }).map((_, index) => (
-          <LoadingCard key={index} loading />
+          <LoadingCard key={index} loading>
+            <span />
+          </LoadingCard>
         ))}
       </div>
     );

@@ -224,7 +224,7 @@ export const useAlerts = () => {
     }
   };
 
-  const createAlert = async (alert: Omit<AlertItem, 'id' | 'timestamp'>) => {
+  const createAlert = async (alert: Omit<AlertItem, 'id' | 'timestamp' | 'resolved'>) => {
     try {
       // إنشاء التنبيه في قاعدة البيانات
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -244,7 +244,8 @@ export const useAlerts = () => {
       const newAlert: AlertItem = {
         ...alert,
         id: alertId,
-        timestamp: new Date()
+        timestamp: new Date(),
+        resolved: false
       };
 
       // تحديث الحالة المحلية
@@ -255,7 +256,8 @@ export const useAlerts = () => {
       const fallbackAlert: AlertItem = {
         ...alert,
         id: `fallback-${Date.now()}`,
-        timestamp: new Date()
+        timestamp: new Date(),
+        resolved: false
       };
       setAlerts(prev => [fallbackAlert, ...prev]);
     }

@@ -13,7 +13,7 @@ interface RoleBadgeProps {
 
 export function RoleBadge({ role, variant = 'default', showIcon = true }: RoleBadgeProps) {
   const config = getRoleConfig(role);
-  const Icon = config.icon as ComponentType<unknown>;
+  const Icon = config.icon as ComponentType<{ className?: string }>;
 
   if (variant === 'compact') {
     return (
@@ -28,7 +28,7 @@ export function RoleBadge({ role, variant = 'default', showIcon = true }: RoleBa
       <div className="flex items-center gap-2">
         <div className={`w-2 h-2 rounded-full ${config.dotColor} animate-pulse`} />
         <Badge className={`${config.color} font-medium px-3 py-1`}>
-          {showIcon && <Icon className="w-3.5 h-3.5 ml-1" />}
+          {showIcon && Icon && <Icon className="w-3.5 h-3.5 ml-1" />}
           {config.emoji} {config.label}
         </Badge>
       </div>
@@ -37,7 +37,7 @@ export function RoleBadge({ role, variant = 'default', showIcon = true }: RoleBa
 
   return (
     <Badge className={`${config.color} font-medium px-3 py-1`}>
-      {showIcon && <Icon className="w-3.5 h-3.5 ml-1" />}
+      {showIcon && Icon && <Icon className="w-3.5 h-3.5 ml-1" />}
       {config.emoji} {config.label}
     </Badge>
   );

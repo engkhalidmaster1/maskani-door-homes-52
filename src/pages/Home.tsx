@@ -38,7 +38,7 @@ export const Home = () => {
 
   // Map icon names to icon components
   const getIconComponent = (iconName: string) => {
-    const IconComponent = (Icons as Record<string, React.ComponentType<{ className?: string }>>)[iconName];
+    const IconComponent = (Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[iconName];
     return IconComponent || Icons.Home;
   };
 

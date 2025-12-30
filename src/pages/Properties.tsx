@@ -54,7 +54,8 @@ export const Properties = () => {
 
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
-    return localStorage.getItem('properties_view_mode') || 'grid';
+    const saved = localStorage.getItem('properties_view_mode');
+    return (saved === 'list' ? 'list' : 'grid') as 'grid' | 'list';
   });
 
   useEffect(() => {
@@ -420,10 +421,11 @@ export const Properties = () => {
                       {/* Property Image */}
                       <div className="w-32 h-24 flex-shrink-0 overflow-hidden rounded-lg">
                         {property.images?.[0] ? (
-                          <LazyImage
-                            src={getOptimizedImageUrl(property.images[0], 'small')}
+                          <img
+                            src={property.images[0]}
                             alt={property.title}
                             className="w-full h-full object-cover"
+                            loading="lazy"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-gray-500">
@@ -446,14 +448,14 @@ export const Properties = () => {
                                   <span>{property.location}</span>
                                 </div>
                               )}
-                              <Badge variant="outline" className="text-xs">
+                              <span className="text-xs px-2 py-0.5 border rounded">
                                 {property.listing_type === "sale" ? "للبيع" : "للإيجار"}
-                              </Badge>
+                              </span>
                             </div>
                           </div>
                           <div className="text-left">
                             <span className="text-xl font-bold text-primary">
-                              {formatCurrency(property.price)}
+                              {property.price?.toLocaleString()} د.ع
                             </span>
                           </div>
                         </div>
@@ -487,31 +489,27 @@ export const Properties = () => {
                           
                           {user && (property.user_id === user.id || isAdmin) && (
                             <div className="flex gap-1">
-                              {onEdit && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleEdit(property.id);
-                                  }}
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                              )}
-                              {onTogglePublication && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleTogglePublication(property.id, property.is_published);
-                                  }}
-                                >
-                                  {property.is_published ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                </Button>
-                              )}
-                              {onDelete && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEdit(property.id);
+                                }}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleTogglePublication(property.id, property.is_published);
+                                }}
+                              >
+                                {property.is_published ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </Button>
+                              {isAdmin && (
                                 <Button
                                   size="sm"
                                   variant="outline"

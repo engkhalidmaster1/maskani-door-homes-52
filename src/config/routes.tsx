@@ -1,7 +1,9 @@
-import { Route } from 'react-router-dom';
-import { Subscribers } from '../components/Subscribers';
+import type { RouteObject } from 'react-router-dom';
 
-export const routes: Route[] = [
+// Placeholder for Subscribers component - create if needed
+const Subscribers = () => <div>Subscribers Page</div>;
+
+export const routes: RouteObject[] = [
   {
     path: '/admin/subscribers',
     element: <Subscribers />,

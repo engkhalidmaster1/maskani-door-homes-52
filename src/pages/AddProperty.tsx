@@ -85,8 +85,8 @@ export const AddProperty = () => {
             />
 
             <GovernorateSection
-              selectedGovernorate={formData.governorate || ''}
-              onChange={(gov: GovernorateType) => handleFormChange('governorate', gov)}
+              selectedGovernorate={(formData.governorate || '') as "" | "duhok" | "erbil" | "sulaymaniyah"}
+              onChange={(gov) => handleFormChange('governorate', gov)}
             />
 
             <PropertyTypeSection

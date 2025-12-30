@@ -210,10 +210,12 @@ export const SettingsTab = () => {
   const handleRevertFonts = async () => {
     if (!settings) return;
     const cfg = settings as Record<string, Json>;
+    const fontSizeVal = cfg['font_size'];
+    const menuFontSizeVal = cfg['menu_font_size'];
     const restored: Partial<LocalSettings> = {
-      font_size: (cfg['font_size'] as string) ?? 'normal',
+      font_size: (typeof fontSizeVal === 'string' && ['small', 'normal', 'large'].includes(fontSizeVal) ? fontSizeVal : 'normal') as 'small' | 'normal' | 'large',
       font_size_px: typeof cfg['font_size_px'] === 'number' ? Number(cfg['font_size_px']) : null,
-      menu_font_size: (cfg['menu_font_size'] as string) ?? 'normal',
+      menu_font_size: (typeof menuFontSizeVal === 'string' && ['small', 'normal', 'large'].includes(menuFontSizeVal) ? menuFontSizeVal : 'normal') as 'small' | 'normal' | 'large',
       menu_font_size_px: typeof cfg['menu_font_size_px'] === 'number' ? Number(cfg['menu_font_size_px']) : null,
     };
     setLocal(prev => ({ ...prev, ...restored }));
@@ -388,14 +390,14 @@ export const SettingsTab = () => {
                     type="range"
                     min={12}
                     max={28}
-                    value={typeof local.font_size_px === 'number' ? local.font_size_px : (typeof settings === 'object' && settings ? (settings as Record<string, Json>)['font_size_px'] ?? 16 : 16)}
+                    value={typeof local.font_size_px === 'number' ? local.font_size_px : (typeof settings === 'object' && settings ? (typeof (settings as Record<string, unknown>)['font_size_px'] === 'number' ? Number((settings as Record<string, unknown>)['font_size_px']) : 16) : 16)}
                     onChange={(e) => { const val = parseInt(e.target.value); setLocal(prev => ({ ...prev, font_size_px: Number.isNaN(val) ? null : val })); setIsDirty(true); }}
                     disabled={!allowFontControl}
                     className="w-full"
                     aria-label="حجم الخط العام"
                   />
                   <div className="flex items-center gap-2">
-                    <span className="text-sm">{String(typeof local.font_size_px === 'number' ? local.font_size_px : (typeof settings === 'object' && settings ? (settings as Record<string, Json>)['font_size_px'] ?? 16 : 16))} px</span>
+                    <span className="text-sm">{String(typeof local.font_size_px === 'number' ? local.font_size_px : (typeof settings === 'object' && settings ? (typeof (settings as Record<string, unknown>)['font_size_px'] === 'number' ? Number((settings as Record<string, unknown>)['font_size_px']) : 16) : 16))} px</span>
                     <Button variant="link" size="sm" onClick={() => { setLocal(prev => ({ ...prev, font_size_px: null })); setIsDirty(true); }}>إعادة</Button>
                   </div>
                 </div>
@@ -423,14 +425,14 @@ export const SettingsTab = () => {
                    type="range"
                    min={12}
                    max={28}
-                   value={typeof local.menu_font_size_px === 'number' ? local.menu_font_size_px : (typeof settings === 'object' && settings ? (settings as Record<string, Json>)['menu_font_size_px'] ?? 16 : 16)}
+                   value={typeof local.menu_font_size_px === 'number' ? local.menu_font_size_px : (typeof settings === 'object' && settings ? (typeof (settings as Record<string, unknown>)['menu_font_size_px'] === 'number' ? Number((settings as Record<string, unknown>)['menu_font_size_px']) : 16) : 16)}
                    onChange={(e) => { const val = parseInt(e.target.value); setLocal(prev => ({ ...prev, menu_font_size_px: Number.isNaN(val) ? null : val })); setIsDirty(true); }}
                   disabled={!allowFontControl}
                    className="w-full"
                    aria-label="حجم خط القوائم"
                  />
                  <div className="flex items-center gap-2">
-                   <span className="text-sm">{String(typeof local.menu_font_size_px === 'number' ? local.menu_font_size_px : (typeof settings === 'object' && settings ? (settings as Record<string, Json>)['menu_font_size_px'] ?? 16 : 16))} px</span>
+                   <span className="text-sm">{String(typeof local.menu_font_size_px === 'number' ? local.menu_font_size_px : (typeof settings === 'object' && settings ? (typeof (settings as Record<string, unknown>)['menu_font_size_px'] === 'number' ? Number((settings as Record<string, unknown>)['menu_font_size_px']) : 16) : 16))} px</span>
                    <Button variant="link" size="sm" onClick={() => { setLocal(prev => ({ ...prev, menu_font_size_px: null })); setIsDirty(true); }}>إعادة</Button>
                  </div>
                </div>
@@ -529,9 +531,9 @@ export const SettingsTab = () => {
         <CardContent>
           <div className="space-y-2">
             <label className="block text-sm">عنوان التذييل</label>
-            <Input value={local.footer_heading ?? (settings ? (settings as Record<string, Json>)['footer_heading'] ?? '' : '')} onChange={(e) => { setLocal(prev => ({ ...prev, footer_heading: e.target.value })); setIsDirty(true); }} />
+            <Input value={String(local.footer_heading ?? (settings ? (settings as Record<string, unknown>)['footer_heading'] ?? '' : ''))} onChange={(e) => { setLocal(prev => ({ ...prev, footer_heading: e.target.value })); setIsDirty(true); }} />
             <label className="block text-sm">نص التذييل</label>
-            <Input value={local.footer_subtext ?? (settings ? (settings as Record<string, Json>)['footer_subtext'] ?? '' : '')} onChange={(e) => { setLocal(prev => ({ ...prev, footer_subtext: e.target.value })); setIsDirty(true); }} />
+            <Input value={String(local.footer_subtext ?? (settings ? (settings as Record<string, unknown>)['footer_subtext'] ?? '' : ''))} onChange={(e) => { setLocal(prev => ({ ...prev, footer_subtext: e.target.value })); setIsDirty(true); }} />
           </div>
         </CardContent>
       </Card>

@@ -1,6 +1,20 @@
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from '@/hooks/use-toast';
 
+// Extend Window interface for Electron API
+declare global {
+  interface Window {
+    electronAPI?: {
+      db: {
+        insertProperty: (data: Record<string, unknown>) => Promise<unknown>;
+        updateProperty: (id: unknown, data: Record<string, unknown>) => Promise<unknown>;
+        deleteProperty: (id: unknown) => Promise<unknown>;
+        getSyncQueue: () => Promise<ElectronSyncItem[]>;
+      };
+    };
+  }
+}
+
 // Check if running in Electron
 const isElectron = typeof window !== 'undefined' && window.electronAPI !== undefined;
 

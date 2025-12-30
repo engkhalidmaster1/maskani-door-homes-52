@@ -54,7 +54,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       // First, ask the server whether this user is an admin (authoritative)
       try {
-        // @ts-expect-error: RPC parameter name may not be present in generated types; pass 'uid' to match DB signature
         const { data: isAdminData, error: isAdminError } = await supabase.rpc('is_admin', { uid: userId });
         if (!isAdminError && isAdminData !== undefined && isAdminData !== null) {
           const anyAdminData: unknown = isAdminData as unknown;

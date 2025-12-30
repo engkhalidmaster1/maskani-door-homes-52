@@ -60,8 +60,8 @@ export const InteractiveMap = React.memo(({
           libraries: ['places', 'geometry']
         });
 
-        // Load the Maps JavaScript API using the instance method
-        await loader.load();
+        // Load the Maps JavaScript API
+        await (loader as unknown as { load: () => Promise<void> }).load();
 
         const mapOptions: google.maps.MapOptions = {
           center: { lat: center.latitude, lng: center.longitude },

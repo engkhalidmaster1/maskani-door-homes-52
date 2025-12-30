@@ -50,7 +50,7 @@ export const LocationMapSection = React.memo(({
             onLocationSelect={onLocationSelect}
             initialPosition={hasValidPosition ? [latitude!, longitude!] : undefined}
             height="400px"
-            governorate={governorate as string | undefined}
+            governorate={governorate as "" | "duhok" | "erbil" | "sulaymaniyah" | undefined}
           />
         </Suspense>
       </div>

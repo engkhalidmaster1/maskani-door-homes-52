@@ -281,7 +281,7 @@ export const useAddPropertyForm = () => {
       const now = new Date();
       const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
       const timeStr = now.getTime().toString().slice(-4);
-      const propertyCode = `${dateStr}-BR${parsedBedrooms ?? formData.bedrooms || "0"}-${timeStr}`;
+      const propertyCode = `${dateStr}-BR${(parsedBedrooms ?? (formData.bedrooms || "0"))}-${timeStr}`;
 
       // تحديد نوع العقار بالعربي حسب الاختيار
       // Use user-provided title when available; otherwise derive a reasonable default
@@ -333,7 +333,7 @@ export const useAddPropertyForm = () => {
 
       // numeric values were parsed earlier for validation
 
-      const propertyData: Record<string, unknown> = {
+      const propertyData = {
         user_id: user.id,
         property_code: propertyCode,
         title,
@@ -354,11 +354,11 @@ export const useAddPropertyForm = () => {
         is_published: true,
         latitude: formData.latitude,
         longitude: formData.longitude,
-      };
+      } as const;
 
       const { error } = await supabase
         .from('properties')
-        .insert([propertyData]);
+        .insert([propertyData as unknown as typeof propertyData]);
 
       if (error) {
         // If the DB raised the protected-admin exception, try to self-heal and retry once
@@ -375,7 +375,7 @@ export const useAddPropertyForm = () => {
           // Retry insert once
           const { error: retryError } = await supabase
             .from('properties')
-            .insert([propertyData]);
+            .insert([propertyData as unknown as typeof propertyData]);
 
           if (retryError) {
             throw new Error(`خطأ في حفظ العقار بعد إصلاح الصلاحيات: ${retryError.message}`);

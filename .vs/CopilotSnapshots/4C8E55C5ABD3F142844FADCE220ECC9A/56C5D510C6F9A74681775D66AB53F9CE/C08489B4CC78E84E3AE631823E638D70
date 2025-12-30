@@ -1,0 +1,119 @@
+﻿@echo off
+chcp 65001 >nul
+echo.
+echo ===================================
+echo    🎉 تطبيق سكني الدسكتوب 🎉
+echo ===================================
+echo.
+echo ✅ تم إنشاء التطبيق الدسكتوب بنجاح!
+echo.
+echo 📁 موقع التطبيق: dist-packaged\Maskani-win32-x64\
+echo 🚀 ملف التشغيل: Maskani.exe
+echo.
+echo 🎯 خيارات التشغيل:
+echo.
+echo  1. تشغيل التطبيق الدسكتوب المُنتج
+echo  2. فتح مجلد التطبيق في Explorer
+echo  3. إنشاء اختصار على سطح المكتب
+echo  4. إنشاء ملف مضغوط للتوزيع
+echo  5. معلومات التطبيق
+echo  0. العودة
+echo.
+set /p choice="اختر العملية المطلوبة (0-5): "
+
+if "%choice%"=="1" goto run_app
+if "%choice%"=="2" goto open_folder
+if "%choice%"=="3" goto create_shortcut
+if "%choice%"=="4" goto create_zip
+if "%choice%"=="5" goto show_info
+if "%choice%"=="0" goto exit
+goto invalid
+
+:run_app
+echo.
+echo 🚀 تشغيل تطبيق سكني...
+if exist "dist-packaged\Maskani-win32-x64\Maskani.exe" (
+    start "" "dist-packaged\Maskani-win32-x64\Maskani.exe"
+    echo ✅ تم تشغيل التطبيق
+) else (
+    echo ❌ ملف التطبيق غير موجود
+    echo 💡 تأكد من إنشاء التطبيق أولاً بتشغيل: npm run electron-dev
+)
+goto end
+
+:open_folder
+echo.
+echo 📂 فتح مجلد التطبيق...
+if exist "dist-packaged\Maskani-win32-x64" (
+    explorer "dist-packaged\Maskani-win32-x64"
+    echo ✅ تم فتح المجلد
+) else (
+    echo ❌ مجلد التطبيق غير موجود
+)
+goto end
+
+:create_shortcut
+echo.
+echo 🔗 إنشاء اختصار على سطح المكتب...
+if exist "dist-packaged\Maskani-win32-x64\Maskani.exe" (
+    set "target=%~dp0dist-packaged\Maskani-win32-x64\Maskani.exe"
+    set "shortcut=%USERPROFILE%\Desktop\سكني - تطبيق العقارات.lnk"
+    powershell "$s=(New-Object -COM WScript.Shell).CreateShortcut('%shortcut%'); $s.TargetPath='%target%'; $s.Save()"
+    echo ✅ تم إنشاء اختصار على سطح المكتب
+) else (
+    echo ❌ ملف التطبيق غير موجود
+)
+goto end
+
+:create_zip
+echo.
+echo 📦 إنشاء ملف مضغوط للتوزيع...
+if exist "dist-packaged\Maskani-win32-x64" (
+    powershell "Compress-Archive -Path 'dist-packaged\Maskani-win32-x64\*' -DestinationPath 'سكني-تطبيق-دسكتوب-v1.0.zip' -Force"
+    echo ✅ تم إنشاء الملف المضغوط: سكني-تطبيق-دسكتوب-v1.0.zip
+    echo 📤 يمكنك الآن مشاركة هذا الملف مع المستخدمين
+) else (
+    echo ❌ مجلد التطبيق غير موجود
+)
+goto end
+
+:show_info
+echo.
+echo ℹ️ معلومات التطبيق المُنتج:
+echo.
+echo 📱 اسم التطبيق: سكني - تطبيق العقارات
+echo 🏷️ الإصدار: 1.0.0
+echo 💾 الحجم: ~186 MB
+echo 🖥️ المنصة: Windows x64
+echo 📁 المجلد: dist-packaged\Maskani-win32-x64\
+echo 🚀 ملف التشغيل: Maskani.exe
+echo.
+echo 🎯 خصائص التطبيق:
+echo   ✅ يعمل بدون تثبيت
+echo   ✅ قابل للنقل بين الأجهزة
+echo   ✅ لا يحتاج اتصال إنترنت للتشغيل
+echo   ✅ واجهة دسكتوب أصلية
+echo   ✅ أداء محسن
+echo.
+echo 📦 للتوزيع:
+echo   1. انسخ مجلد "Maskani-win32-x64" كاملاً
+echo   2. أو استخدم الملف المضغوط
+echo   3. المستخدم يشغل "Maskani.exe" مباشرة
+goto end
+
+:invalid
+echo.
+echo ❌ اختيار غير صحيح
+goto end
+
+:exit
+exit /b 0
+
+:end
+echo.
+pause
+cls
+goto start
+
+:start
+goto :eof

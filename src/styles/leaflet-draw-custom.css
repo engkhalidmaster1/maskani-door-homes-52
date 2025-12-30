@@ -1,0 +1,190 @@
+/* Leaflet Draw RTL Support */
+.leaflet-draw-toolbar a {
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0xMiAydjIwTTIgMTJoMjAiLz48L3N2Zz4=');
+}
+
+.leaflet-draw-toolbar {
+  direction: ltr;
+}
+
+.leaflet-draw-actions {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 4px;
+}
+
+.leaflet-draw-actions a {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+  border-radius: 6px;
+  padding: 6px 12px;
+  margin: 2px;
+  font-family: 'Tajawal', sans-serif;
+  transition: all 0.2s ease;
+}
+
+.leaflet-draw-actions a:hover {
+  background-color: #f3f4f6;
+  border-color: #2563eb;
+  color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.leaflet-draw-toolbar a.leaflet-draw-draw-polygon {
+  background-color: #eff6ff;
+}
+
+.leaflet-draw-toolbar a.leaflet-draw-draw-rectangle {
+  background-color: #f0fdf4;
+}
+
+.leaflet-draw-toolbar a.leaflet-draw-draw-circle {
+  background-color: #fef3c7;
+}
+
+.leaflet-draw-toolbar a:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+/* Custom tooltips for drawn shapes */
+.draw-tooltip {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 2px solid #2563eb !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  font-family: 'Tajawal', sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #1e40af !important;
+  padding: 4px 8px !important;
+  white-space: pre-line !important;
+  text-align: center !important;
+}
+
+.draw-tooltip::before {
+  border-top-color: #2563eb !important;
+}
+
+/* Enhanced draw toolbar styling */
+.leaflet-draw-toolbar a {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 8px !important;
+  border: 2px solid #e5e7eb !important;
+  background: white !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.leaflet-draw-toolbar a:hover {
+  border-color: #2563eb !important;
+  background: #eff6ff !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3) !important;
+}
+
+.leaflet-draw-toolbar a.leaflet-draw-draw-polygon::after {
+  content: "△" !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  font-size: 16px !important;
+  font-weight: bold !important;
+  color: #7c3aed !important;
+}
+
+.leaflet-draw-toolbar a.leaflet-draw-draw-rectangle::after {
+  content: "□" !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  font-size: 16px !important;
+  font-weight: bold !important;
+  color: #059669 !important;
+}
+
+.leaflet-draw-toolbar a.leaflet-draw-draw-circle::after {
+  content: "○" !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  font-size: 16px !important;
+  font-weight: bold !important;
+  color: #d97706 !important;
+}
+
+/* Draw tooltip */
+.leaflet-draw-tooltip {
+  background: white;
+  border: 2px solid #2563eb;
+  border-radius: 8px;
+  color: #1f2937;
+  padding: 8px 12px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 13px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.leaflet-draw-tooltip:before {
+  border-top-color: #2563eb;
+}
+
+/* Drawn shapes */
+.leaflet-interactive {
+  transition: all 0.3s ease;
+}
+
+.leaflet-interactive:hover {
+  stroke-width: 4 !important;
+  stroke-opacity: 1 !important;
+}
+
+/* Edit mode */
+.leaflet-draw-edit-remove {
+  background-color: #fee2e2 !important;
+}
+
+.leaflet-draw-edit-remove:hover {
+  background-color: #ef4444 !important;
+  color: white !important;
+}
+
+/* Arabic text in toolbar */
+.leaflet-draw-toolbar .leaflet-draw-draw-polygon::after {
+  content: 'مضلع';
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.leaflet-draw-toolbar .leaflet-draw-draw-rectangle::after {
+  content: 'مستطيل';
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.leaflet-draw-toolbar .leaflet-draw-draw-circle::after {
+  content: 'دائرة';
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: #6b7280;
+  white-space: nowrap;
+}

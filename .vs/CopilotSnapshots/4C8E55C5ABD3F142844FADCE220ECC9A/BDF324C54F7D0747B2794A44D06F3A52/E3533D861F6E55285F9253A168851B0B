@@ -1,0 +1,351 @@
+﻿// نظام قاعدة البيانات المحلية باستخدام IndexedDB
+class LocalDatabase {
+  private db: IDBDatabase | null = null;
+  private dbName = 'MaskaniDB';
+  private version = 1;
+
+  // تهيئة قاعدة البيانات
+  async init(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(this.dbName, this.version);
+
+      request.onerror = () => {
+        console.error('❌ خطأ في فتح قاعدة البيانات المحلية:', request.error);
+        reject(request.error);
+      };
+
+      request.onsuccess = () => {
+        this.db = request.result;
+        console.log('✅ تم فتح قاعدة البيانات المحلية بنجاح');
+        resolve();
+      };
+
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        
+        // إنشاء جداول قاعدة البيانات
+        this.createTables(db);
+        console.log('🔄 تم تحديث هيكل قاعدة البيانات المحلية');
+      };
+    });
+  }
+
+  // إنشاء الجداول
+  private createTables(db: IDBDatabase): void {
+    // جدول العقارات
+    if (!db.objectStoreNames.contains('properties')) {
+      const propertiesStore = db.createObjectStore('properties', { 
+        keyPath: 'id', 
+        autoIncrement: true 
+      });
+      propertiesStore.createIndex('title', 'title', { unique: false });
+      propertiesStore.createIndex('status', 'status', { unique: false });
+      propertiesStore.createIndex('type', 'type', { unique: false });
+      propertiesStore.createIndex('sync_status', 'sync_status', { unique: false });
+      propertiesStore.createIndex('updated_at', 'updated_at', { unique: false });
+    }
+
+    // جدول المفضلة
+    if (!db.objectStoreNames.contains('favorites')) {
+      const favoritesStore = db.createObjectStore('favorites', { 
+        keyPath: 'id', 
+        autoIncrement: true 
+      });
+      favoritesStore.createIndex('user_id', 'user_id', { unique: false });
+      favoritesStore.createIndex('property_id', 'property_id', { unique: false });
+      favoritesStore.createIndex('sync_status', 'sync_status', { unique: false });
+    }
+
+    // جدول المستخدمين (لحفظ بيانات المستخدم محلياً)
+    if (!db.objectStoreNames.contains('users')) {
+      const usersStore = db.createObjectStore('users', { 
+        keyPath: 'id' 
+      });
+      usersStore.createIndex('email', 'email', { unique: true });
+    }
+
+    // جدول طوابير المزامنة
+    if (!db.objectStoreNames.contains('sync_queue')) {
+      const syncStore = db.createObjectStore('sync_queue', { 
+        keyPath: 'id', 
+        autoIncrement: true 
+      });
+      syncStore.createIndex('table_name', 'table_name', { unique: false });
+      syncStore.createIndex('operation', 'operation', { unique: false });
+      syncStore.createIndex('status', 'status', { unique: false });
+      syncStore.createIndex('created_at', 'created_at', { unique: false });
+    }
+
+    // جدول إعدادات التطبيق
+    if (!db.objectStoreNames.contains('app_settings')) {
+      const settingsStore = db.createObjectStore('app_settings', { 
+        keyPath: 'key' 
+      });
+    }
+
+    // جدول ذاكرة التخزين المؤقت للصور
+    if (!db.objectStoreNames.contains('image_cache')) {
+      const imageStore = db.createObjectStore('image_cache', { 
+        keyPath: 'url' 
+      });
+      imageStore.createIndex('cached_at', 'cached_at', { unique: false });
+    }
+  }
+
+  // إضافة عنصر لأي جدول
+  async add(tableName: string, data: any): Promise<number> {
+    if (!this.db) throw new Error('قاعدة البيانات غير مُهيئة');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([tableName], 'readwrite');
+      const store = transaction.objectStore(tableName);
+      
+      // إضافة معلومات المزامنة
+      const item = {
+        ...data,
+        sync_status: 'pending',
+        updated_at: new Date().toISOString(),
+        created_at: data.created_at || new Date().toISOString()
+      };
+
+      const request = store.add(item);
+
+      request.onsuccess = () => {
+        console.log(`✅ تم إضافة عنصر جديد في ${tableName}:`, request.result);
+        
+        // إضافة العملية لطابور المزامنة
+        this.addToSyncQueue(tableName, 'create', request.result, item);
+        resolve(request.result as number);
+      };
+
+      request.onerror = () => {
+        console.error(`❌ خطأ في إضافة عنصر في ${tableName}:`, request.error);
+        reject(request.error);
+      };
+    });
+  }
+
+  // تحديث عنصر
+  async update(tableName: string, id: any, data: any): Promise<void> {
+    if (!this.db) throw new Error('قاعدة البيانات غير مُهيئة');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([tableName], 'readwrite');
+      const store = transaction.objectStore(tableName);
+
+      // الحصول على العنصر الحالي أولاً
+      const getRequest = store.get(id);
+
+      getRequest.onsuccess = () => {
+        const existingItem = getRequest.result;
+        if (!existingItem) {
+          reject(new Error('العنصر غير موجود'));
+          return;
+        }
+
+        const updatedItem = {
+          ...existingItem,
+          ...data,
+          id: id,
+          sync_status: 'pending',
+          updated_at: new Date().toISOString()
+        };
+
+        const updateRequest = store.put(updatedItem);
+
+        updateRequest.onsuccess = () => {
+          console.log(`✅ تم تحديث عنصر في ${tableName}:`, id);
+          
+          // إضافة العملية لطابور المزامنة
+          this.addToSyncQueue(tableName, 'update', id, updatedItem);
+          resolve();
+        };
+
+        updateRequest.onerror = () => {
+          console.error(`❌ خطأ في تحديث عنصر في ${tableName}:`, updateRequest.error);
+          reject(updateRequest.error);
+        };
+      };
+
+      getRequest.onerror = () => {
+        reject(getRequest.error);
+      };
+    });
+  }
+
+  // حذف عنصر
+  async delete(tableName: string, id: any): Promise<void> {
+    if (!this.db) throw new Error('قاعدة البيانات غير مُهيئة');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([tableName], 'readwrite');
+      const store = transaction.objectStore(tableName);
+
+      const request = store.delete(id);
+
+      request.onsuccess = () => {
+        console.log(`✅ تم حذف عنصر من ${tableName}:`, id);
+        
+        // إضافة العملية لطابور المزامنة
+        this.addToSyncQueue(tableName, 'delete', id, null);
+        resolve();
+      };
+
+      request.onerror = () => {
+        console.error(`❌ خطأ في حذف عنصر من ${tableName}:`, request.error);
+        reject(request.error);
+      };
+    });
+  }
+
+  // الحصول على عنصر واحد
+  async get(tableName: string, id: any): Promise<any> {
+    if (!this.db) throw new Error('قاعدة البيانات غير مُهيئة');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([tableName], 'readonly');
+      const store = transaction.objectStore(tableName);
+      const request = store.get(id);
+
+      request.onsuccess = () => {
+        resolve(request.result);
+      };
+
+      request.onerror = () => {
+        reject(request.error);
+      };
+    });
+  }
+
+  // الحصول على جميع العناصر
+  async getAll(tableName: string, filter?: any): Promise<any[]> {
+    if (!this.db) throw new Error('قاعدة البيانات غير مُهيئة');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([tableName], 'readonly');
+      const store = transaction.objectStore(tableName);
+      const request = store.getAll();
+
+      request.onsuccess = () => {
+        let results = request.result;
+        
+        // تطبيق الفلتر إذا كان موجوداً
+        if (filter) {
+          results = results.filter(item => {
+            return Object.keys(filter).every(key => {
+              if (filter[key] === null || filter[key] === undefined) return true;
+              return item[key] === filter[key];
+            });
+          });
+        }
+
+        resolve(results);
+      };
+
+      request.onerror = () => {
+        reject(request.error);
+      };
+    });
+  }
+
+  // إضافة عملية لطابور المزامنة
+  private async addToSyncQueue(tableName: string, operation: string, recordId: any, data: any): Promise<void> {
+    if (!this.db) return;
+
+    const transaction = this.db.transaction(['sync_queue'], 'readwrite');
+    const store = transaction.objectStore('sync_queue');
+
+    const queueItem = {
+      table_name: tableName,
+      operation: operation, // create, update, delete
+      record_id: recordId,
+      data: data,
+      status: 'pending', // pending, processing, completed, failed
+      created_at: new Date().toISOString(),
+      retry_count: 0
+    };
+
+    store.add(queueItem);
+  }
+
+  // الحصول على طابور المزامنة
+  async getSyncQueue(): Promise<any[]> {
+    return this.getAll('sync_queue', { status: 'pending' });
+  }
+
+  // تحديث حالة عنصر في طابور المزامنة
+  async updateSyncQueueItem(id: number, status: string, error?: string): Promise<void> {
+    if (!this.db) return;
+
+    const transaction = this.db.transaction(['sync_queue'], 'readwrite');
+    const store = transaction.objectStore('sync_queue');
+
+    const getRequest = store.get(id);
+    getRequest.onsuccess = () => {
+      const item = getRequest.result;
+      if (item) {
+        item.status = status;
+        item.updated_at = new Date().toISOString();
+        if (error) item.error = error;
+        if (status === 'failed') item.retry_count = (item.retry_count || 0) + 1;
+        
+        store.put(item);
+      }
+    };
+  }
+
+  // حفظ الإعدادات
+  async saveSetting(key: string, value: any): Promise<void> {
+    if (!this.db) throw new Error('قاعدة البيانات غير مُهيئة');
+
+    const transaction = this.db.transaction(['app_settings'], 'readwrite');
+    const store = transaction.objectStore('app_settings');
+
+    await store.put({ key, value, updated_at: new Date().toISOString() });
+  }
+
+  // الحصول على إعداد
+  async getSetting(key: string): Promise<any> {
+    if (!this.db) throw new Error('قاعدة البيانات غير مُهيئة');
+
+    const transaction = this.db.transaction(['app_settings'], 'readonly');
+    const store = transaction.objectStore('app_settings');
+    
+    return new Promise((resolve, reject) => {
+      const request = store.get(key);
+      request.onsuccess = () => {
+        resolve(request.result?.value);
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  // مسح قاعدة البيانات
+  async clear(): Promise<void> {
+    if (!this.db) return;
+
+    const tableNames = ['properties', 'favorites', 'users', 'sync_queue', 'app_settings', 'image_cache'];
+    
+    for (const tableName of tableNames) {
+      if (this.db.objectStoreNames.contains(tableName)) {
+        const transaction = this.db.transaction([tableName], 'readwrite');
+        const store = transaction.objectStore(tableName);
+        await store.clear();
+      }
+    }
+
+    console.log('🧹 تم مسح قاعدة البيانات المحلية');
+  }
+
+  // إغلاق قاعدة البيانات
+  close(): void {
+    if (this.db) {
+      this.db.close();
+      this.db = null;
+      console.log('🔒 تم إغلاق قاعدة البيانات المحلية');
+    }
+  }
+}
+
+// تصدير المثيل الوحيد
+export const localDB = new LocalDatabase();

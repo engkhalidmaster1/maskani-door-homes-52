@@ -1,0 +1,36 @@
+name: Test Supabase Migrations
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  test:
+    name: Run test SQL migration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run test migration
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo 'DATABASE_URL secret is not set; aborting.'; exit 1;
+          fi
+          powershell -c "./scripts/run-test-migration.ps1"
+
+      - name: Show last audit logs
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo 'Showing last 5 audit logs for app_settings to verify...'
+          psql "$DATABASE_URL" -t -c "SELECT id, action, (details->>'new') as new_settings, created_at FROM public.audit_logs WHERE resource_type='app_settings' ORDER BY created_at DESC LIMIT 5;"

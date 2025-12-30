@@ -1,0 +1,79 @@
+/* Marker Cluster Styles */
+.marker-cluster-small {
+  background-color: rgba(110, 204, 57, 0.6);
+}
+
+.marker-cluster-small div {
+  background-color: rgba(110, 204, 57, 0.8);
+}
+
+.marker-cluster-medium {
+  background-color: rgba(241, 211, 87, 0.6);
+}
+
+.marker-cluster-medium div {
+  background-color: rgba(241, 211, 87, 0.8);
+}
+
+.marker-cluster-large {
+  background-color: rgba(253, 156, 115, 0.6);
+}
+
+.marker-cluster-large div {
+  background-color: rgba(253, 156, 115, 0.8);
+}
+
+.marker-cluster {
+  background-clip: padding-box;
+  border-radius: 50%;
+}
+
+.marker-cluster div {
+  width: 32px;
+  height: 32px;
+  margin-left: 4px;
+  margin-top: 4px;
+  text-align: center;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 14px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.marker-cluster span {
+  line-height: 32px;
+}
+
+/* Cluster Animation */
+.marker-cluster {
+  transition: all 0.3s ease;
+}
+
+.marker-cluster:hover {
+  transform: scale(1.1);
+  z-index: 1000 !important;
+}
+
+/* Spiderfy (Expanded Cluster) */
+.leaflet-cluster-anim .leaflet-marker-icon,
+.leaflet-cluster-anim .leaflet-marker-shadow {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Custom Marker Hover Effect */
+.leaflet-marker-icon:hover {
+  z-index: 1000 !important;
+  transform: scale(1.15);
+  transition: transform 0.2s ease;
+}
+
+/* Coverage (hover area) */
+.marker-cluster-small:hover,
+.marker-cluster-medium:hover,
+.marker-cluster-large:hover {
+  cursor: pointer;
+}

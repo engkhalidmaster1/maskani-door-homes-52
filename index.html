@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Content Security Policy: مرنة وتسمح بالاتصالات والصور الآمنة وتمنع المخاطر الشائعة -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob: https:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https: wss:; font-src 'self' https: data:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    
+    <!-- Preconnect to critical origins -->
+    <link rel="preconnect" href="https://ugefzrktqeyspnzhxzzw.supabase.co" crossorigin />
+    <link rel="dns-prefetch" href="https://ugefzrktqeyspnzhxzzw.supabase.co" />
+    
+    <!-- Preload critical fonts to prevent layout shift -->
+    <link rel="preload" href="/assets/tajawal-arabic-700-normal-c-WwFYr-.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/assets/tajawal-arabic-500-normal-DoitJjou.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/assets/tajawal-latin-400-normal-BVNSOH3d.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/assets/tajawal-latin-700-normal-BypgxfGb.woff2" as="font" type="font/woff2" crossorigin />
+    
+    <title>سكني - تطبيق العقارات</title>
+    <meta name="description" content="منصة متكاملة للعثور على أفضل العقارات للبيع والإيجار في مجمع الدور" />
+    <meta name="author" content="سكني" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#3b82f6" />
+    <link rel="apple-touch-icon" href="/maskani-icon-192x192.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <meta property="og:title" content="سكني - تطبيق العقارات" />
+    <meta property="og:description" content="منصة متكاملة للعثور على أفضل العقارات للبيع والإيجار في مجمع الدور" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@lovable_dev" />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    
+    <!-- Critical CSS inline to prevent render blocking -->
+    <style>
+      *,::before,::after{box-sizing:border-box;border:0 solid}
+      body{margin:0;line-height:inherit;font-family:'Tajawal',ui-sans-serif,system-ui,sans-serif}
+      #root{min-height:100vh;display:flex;flex-direction:column}
+      /* Prevent layout shift during load */
+      .container{max-width:1280px;margin:0 auto;padding:0 1rem}
+      /* Font display optimization to prevent layout shift */
+      @font-face {
+        font-family: 'Tajawal-fallback';
+        src: local('Arial');
+        size-adjust: 105%;
+        ascent-override: 95%;
+        descent-override: 25%;
+        line-gap-override: 0%;
+      }
+      body {
+        font-family: 'Tajawal', 'Tajawal-fallback', ui-sans-serif, system-ui, sans-serif;
+      }
+    </style>
+  </head>
+
+  <body>
+    <script>
+      // Force light theme only
+      try { document.documentElement.classList.remove('dark'); localStorage.setItem('app:theme-preference','light'); } catch (e) { /* ignore */ }
+    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <!-- Register service worker for PWA functionality (production only) -->
+    <script type="module">
+      if ('serviceWorker' in navigator && import.meta.env.PROD) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js', { scope: '/', type: 'classic' })
+            .then((registration) => {
+              console.log('SW registered:', registration);
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed:', registrationError);
+            });
+        });
+      }
+    </script>
+  </body>
+</html>

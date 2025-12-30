@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار روابط المفضلة - تطبيق سكني</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .test-links {
+            display: grid;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        .test-link {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: white;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .test-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        .emoji {
+            font-size: 1.5em;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .checklist {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .checklist h3 {
+            margin-top: 0;
+            color: #ffd700;
+        }
+        .checklist li {
+            margin: 8px 0;
+            list-style: none;
+            position: relative;
+            padding-right: 25px;
+        }
+        .checklist li:before {
+            content: "☐";
+            position: absolute;
+            right: 0;
+            font-size: 1.2em;
+        }
+        .completed:before {
+            content: "✅";
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid rgba(255, 0, 0, 0.5);
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid rgba(0, 255, 0, 0.5);
+        }
+        .warning {
+            background: rgba(255, 165, 0, 0.2);
+            border: 1px solid rgba(255, 165, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 اختبار نظام المفضلة - تطبيق سكني</h1>
+        
+        <div class="status warning">
+            <h3>📋 قائمة التحقق قبل الاختبار:</h3>
+            <div class="checklist">
+                <ul>
+                    <li id="db-check">تطبيق هجرة قاعدة البيانات في Supabase</li>
+                    <li id="server-check">تشغيل خادم التطوير (npm run dev)</li>
+                    <li id="login-check">تسجيل الدخول في التطبيق</li>
+                    <li id="property-check">وجود عقارات في النظام</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-links">
+            <a href="http://localhost:8080/" class="test-link" target="_blank">
+                <span class="emoji">🏠</span>
+                <div>
+                    <strong>الصفحة الرئيسية</strong><br>
+                    <small>http://localhost:8080/</small>
+                </div>
+            </a>
+
+            <a href="http://localhost:8080/properties" class="test-link" target="_blank">
+                <span class="emoji">🏘️</span>
+                <div>
+                    <strong>صفحة العقارات</strong><br>
+                    <small>http://localhost:8080/properties</small>
+                </div>
+            </a>
+
+            <a href="http://localhost:8080/favorites" class="test-link" target="_blank">
+                <span class="emoji">❤️</span>
+                <div>
+                    <strong>صفحة المفضلة</strong><br>
+                    <small>http://localhost:8080/favorites</small>
+                </div>
+            </a>
+
+            <a href="http://localhost:8080/auth/login" class="test-link" target="_blank">
+                <span class="emoji">🔐</span>
+                <div>
+                    <strong>تسجيل الدخول</strong><br>
+                    <small>http://localhost:8080/auth/login</small>
+                </div>
+            </a>
+        </div>
+
+        <div class="status">
+            <h3>🔍 خطوات الاختبار:</h3>
+            <ol>
+                <li><strong>اختبر الصفحة الرئيسية</strong> - يجب أن تفتح بدون أخطاء</li>
+                <li><strong>سجل دخولك</strong> - إذا لم تكن مسجلاً بالفعل</li>
+                <li><strong>اذهب إلى العقارات</strong> - تحقق من وجود زر القلب ❤️</li>
+                <li><strong>اضغط على زر القلب</strong> - في أي عقار لإضافته للمفضلة</li>
+                <li><strong>اختبر صفحة المفضلة</strong> - يجب أن تعرض العقار المحفوظ</li>
+            </ol>
+        </div>
+
+        <div class="status error">
+            <h3>❌ أخطاء محتملة وحلولها:</h3>
+            <ul>
+                <li><strong>خطأ 404:</strong> تأكد من تشغيل الخادم</li>
+                <li><strong>صفحة فارغة:</strong> تحقق من console المتصفح</li>
+                <li><strong>لا يظهر رابط المفضلة:</strong> تأكد من تسجيل الدخول</li>
+                <li><strong>خطأ قاعدة البيانات:</strong> تطبيق الهجرة في Supabase</li>
+            </ul>
+        </div>
+
+        <div class="status success">
+            <h3>✅ علامات النجاح:</h3>
+            <ul>
+                <li>تظهر أيقونة القلب في بطاقات العقارات</li>
+                <li>يظهر رابط "المفضلة" في القائمة العلوية والجانبية</li>
+                <li>تفتح صفحة المفضلة بدون أخطاء</li>
+                <li>تعرض العقارات المحفوظة في صفحة المفضلة</li>
+                <li>يعمل عداد المفضلة في القوائم</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // تحديث حالة القائمة عند النقر
+        document.querySelectorAll('.checklist li').forEach(item => {
+            item.addEventListener('click', function() {
+                this.classList.toggle('completed');
+            });
+        });
+        
+        // فحص حالة الخادم
+        function checkServerStatus() {
+            fetch('http://localhost:8080/')
+                .then(() => {
+                    document.getElementById('server-check').classList.add('completed');
+                })
+                .catch(() => {
+                    console.log('الخادم غير يعمل - تأكد من تشغيل npm run dev');
+                });
+        }
+        
+        // فحص الحالة عند تحميل الصفحة
+        checkServerStatus();
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

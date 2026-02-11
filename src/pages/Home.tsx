@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useHomeCards } from "@/hooks/useHomeCards";
 import { useHomePageSettings } from "@/hooks/useHomePageSettings";
+import { useEffect } from "react";
 
 export const Home = () => {
   const navigate = useNavigate();
@@ -18,6 +19,14 @@ export const Home = () => {
   const { toast } = useToast();
   const { cards, isLoading: cardsLoading } = useHomeCards();
   const { settings: homeSettings } = useHomePageSettings();
+
+  useEffect(() => {
+    document.title = "سكني - تطبيق العقارات";
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute("content", "تطبيق شامل للبحث والإعلان عن العقارات في السعودية");
+    }
+  }, []);
   
   // Get the latest 3 published properties
   const featuredProperties = properties.slice(0, 3);

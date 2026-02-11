@@ -1,5 +1,6 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
+import { LazyImage } from "@/components/ui/lazy-image";
 import { Camera, Zap, HardDrive } from "lucide-react";
 
 interface PropertyImagesSectionProps {
@@ -73,11 +74,10 @@ export const PropertyImagesSection = React.memo(({
                     <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
                       {imagePreviewUrls.map((url, index) => (
                         <div key={index} className="relative group">
-                          <img
+                          <LazyImage
                             src={url}
                             alt={`معاينة ${index + 1}`}
                             className="w-full h-24 object-cover rounded-lg border border-gray-200 transition-transform group-hover:scale-105"
-                            loading="lazy"
                           />
                           <button
                             type="button"

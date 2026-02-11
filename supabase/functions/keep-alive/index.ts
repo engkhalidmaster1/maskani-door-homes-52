@@ -11,6 +11,21 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) {
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: "Unauthorized",
+        timestamp: new Date().toISOString(),
+      }),
+      {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
+  }
+
   console.log("Keep-alive ping started at:", new Date().toISOString());
 
   try {

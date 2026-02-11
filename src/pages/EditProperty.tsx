@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { LazyImage } from "@/components/ui/lazy-image";
 import { Edit, Save, Upload, X, CheckCircle, AlertCircle, Check, Store, Building, Home, Layers, Tag, PlusCircle, Lock, Activity } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -670,7 +671,7 @@ export const EditProperty = () => {
                 <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mt-2">
                   {existingImages.map((imageUrl, index) => (
                     <div key={index} className="relative group">
-                      <img src={imageUrl} alt={`صورة ${index + 1}`} className="w-full h-24 object-cover rounded-md border" />
+                      <LazyImage src={imageUrl} alt={`صورة ${index + 1}`} className="w-full h-24 object-cover rounded-md border" />
                       <Button type="button" variant="destructive" size="sm" className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100" onClick={() => removeExistingImage(imageUrl)}><X className="h-4 w-4" /></Button>
                     </div>
                   ))}
@@ -692,7 +693,7 @@ export const EditProperty = () => {
                 <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mt-2">
                   {imagePreviews.map((preview, index) => (
                     <div key={index} className="relative group">
-                      <img src={preview} alt={`معاينة ${index + 1}`} className="w-full h-24 object-cover rounded-md border" />
+                      <LazyImage src={preview} alt={`معاينة ${index + 1}`} className="w-full h-24 object-cover rounded-md border" />
                       <Button type="button" variant="destructive" size="sm" className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100" onClick={() => removeNewImage(index)}><X className="h-4 w-4" /></Button>
                     </div>
                   ))}

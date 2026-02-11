@@ -108,6 +108,7 @@ export const PropertyCard = ({
       {/* Selection Checkbox */}
       {showCheckbox && (
         <button
+          aria-label="تحديد العقار"
           title="تحديد العقار"
           onClick={(e) => {
             e.stopPropagation();
@@ -127,6 +128,7 @@ export const PropertyCard = ({
       {/* Favorite Button */}
       {user && (
         <button
+          aria-label={isFavorite(property.id) ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
           title={isFavorite(property.id) ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
           onClick={(e) => {
             e.stopPropagation();
@@ -301,6 +303,7 @@ export const PropertyCard = ({
               <Button
                 size="sm"
                 variant="outline"
+                aria-label="تعديل العقار"
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
@@ -316,6 +319,7 @@ export const PropertyCard = ({
               <Button
                 size="sm"
                 variant="outline"
+                aria-label={isPublished ? "إخفاء العقار" : "نشر العقار"}
                 onClick={handleTogglePublication}
                 className="flex-1 bg-white hover:bg-primary hover:text-white border-gray-300"
                 disabled={isToggling}
@@ -337,6 +341,7 @@ export const PropertyCard = ({
               <Button
                 size="sm"
                 variant="outline"
+                aria-label="حذف العقار"
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();

@@ -23,7 +23,7 @@ import { toast } from "@/hooks/use-toast";
 import { useSystemMetrics, useAlerts, checkThresholds } from "@/hooks/useSystemHealth";
 
 export const SystemHealthTab = () => {
-  const { metrics, isLoading: metricsLoading, refetch: refetchMetrics } = useSystemMetrics();
+  const { metrics, isLoading: metricsLoading, error: metricsError, refetch: refetchMetrics } = useSystemMetrics();
   const { alerts, resolveAlert, createAlert } = useAlerts();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -40,7 +40,7 @@ export const SystemHealthTab = () => {
 
   // فحص تلقائي للتنبيهات عند تحديث المقاييس
   useEffect(() => {
-    if (!metricsLoading) {
+    if (!metricsLoading && metrics) {
       const newAlerts = checkThresholds(metrics);
       newAlerts.forEach(alert => {
         // تحقق من عدم وجود تنبيه مشابه نشط
@@ -64,6 +64,35 @@ export const SystemHealthTab = () => {
           <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
           <p>جاري تحميل بيانات النظام...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (!metrics || metricsError) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold">حالة النظام</h2>
+            <p className="text-muted-foreground">مراقبة أداء النظام والتنبيهات</p>
+          </div>
+          <Button
+            onClick={refreshMetrics}
+            disabled={isRefreshing}
+            variant="outline"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+            تحديث البيانات
+          </Button>
+        </div>
+
+        <Alert className="border-amber-200 bg-amber-50">
+          <AlertTriangle className="h-4 w-4 text-amber-700" />
+          <AlertTitle className="text-amber-900">تعذر الاتصال بقاعدة البيانات</AlertTitle>
+          <AlertDescription className="text-amber-800">
+            {metricsError || 'لا يمكن تحميل مؤشرات النظام حالياً. حاول التحديث أو تحقق من صلاحيات الاتصال.'}
+          </AlertDescription>
+        </Alert>
       </div>
     );
   }

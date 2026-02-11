@@ -28,9 +28,15 @@ serve(async (req: Request) => {
     const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
     const admin = createClient(supabaseUrl!, serviceKey!);
 
-    // Check role
-    const { data: roleRow } = await admin.from('user_roles').select('role').eq('user_id', callerId).single();
-  if (!roleRow || (roleRow.role !== 'admin' && roleRow.role !== 'super_admin')) return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: corsHeaders });
+    // Check role via unified permissions table
+    const { data: roleRow } = await admin
+      .from('user_permissions')
+      .select('role')
+      .eq('user_id', callerId)
+      .single();
+    if (!roleRow || (roleRow.role !== 'admin' && roleRow.role !== 'super_admin')) {
+      return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: corsHeaders });
+    }
 
     const { error } = await admin.auth.admin.updateUserById(userId, { password: newPassword });
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });

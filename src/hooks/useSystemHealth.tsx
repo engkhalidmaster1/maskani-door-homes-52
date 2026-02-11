@@ -36,20 +36,9 @@ interface SupabaseAlertData {
 }
 
 export const useSystemMetrics = () => {
-  const [metrics, setMetrics] = useState<SystemMetrics>({
-    activeConnections: 0,
-    latency: 0,
-    errorRate: 0,
-    cpuUsage: 0,
-    memoryUsage: 0,
-    diskUsage: 0,
-    uptime: 0,
-    lastBackup: '',
-    totalRequests: 0,
-    failedRequests: 0
-  });
-
+  const [metrics, setMetrics] = useState<SystemMetrics | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchMetrics = async () => {
     try {
@@ -61,20 +50,8 @@ export const useSystemMetrics = () => {
 
       if (error) {
         console.error('Failed to fetch system metrics:', error);
-        // في حالة الخطأ، استخدم بيانات احتياطية
-        const fallbackMetrics: SystemMetrics = {
-          activeConnections: 25,
-          latency: 250,
-          errorRate: 0.5,
-          cpuUsage: 45,
-          memoryUsage: 50,
-          diskUsage: 35,
-          uptime: 168,
-          lastBackup: new Date(Date.now() - 86400000 * 2).toISOString(),
-          totalRequests: 10000,
-          failedRequests: 50
-        };
-        setMetrics(fallbackMetrics);
+        setError(error.message || 'Failed to fetch system metrics');
+        setMetrics(null);
         return;
       }
 
@@ -93,22 +70,12 @@ export const useSystemMetrics = () => {
       };
 
       setMetrics(realMetrics);
+      setError(null);
     } catch (error) {
       console.error('Failed to fetch system metrics:', error);
-      // في حالة الخطأ، استخدم بيانات احتياطية
-      const fallbackMetrics: SystemMetrics = {
-        activeConnections: 25,
-        latency: 250,
-        errorRate: 0.5,
-        cpuUsage: 45,
-        memoryUsage: 50,
-        diskUsage: 35,
-        uptime: 168,
-        lastBackup: new Date(Date.now() - 86400000 * 2).toISOString(),
-        totalRequests: 10000,
-        failedRequests: 50
-      };
-      setMetrics(fallbackMetrics);
+      const message = error instanceof Error ? error.message : 'Failed to fetch system metrics';
+      setError(message);
+      setMetrics(null);
     } finally {
       setIsLoading(false);
     }
@@ -123,7 +90,7 @@ export const useSystemMetrics = () => {
     return () => clearInterval(interval);
   }, []);
 
-  return { metrics, isLoading, refetch: fetchMetrics };
+  return { metrics, isLoading, error, refetch: fetchMetrics };
 };
 
 export const useAlerts = () => {

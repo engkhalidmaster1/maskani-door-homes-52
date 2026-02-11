@@ -175,58 +175,13 @@ export const useDashboardData = () => {
     if (!isAdmin) return;
 
     try {
-      // حذف مؤقت: نحذف من الجداول المتاحة فقط
-      // المستخدم سيبقى في auth.users لكن لن يستطيع الدخول
-      
-      // 1. حذف جميع عقارات المستخدم
-      const { error: propertiesError } = await supabase
-        .from('properties')
-        .delete()
-        .eq('user_id', userId);
+      // حذف آمن عبر Edge Function (Service Role + صلاحيات موثقة)
+      const { error } = await supabase.functions.invoke('admin-delete-user', {
+        body: { userId },
+      });
 
-      if (propertiesError) {
-        console.error('Error deleting properties:', propertiesError);
-        // نتابع حتى لو فشل حذف العقارات
-      }
-
-      // 2. حذف الملف الشخصي
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('user_id', userId);
-
-      if (profileError) {
-        console.error('Error deleting profile:', profileError);
-      }
-
-      // 3. حذف الدور
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', userId);
-
-      if (roleError) {
-        console.error('Error deleting role:', roleError);
-      }
-
-      // 4. حذف من user_statuses إذا وجد
-      const { error: statusError } = await supabase
-        .from('user_statuses')
-        .delete()
-        .eq('user_id', userId);
-
-      if (statusError) {
-        console.error('Error deleting status:', statusError);
-      }
-
-      // 5. حذف من favorites إذا وجد
-      const { error: favError } = await supabase
-        .from('favorites')
-        .delete()
-        .eq('user_id', userId);
-
-      if (favError) {
-        console.error('Error deleting favorites:', favError);
+      if (error) {
+        throw error;
       }
 
       // Refresh data
@@ -234,7 +189,7 @@ export const useDashboardData = () => {
       
       toast({
         title: "تم حذف المستخدم",
-        description: "تم حذف بيانات المستخدم بنجاح (سيبقى في قائمة المصادقة لكن لا يمكنه الدخول)",
+        description: "تم حذف المستخدم وبياناته بنجاح",
       });
     } catch (error) {
       console.error('Error deleting user:', error);

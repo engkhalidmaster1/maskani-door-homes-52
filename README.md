@@ -44,18 +44,19 @@ npm install
 
 ### Environment Setup
 
-1. Copy environment template:
+Supabase الاتصال مُضمّن في [src/integrations/supabase/client.ts](src/integrations/supabase/client.ts) ولا يعتمد على `.env.local`.
+استخدم `.env.local` فقط للميزات الاختيارية مثل Analytics أو ضبط وضع التشغيل.
+
+1. (اختياري) انسخ القالب:
 
    ```bash
    cp .env.example .env.local
    ```
 
-2. Configure your environment variables in `.env.local`:
+2. حدّث المتغيرات الاختيارية في `.env.local`:
 
    ```env
-   VITE_SUPABASE_URL=your_supabase_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   VITE_GOOGLE_ANALYTICS_ID=your_ga_measurement_id
+   VITE_GA_MEASUREMENT_ID=your_ga_measurement_id
    VITE_APP_ENV=development
    ```
 

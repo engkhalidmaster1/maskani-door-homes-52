@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { PropertyCard } from "@/components/Property/PropertyCard";
+import { LazyImage } from "@/components/ui/lazy-image";
 import { User, Phone, MapPin, Save, Edit, Trash2, Home as HomeIcon, Mail, Lock, Shield, CheckCircle, XCircle, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useProfile } from "@/hooks/useProfile";
@@ -512,7 +513,7 @@ export const Profile = () => {
                       <div key={property.id} className="relative flex items-center bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-all">
                         {/* صورة العقار */}
                         {property.images && property.images.length > 0 ? (
-                          <img src={property.images[0]} alt={property.title} className="w-28 h-20 object-cover rounded-md mr-4 border" />
+                          <LazyImage src={property.images[0]} alt={property.title} className="w-28 h-20 object-cover rounded-md mr-4 border" />
                         ) : (
                           <div className="w-28 h-20 bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center rounded-md mr-4 border border-dashed border-gray-300 text-gray-500 relative">
                             <HomeIcon className="h-6 w-6 mb-1 text-gray-400" />

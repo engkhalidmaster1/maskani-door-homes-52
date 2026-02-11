@@ -231,8 +231,8 @@ export default function AdminUsers() {
                 last_sign_in_at: row.last_sign_in_at ?? null,
               };
 
-              // Force unlimited for admin users (or for the protected super-admin email)
-              if (castRole === 'admin' || row.email === 'eng.khalid.work@gmail.com') {
+              // Force unlimited for admin users
+              if (castRole === 'admin') {
                 userObj.properties_limit = -1;
                 userObj.role_name_ar = '👑 مدير (بدون حدود)';
                 userObj.can_publish = true;
@@ -328,8 +328,8 @@ export default function AdminUsers() {
               last_sign_in_at: row.last_sign_in_at,
             } as UserWithPermissions;
 
-            // Force unlimited for admin users (or for the protected super-admin email)
-            if (castRole === 'admin' || row.email === 'eng.khalid.work@gmail.com') {
+            // Force unlimited for admin users
+            if (castRole === 'admin') {
               userObj.properties_limit = -1;
               userObj.role_name_ar = '👑 مدير (بدون حدود)';
               userObj.can_publish = true;
@@ -387,8 +387,8 @@ export default function AdminUsers() {
             last_sign_in_at: permRow?.last_sign_in_at ?? null,
           } as UserWithPermissions;
 
-          // Force unlimited for admin users (or for the protected super-admin email)
-          if (castRole === 'admin' || profile.email === 'eng.khalid.work@gmail.com') {
+          // Force unlimited for admin users
+          if (castRole === 'admin') {
             userObj.properties_limit = -1;
             userObj.role_name_ar = '👑 مدير (بدون حدود)';
             userObj.can_publish = true;
@@ -445,8 +445,8 @@ export default function AdminUsers() {
           last_sign_in_at: perm?.last_sign_in_at ?? null,
         };
 
-        // Force unlimited for the protected super-admin if detected
-        if (user?.email === 'eng.khalid.work@gmail.com' || perm?.role === 'admin') {
+        // Force unlimited for admin users
+        if (perm?.role === 'admin') {
           userObj.properties_limit = -1;
           userObj.role_name_ar = '👑 مدير (بدون حدود)';
           userObj.can_publish = true;

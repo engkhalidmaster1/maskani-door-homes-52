@@ -18,6 +18,7 @@ import { EditPropertiesTab } from "@/components/Dashboard/EditPropertiesTab";
 import { BannerSettingsTab } from "@/components/Dashboard/BannerSettingsTab";
 import SettingsTab from "@/components/Dashboard/SettingsTab";
 import { Profile } from "@/pages/Profile";
+import { Helmet } from 'react-helmet-async';
 import { UserActions } from "@/components/Dashboard/UserActions";
 import { UserStatusControl } from "@/components/Dashboard/UserStatusControl";
 import { useUserStatus } from "@/hooks/useUserStatus";
@@ -551,6 +552,11 @@ export const Dashboard = ({ onPageChange, onEditProperty }: DashboardProps) => {
   );
 
   return (
+    <>
+    <Helmet>
+      <title>لوحة التحكم - سكني</title>
+      <meta name="description" content="لوحة تحكم المستخدم لإدارة العقارات والحساب الشخصي في تطبيق سكني" />
+    </Helmet>
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Top Tabs Navigation */}
       <DashboardTabs 
@@ -563,6 +569,7 @@ export const Dashboard = ({ onPageChange, onEditProperty }: DashboardProps) => {
         {renderTabContent()}
       </div>
     </div>
+    </>
   );
 
 };

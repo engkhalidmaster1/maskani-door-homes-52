@@ -1,10 +1,12 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { AppLayout } from "@/components/Layout/AppLayout";
 import { OfflineStatusIndicator } from "@/components/OfflineStatusIndicator";
 import { useOfflineSync } from '@/hooks/useOfflineSync';
+import { AnimatePresence, motion } from "framer-motion";
+import { HelmetProvider } from 'react-helmet-async';
 // Lazy-loaded pages/components
 const Home = lazy(() => import("@/pages/Home").then(m => ({ default: m.Home })));
 const DashboardPage = lazy(() => import("@/pages/Dashboard"));
@@ -33,7 +35,16 @@ const SettingsTab = lazy(() => import("@/components/Dashboard/SettingsTab").then
 // import { SmartSearchPage } from "@/pages/SmartSearchPage"; // مخفي مؤقتاً  
 import { useEffect } from "react";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      retry: 2,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 // مكون شرطي لإظهار مؤشر المزامنة فقط عند الحاجة
 function ConditionalOfflineStatusIndicator() {
@@ -55,29 +66,31 @@ function ConditionalOfflineStatusIndicator() {
   );
 }
 
-function App() {
-  // Service Worker تم تعطيله مؤقتاً لحل مشكلة الشاشة البيضاء
+// مكون للصفحات مع animations
+function AnimatedRoutes() {
+  const location = useLocation();
 
   return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <SettingsProvider>
-        <AuthProviderWithBoundary>
-          <Router>
-            {/* مؤشر حالة الاتصال - يظهر عند الحاجة فقط */}
-            <ConditionalOfflineStatusIndicator />
-            
-            <Suspense fallback={<div className="p-6">جاري تحميل الصفحة...</div>}>
-            <Routes>
-              <Route element={<AppLayout />}>
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location.pathname}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="min-h-screen"
+      >
+        <Routes location={location}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/property/:id" element={<PropertyDetails />} />
+          <Route element={<AppLayout />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/properties" element={<PropertiesManagement />} />
                 <Route path="/offices" element={<Offices />} />
                 <Route path="/map" element={<MapPage />} />
                 {/* <Route path="/smart-search" element={<SmartSearchPage />} /> */} {/* مخفي مؤقتاً */}
                 <Route path="/favorites" element={<Favorites />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
                 {/* Dashboard: redirect bare /dashboard to a default tab and allow tab-specific routes */}
                 <Route path="/dashboard" element={<Navigate to="/dashboard/overview" replace />} />
                 <Route path="/dashboard/:tab" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
@@ -94,10 +107,33 @@ function App() {
                 
                 <Route path="/system-documentation" element={<ProtectedRoute><SystemDocumentation /></ProtectedRoute>} />
                 <Route path="/users-view" element={<ProtectedRoute><UsersView /></ProtectedRoute>} />
-                <Route path="/property/:id" element={<PropertyDetails />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
-              </Route>
+          </Route>
             </Routes>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
+function App() {
+  // Service Worker تم تعطيله مؤقتاً لحل مشكلة الشاشة البيضاء
+
+  return (
+    <HelmetProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <SettingsProvider>
+        <AuthProviderWithBoundary>
+          <Router>
+            {/* مؤشر حالة الاتصال - يظهر عند الحاجة فقط */}
+            <ConditionalOfflineStatusIndicator />
+            
+            <Suspense fallback={
+              <div className="flex items-center justify-center min-h-screen">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            }>
+            <AnimatedRoutes />
             </Suspense>
             </Router>
             <Toaster />
@@ -105,6 +141,7 @@ function App() {
         </SettingsProvider>
       </QueryClientProvider>
     </ErrorBoundary>
+    </HelmetProvider>
   );
 }
 

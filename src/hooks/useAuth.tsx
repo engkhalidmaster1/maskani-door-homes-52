@@ -45,13 +45,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       console.log('Fetching role for user:', userId);
 
-      // Temporary admin fallback by email
-      if (user?.email === 'eng.khalid.work@gmail.com') {
-        console.log('Setting temporary admin role for known admin user');
-        setUserRole('admin');
-        return 'admin';
-      }
-
       // First, ask the server whether this user is an admin (authoritative)
       try {
         const { data: isAdminData, error: isAdminError } = await supabase.rpc('is_admin', { uid: userId });
@@ -150,21 +143,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             console.log('User role fetched:', role);
             setUserRole(role);
 
-            // If this is the known super-admin, attempt to ensure their permissions in DB
-            try {
-              if (session.user.email === 'eng.khalid.work@gmail.com') {
-                console.log('Attempting to ensure super-admin permissions via RPC');
-                // call ensure_super_admin RPC (idempotent)
-                const { data, error } = await supabase.rpc('ensure_super_admin');
-                if (error) {
-                  console.warn('ensure_super_admin RPC failed:', error.message);
-                } else {
-                  console.log('ensure_super_admin result:', data);
-                }
-              }
-            } catch (e) {
-              console.error('Error calling ensure_super_admin RPC:', e);
-            }
           }, 0);
         } else {
           setUserRole(null);
@@ -310,7 +288,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const isAdmin = userRole === 'admin' || user?.email === 'eng.khalid.work@gmail.com';
+  const isAdmin = userRole === 'admin';
   console.log('Auth state:', { user: user?.email, userRole, isAdmin, isLoading });
 
   const value = {

@@ -18,6 +18,7 @@ import { cn, formatCurrency, formatDate, getPropertyTypeLabel } from "@/lib/util
 import VerifiedBadge from "@/components/VerifiedBadge";
 import useVerification from "@/hooks/useVerification";
 import { getMarketLabel, resolveMarketValue } from "@/constants/markets";
+import { Helmet } from 'react-helmet-async';
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   ArrowLeft,
@@ -442,6 +443,11 @@ export const PropertyDetails = () => {
   }
 
   return (
+    <>
+    <Helmet>
+      <title>{property?.title ? `${property.title} - سكني` : 'تفاصيل العقار - سكني'}</title>
+      <meta name="description" content={property?.description || 'عرض تفاصيل العقار في تطبيق سكني'} />
+    </Helmet>
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 pb-12">
       <div className="container mx-auto px-4">
         <div className="py-6 flex flex-col gap-4">
@@ -766,6 +772,7 @@ export const PropertyDetails = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

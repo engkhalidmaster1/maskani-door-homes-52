@@ -361,25 +361,9 @@ export const useAddPropertyForm = () => {
         .insert([propertyData as unknown as typeof propertyData]);
 
       if (error) {
-        // If the DB raised the protected-admin exception, try to self-heal and retry once
         const errMsg = error.message || '';
         if (errMsg.includes('لا يمكن تغيير دور المدير العام') || errMsg.includes('Cannot change super admin role')) {
-          console.warn('Protected admin error detected. Calling ensure_super_admin RPC to self-heal...');
-          const { data: ensureData, error: ensureError } = await supabase.rpc('ensure_super_admin');
-          if (ensureError) {
-            console.error('ensure_super_admin RPC error:', ensureError);
-            throw new Error(`خطأ في حفظ العقار: ${error.message}`);
-          }
-          console.log('ensure_super_admin result:', ensureData);
-
-          // Retry insert once
-          const { error: retryError } = await supabase
-            .from('properties')
-            .insert([propertyData as unknown as typeof propertyData]);
-
-          if (retryError) {
-            throw new Error(`خطأ في حفظ العقار بعد إصلاح الصلاحيات: ${retryError.message}`);
-          }
+          throw new Error('فشل الحفظ بسبب قيود صلاحيات المدير. يرجى مراجعة صلاحيات الحساب من لوحة الإدارة.');
         }
 
         throw new Error(`خطأ في حفظ العقار: ${error.message}`);

@@ -532,7 +532,7 @@ export const UsersView = () => {
                           <Select 
                             value={user.role} 
                             onValueChange={(value: AppRole) => handleRoleChange(user.id, value)}
-                            disabled={user.email === 'eng.khalid.work@gmail.com'} // Protect super admin
+                            disabled={user.role === 'admin'}
                           >
                             <SelectTrigger className="w-32 h-8">
                               <SelectValue />

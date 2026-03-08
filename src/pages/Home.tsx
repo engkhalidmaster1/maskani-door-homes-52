@@ -151,36 +151,36 @@ export const Home = () => {
 
         {/* Featured Properties */}
         <section dir="rtl">
-          <h2 className="text-4xl font-bold mb-8 flex items-center gap-4 border-b-2 border-primary pb-4 text-right">
-            <div className="bg-primary text-primary-foreground p-3 rounded-xl">
-              <Icons.Search className="h-6 w-6" />
+          <h2 className="text-2xl md:text-4xl font-bold mb-4 md:mb-8 flex items-center gap-3 md:gap-4 border-b-2 border-primary pb-3 md:pb-4 text-right">
+            <div className="bg-primary text-primary-foreground p-2 md:p-3 rounded-xl">
+              <Icons.Search className="h-5 w-5 md:h-6 md:w-6" />
             </div>
             أحدث العقارات
           </h2>
           
           {isLoading ? (
-            <div className="flex items-center justify-center py-12">
+            <div className="flex items-center justify-center py-8 md:py-12">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                <p className="text-muted-foreground">جاري تحميل العقارات...</p>
+                <div className="animate-spin rounded-full h-10 w-10 md:h-12 md:w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-muted-foreground text-sm">جاري تحميل العقارات...</p>
               </div>
             </div>
           ) : featuredProperties.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
               {featuredProperties.map((property) => (
                 <HomePropertyCard key={property.id} property={property} />
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <Icons.Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">لا توجد عقارات متاحة</h3>
-              <p className="text-muted-foreground mb-6">
+            <div className="text-center py-8 md:py-12">
+              <Icons.Search className="h-12 w-12 md:h-16 md:w-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg md:text-xl font-semibold mb-2">لا توجد عقارات متاحة</h3>
+              <p className="text-muted-foreground mb-4 md:mb-6 text-sm md:text-base">
                 كن أول من يضيف عقاراً في مجمع الدور
               </p>
               <Button 
                 onClick={() => handleNavigation('/add-property', true)} 
-                className="gap-2"
+                className="gap-2 w-full md:w-auto"
               >
                 <Icons.PlusCircle className="h-5 w-5" />
                 إضافة عقار جديد
@@ -189,25 +189,22 @@ export const Home = () => {
           )}
         </section>
 
-        {/* Feature Cards - مثل الصورة الأصلية */}
-        <section className="mt-16">
-          <h2 className="text-3xl font-bold mb-8 text-center">
+        {/* Feature Cards */}
+        <section className="mt-10 md:mt-16">
+          <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-center">
             مميزات المنصة
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
             {features.map((feature, index) => {
               const Icon = feature.icon;
-              // جعل المربع الأول (وين اسكن) قابلاً للنقر
-              const isSearchFeature = index === 0; // التحقق من أنه المربع الأول
-              // جعل المربع الثاني (أضف عقارك) قابلاً للنقر
-              const isAddFeature = index === 1; // التحقق من أنه المربع الثاني
-              // جعل المربع الثالث (اربح معنا أكثر) قابلاً للنقر
-              const isEarnFeature = index === 2; // التحقق من أنه المربع الثالث
+              const isSearchFeature = index === 0;
+              const isAddFeature = index === 1;
+              const isEarnFeature = index === 2;
               
               return (
                 <div
                   key={index}
-                  className={`text-center p-8 bg-card rounded-2xl shadow-card transition-all duration-300 relative
+                  className={`text-center p-5 md:p-8 bg-card rounded-xl md:rounded-2xl shadow-card transition-all duration-300 relative
                     ${isSearchFeature || isAddFeature || isEarnFeature
                       ? 'cursor-pointer hover:shadow-xl hover:transform hover:scale-105' 
                       : 'hover-lift'}`}
@@ -224,17 +221,17 @@ export const Home = () => {
                   }}
                 >
                   {isAddFeature && !user && (
-                    <span className="absolute top-4 right-4 text-xs text-red-500 bg-red-50 px-2 py-1 rounded-full border border-red-300 font-medium">
+                    <span className="absolute top-3 right-3 text-[10px] md:text-xs text-red-500 bg-red-50 px-2 py-0.5 md:py-1 rounded-full border border-red-300 font-medium">
                       سجل قبل إضافة العقار
                     </span>
                   )}
-                  <div className="bg-primary text-primary-foreground w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-6">
-                    <Icon className="h-8 w-8" />
+                  <div className="bg-primary text-primary-foreground w-12 h-12 md:w-16 md:h-16 rounded-xl flex items-center justify-center mx-auto mb-4 md:mb-6">
+                    <Icon className="h-6 w-6 md:h-8 md:w-8" />
                   </div>
-                  <h3 className="text-2xl font-bold mb-4 text-card-foreground">
+                  <h3 className="text-lg md:text-2xl font-bold mb-2 md:mb-4 text-card-foreground">
                     {feature.title}
                   </h3>
-                  <p className="text-muted-foreground leading-relaxed">
+                  <p className="text-muted-foreground text-sm leading-relaxed">
                     {feature.description}
                   </p>
                 </div>

@@ -36,6 +36,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         { id: "/favorites", label: getMenuLabel('/favorites', 'المفضلة', labelOverrides), icon: Heart, badge: getFavoritesCount() },
         { id: "/add-property", label: getMenuLabel('/add-property', 'إضافة عقار', labelOverrides), icon: PlusCircle },
         { id: "/profile", label: getMenuLabel('/profile', 'الملف الشخصي', labelOverrides), icon: User },
+        { id: "/settings", label: getMenuLabel('/settings', 'الإعدادات', labelOverrides), icon: Settings },
         ...(isAdmin || hasAdminDashboardPermission
           ? [
               { id: "/dashboard/overview", label: getMenuLabel('/dashboard/overview', 'لوحة التحكم', labelOverrides), icon: Settings },

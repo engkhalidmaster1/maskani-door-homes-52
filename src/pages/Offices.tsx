@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { PullToRefresh } from "@/components/PullToRefresh";
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ export default function Offices() {
   }, [fetchOffices]);
 
   return (
+    <PullToRefresh onRefresh={() => fetchOffices()}>
     <div className="min-h-screen bg-background">
       {/* Page Header */}
       <div className="gradient-primary text-primary-foreground shadow-elegant sticky top-14 md:top-16 z-40">
@@ -142,5 +144,6 @@ export default function Offices() {
         )}
       </div>
     </div>
+    </PullToRefresh>
   );
 }

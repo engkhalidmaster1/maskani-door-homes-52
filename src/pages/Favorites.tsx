@@ -1,5 +1,6 @@
 import React from 'react';
 import { PropertyCard } from "@/components/Property/PropertyCard";
+import { PullToRefresh } from "@/components/PullToRefresh";
 import { PropertyCardMobile } from "@/components/Property/PropertyCardMobile";
 import { Button } from "@/components/ui/button";
 import { Heart, Building, ArrowRight } from "lucide-react";
@@ -49,7 +50,10 @@ export const Favorites = () => {
     );
   }
 
+  const handleRefresh = async () => { window.location.reload(); };
+
   return (
+    <PullToRefresh onRefresh={handleRefresh}>
     <div className="min-h-screen">
       <div className="container mx-auto px-3 md:px-4 py-4 md:py-8">
         {/* Page Header */}
@@ -134,5 +138,6 @@ export const Favorites = () => {
         )}
       </div>
     </div>
+    </PullToRefresh>
   );
 };

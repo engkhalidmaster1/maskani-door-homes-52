@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { PullToRefresh } from "@/components/PullToRefresh";
 import { HomePropertyCard } from "@/components/Property/HomePropertyCard";
 import { ScrollingBanner } from "@/components/Layout/ScrollingBanner";
 import { FloatingWelcomeButton } from "@/components/FloatingWelcomeButton";
@@ -14,7 +15,7 @@ import { useEffect } from "react";
 
 export const Home = () => {
   const navigate = useNavigate();
-  const { properties, isLoading } = useProperties();
+  const { properties, isLoading, fetchProperties } = useProperties();
   const { user } = useAuth();
   const { toast } = useToast();
   const { cards, isLoading: cardsLoading } = useHomeCards();
@@ -84,6 +85,7 @@ export const Home = () => {
   // Auto-close modal functionality moved to FloatingWelcomeButton component
 
   return (
+    <PullToRefresh onRefresh={() => fetchProperties()}>
     <div className="min-h-screen">
       <div className="container mx-auto px-3 md:px-4 py-4 md:py-8">
         <ScrollingBanner />
@@ -241,5 +243,6 @@ export const Home = () => {
         </section>
       </div>
     </div>
+    </PullToRefresh>
   );
 };

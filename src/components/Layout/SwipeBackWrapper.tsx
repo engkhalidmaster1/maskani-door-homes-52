@@ -40,6 +40,7 @@ export const SwipeBackWrapper = ({ children }: SwipeBackWrapperProps) => {
       // Swipe right (RTL: means "back") if offset > 100px or velocity > 500
       if ((info.offset.x > 100 || info.velocity.x > 500) && !hasNavigated.current) {
         hasNavigated.current = true;
+        haptic('medium');
         navigate(-1);
         setTimeout(() => {
           hasNavigated.current = false;

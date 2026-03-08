@@ -329,11 +329,11 @@ export const EditProperty = () => {
         title: property.title,
         property_type: property.property_type,
         listing_type: property.listing_type,
-        // الآن: ندعم تحديث الحقول المهيكلة (building, apartment, floor) وحالة الأثاث
         building: property.building && property.building.trim() !== '' ? property.building.trim() : null,
         apartment: property.apartment && property.apartment.trim() !== '' ? property.apartment.trim() : null,
         floor: property.floor && property.floor.trim() !== '' ? property.floor.trim() : null,
         furnished: property.furnished && property.furnished.trim() !== '' ? property.furnished.trim() : null,
+        market: property.market && property.market.trim() !== '' ? property.market.trim() : null,
         price: property.price,
         description: property.description,
         bedrooms: property.bedrooms,

@@ -146,6 +146,7 @@ export const PropertyDetails = () => {
         location: (rawData["location"] as string | null) ?? null,
         address: (rawData["address"] as string | null) ?? null,
         amenities: (rawData["amenities"] as string[] | null) ?? null,
+        status: (rawData["status"] as string | null) ?? "available",
         images: (rawData["images"] as string[] | null) ?? null,
         is_published: Boolean(rawData["is_published"]),
         created_at: (rawData["created_at"] as string) ?? new Date().toISOString(),
@@ -155,6 +156,10 @@ export const PropertyDetails = () => {
         longitude: rawData["longitude"] !== null ? Number(rawData["longitude"]) : null,
         market: resolvedMarket ?? null,
         marketLabel: resolvedMarket ? getMarketLabel(resolvedMarket) : null,
+        furnished: (rawData["furnished"] as string | null) ?? null,
+        building: (rawData["building"] as string | null) ?? null,
+        apartment: (rawData["apartment"] as string | null) ?? null,
+        floor: (rawData["floor"] as string | null) ?? null,
       };
 
       setProperty(mappedProperty);

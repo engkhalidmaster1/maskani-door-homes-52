@@ -5,6 +5,7 @@ import { ScrollingBanner } from "@/components/Layout/ScrollingBanner";
 import { FloatingWelcomeButton } from "@/components/FloatingWelcomeButton";
 import { AdvancedSearchBar } from "@/components/Home/AdvancedSearchBar";
 import * as Icons from "lucide-react";
+import { NavCardSkeletonGrid, PropertyCardSkeletonGrid } from "@/components/Skeletons";
 import { useNavigate } from "react-router-dom";
 import { useProperties } from "@/hooks/useProperties";
 import { useAuth } from "@/hooks/useAuth";

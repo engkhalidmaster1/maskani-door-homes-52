@@ -96,7 +96,7 @@ export const Home = () => {
           <section className="mb-12">
             <div className="text-center mb-6">
               {homeSettings.search_bar_title && (
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                <h2 className="text-3xl font-bold text-foreground mb-2">
                   {homeSettings.search_bar_title}
                 </h2>
               )}

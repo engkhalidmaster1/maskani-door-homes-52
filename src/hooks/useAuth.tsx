@@ -60,7 +60,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           }
         }
       } catch (rpcErr) {
-        console.warn('is_admin RPC failed, falling back to table checks:', rpcErr);
         // Continue to fallback logic below
       }
 

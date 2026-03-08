@@ -255,7 +255,7 @@ export const PropertyCard = ({
           {/* Title and Price */}
           <div className="flex items-center justify-between mb-3 border-b pb-3 border-border" dir="rtl">
             <div className="text-right w-3/5">
-              <h3 className="text-lg font-bold text-gray-800 line-clamp-1" dir="rtl">{property.title}</h3>
+              <h3 className="text-lg font-bold text-card-foreground line-clamp-1" dir="rtl">{property.title}</h3>
             </div>
             <div className="w-2/5 text-left">
               <span className="text-xl font-bold text-primary bg-blue-50 px-2 py-1 rounded">

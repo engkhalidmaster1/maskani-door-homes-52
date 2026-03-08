@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { useRealEstateOfficesDB } from '@/hooks/useRealEstateOfficesDB';
 import { Building2, Search, ShieldCheck, Phone, Mail, MapPin, Globe } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { OfficeCardSkeletonGrid } from "@/components/Skeletons";
 
 export default function Offices() {
   const { offices, loading, fetchOffices, searchOffices } = useRealEstateOfficesDB();

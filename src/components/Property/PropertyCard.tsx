@@ -105,7 +105,7 @@ export const PropertyCard = ({
   };
 
   return (
-    <Card className="overflow-hidden hover-lift shadow-md group relative border-2 border-gray-100">
+    <Card className="overflow-hidden hover-lift shadow-md group relative border-2 border-border">
 
       {/* Selection Checkbox */}
       {showCheckbox && (
@@ -251,14 +251,14 @@ export const PropertyCard = ({
         </div>
 
         {/* Property Details */}
-        <div className="p-4 bg-white">
+        <div className="p-4 bg-card">
           {/* Title and Price */}
-          <div className="flex items-center justify-between mb-3 border-b pb-3 border-gray-200" dir="rtl">
+          <div className="flex items-center justify-between mb-3 border-b pb-3 border-border" dir="rtl">
             <div className="text-right w-3/5">
-              <h3 className="text-lg font-bold text-gray-800 line-clamp-1" dir="rtl">{property.title}</h3>
+              <h3 className="text-lg font-bold text-card-foreground line-clamp-1" dir="rtl">{property.title}</h3>
             </div>
             <div className="w-2/5 text-left">
-              <span className="text-xl font-bold text-primary bg-blue-50 px-2 py-1 rounded">
+              <span className="text-xl font-bold text-primary bg-primary/10 px-2 py-1 rounded">
                 {formatCurrency(property.price)}
               </span>
             </div>
@@ -298,7 +298,7 @@ export const PropertyCard = ({
           )}
 
           {/* Features */}
-          <div className="flex items-center gap-3 justify-end border-t pt-3 border-gray-200">
+          <div className="flex items-center gap-3 justify-end border-t pt-3 border-border">
             {property.area && (
               <div className="flex items-center flex-row-reverse bg-blue-50 p-1 px-2 rounded">
                 <Ruler className="h-4 w-4 ml-1 text-blue-500" />
@@ -334,7 +334,7 @@ export const PropertyCard = ({
 
         {/* Actions Buttons - Moved to Bottom */}
         {showActions && (
-          <div className="p-3 bg-white border-t border-gray-200 flex gap-2 justify-center">
+          <div className="p-3 bg-card border-t border-border flex gap-2 justify-center">
             {onEdit && (
               <Button
                 size="sm"

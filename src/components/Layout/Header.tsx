@@ -29,6 +29,7 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
     { id: "/", label: getMenuLabel('/', 'الرئيسية', labelOverrides), icon: Home },
     { id: "/properties", label: getMenuLabel('/properties', 'العقارات', labelOverrides), icon: Building },
     { id: "/map", label: getMenuLabel('/map', 'الخريطة', labelOverrides), icon: MapPin },
+    { id: "/offices", label: getMenuLabel('/offices', 'المكاتب', labelOverrides), icon: Building },
     { id: "/favorites", label: getMenuLabel('/favorites', 'المفضلة', labelOverrides), icon: Heart, badge: getFavoritesCount() },
     { id: "/add-property", label: getMenuLabel('/add-property', 'إضافة عقار', labelOverrides), icon: PlusCircle },
     { id: "/profile", label: getMenuLabel('/profile', 'الملف الشخصي', labelOverrides), icon: User },
@@ -37,6 +38,7 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
     { id: "/", label: getMenuLabel('/', 'الرئيسية', labelOverrides), icon: Home },
     { id: "/properties", label: getMenuLabel('/properties', 'العقارات', labelOverrides), icon: Building },
     { id: "/map", label: getMenuLabel('/map', 'الخريطة', labelOverrides), icon: MapPin },
+    { id: "/offices", label: getMenuLabel('/offices', 'المكاتب', labelOverrides), icon: Building },
   ];
 
   // Check if current path is dashboard-related

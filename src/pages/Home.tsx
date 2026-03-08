@@ -96,12 +96,12 @@ export const Home = () => {
           <section className="mb-12">
             <div className="text-center mb-6">
               {homeSettings.search_bar_title && (
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                <h2 className="text-3xl font-bold text-foreground mb-2">
                   {homeSettings.search_bar_title}
                 </h2>
               )}
               {homeSettings.search_bar_subtitle && (
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   {homeSettings.search_bar_subtitle}
                 </p>
               )}
@@ -129,10 +129,10 @@ export const Home = () => {
                     <div className={`${card.iconColor} w-12 h-12 rounded-xl flex items-center justify-center mb-4`}>
                       <Icon className="h-6 w-6 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold mb-3 text-gray-800">
+                    <h3 className="text-xl font-bold mb-3 text-card-foreground">
                       {card.title}
                     </h3>
-                    <p className="text-gray-600 text-sm leading-relaxed">
+                    <p className="text-muted-foreground text-sm leading-relaxed">
                       {card.description}
                     </p>
                     {card.requiresAuth && !user && (

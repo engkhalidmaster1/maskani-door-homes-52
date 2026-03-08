@@ -32,7 +32,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         { id: "/", label: getMenuLabel('/', 'الرئيسية', labelOverrides), icon: Home },
         { id: "/properties", label: getMenuLabel('/properties', 'العقارات', labelOverrides), icon: Building },
         // { id: "/smart-search", label: "البحث الذكي", icon: Search }, // مخفي مؤقتاً
-        ...(!isMobile ? [{ id: "/offices", label: getMenuLabel('/offices', 'المكاتب العقارية', labelOverrides), icon: Shield }] : []),
+        { id: "/offices", label: getMenuLabel('/offices', 'المكاتب العقارية', labelOverrides), icon: Shield },
         { id: "/favorites", label: getMenuLabel('/favorites', 'المفضلة', labelOverrides), icon: Heart, badge: getFavoritesCount() },
         { id: "/add-property", label: getMenuLabel('/add-property', 'إضافة عقار', labelOverrides), icon: PlusCircle },
         { id: "/profile", label: getMenuLabel('/profile', 'الملف الشخصي', labelOverrides), icon: User },
@@ -49,7 +49,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         { id: "/", label: "الرئيسية", icon: Home },
         { id: "/properties", label: "العقارات", icon: Building },
         // { id: "/smart-search", label: "البحث الذكي", icon: Search }, // مخفي مؤقتاً
-        ...(!isMobile ? [{ id: "/offices", label: "المكاتب العقارية", icon: Shield }] : []),
+        { id: "/offices", label: "المكاتب العقارية", icon: Shield },
       ];
 
   const handleNavClick = (path: string) => {

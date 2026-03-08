@@ -100,7 +100,7 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
   };
 
   return (
-    <Card className="w-full max-w-sm mx-auto overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 border-2 border-gray-100">
+    <Card className="w-full max-w-sm mx-auto overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 border-2 border-border">
       <div onClick={handleCardClick}>
         {/* Image Section */}
         <div className="relative h-48 bg-gray-100">
@@ -206,14 +206,14 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
         </div>
 
         {/* Content Section */}
-        <CardContent className="p-3 bg-white">
+        <CardContent className="p-3 bg-card">
           {/* Title and Price */}
-          <div className="flex items-center justify-between mb-3 border-b pb-2 border-gray-200" dir="rtl">
+          <div className="flex items-center justify-between mb-3 border-b pb-2 border-border" dir="rtl">
             <div className="text-right w-3/5">
-              <h3 className="font-semibold text-sm line-clamp-2 text-gray-800" dir="rtl">{property.title}</h3>
+              <h3 className="font-semibold text-sm line-clamp-2 text-card-foreground" dir="rtl">{property.title}</h3>
             </div>
             <div className="w-2/5 text-left">
-              <div className="text-sm font-bold text-primary bg-blue-50 px-2 py-1 rounded">
+              <div className="text-sm font-bold text-primary bg-primary/10 px-2 py-1 rounded">
                 {formatPrice(property.price)}
               </div>
             </div>
@@ -238,7 +238,7 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
           )}
 
           {/* Property Details */}
-          <div className="flex items-center gap-2 justify-end border-t pt-2 border-gray-200">
+          <div className="flex items-center gap-2 justify-end border-t pt-2 border-border">
             {property.area && (
               <div className="flex items-center gap-1 flex-row-reverse bg-blue-50 p-1 px-2 rounded">
                 <Square className="h-3 w-3 ml-1 text-blue-500" />

@@ -60,7 +60,7 @@ export const HomePropertyCard = ({ property }: HomePropertyCardProps) => {
   };
 
   return (
-    <Card className="overflow-hidden hover-lift shadow-md group relative border-2 border-gray-100">
+    <Card className="overflow-hidden hover-lift shadow-md group relative border-2 border-border">
       {/* Favorite & Compare Buttons */}
       {user && (
         <div className="absolute top-3 left-3 z-10 flex gap-1.5">
@@ -172,14 +172,14 @@ export const HomePropertyCard = ({ property }: HomePropertyCardProps) => {
         </div>
 
         {/* Property Details */}
-        <div className="p-4 bg-white">
+        <div className="p-4 bg-card">
           {/* Title and Price */}
-          <div className="flex items-center justify-between mb-3 border-b pb-3 border-gray-200" dir="rtl">
+          <div className="flex items-center justify-between mb-3 border-b pb-3 border-border" dir="rtl">
             <div className="text-right w-3/5">
-              <h3 className="text-lg font-bold text-gray-800 line-clamp-1" dir="rtl">{property.title}</h3>
+              <h3 className="text-lg font-bold text-card-foreground line-clamp-1" dir="rtl">{property.title}</h3>
             </div>
             <div className="w-2/5 text-left">
-              <span className="text-xl font-bold text-primary bg-blue-50 px-2 py-1 rounded">
+              <span className="text-xl font-bold text-primary bg-primary/10 px-2 py-1 rounded">
                 {formatCurrency(property.price)}
               </span>
             </div>
@@ -204,7 +204,7 @@ export const HomePropertyCard = ({ property }: HomePropertyCardProps) => {
           )}
 
           {/* Features */}
-          <div className="flex items-center gap-3 justify-start border-t pt-3 border-gray-200">
+          <div className="flex items-center gap-3 justify-start border-t pt-3 border-border">
             <div className="flex items-center flex-row-reverse bg-purple-50 p-1 px-2 rounded">
               <Bed className="h-4 w-4 mr-1 text-purple-500" />
               <span className="text-gray-700 font-medium text-sm">{property.bedrooms}</span>

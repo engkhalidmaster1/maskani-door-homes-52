@@ -142,7 +142,7 @@ export const PropertyCard = ({
               }
             }}
             disabled={isToggling}
-            className={`p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-md transition-all hover:scale-110 ${
+            className={`w-8 h-8 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm shadow-md transition-all hover:scale-110 ${
               isFavorite(property.id) 
                 ? 'text-red-500' 
                 : 'text-gray-400 hover:text-red-500'
@@ -179,7 +179,7 @@ export const PropertyCard = ({
                 created_at: property.created_at,
               });
             }}
-            className={`p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-md transition-all hover:scale-110 ${
+            className={`w-8 h-8 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm shadow-md transition-all hover:scale-110 ${
               isInCompare(property.id)
                 ? 'text-primary ring-2 ring-primary/30'
                 : 'text-gray-400 hover:text-primary'

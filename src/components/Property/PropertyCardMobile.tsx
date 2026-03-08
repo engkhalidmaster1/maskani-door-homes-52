@@ -213,7 +213,7 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
               <h3 className="font-semibold text-sm line-clamp-2 text-card-foreground" dir="rtl">{property.title}</h3>
             </div>
             <div className="w-2/5 text-left">
-              <div className="text-sm font-bold text-primary bg-blue-50 px-2 py-1 rounded">
+              <div className="text-sm font-bold text-primary bg-primary/10 px-2 py-1 rounded">
                 {formatPrice(property.price)}
               </div>
             </div>

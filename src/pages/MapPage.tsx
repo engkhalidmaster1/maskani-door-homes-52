@@ -207,6 +207,8 @@ export function MapPage() {
   const [minArea, setMinArea] = useState<number>(0);
   const [maxArea, setMaxArea] = useState<number>(500);
   const [statusFilter, setStatusFilter] = useState<'' | 'available' | 'negotiating'>('');
+  const [bathroomsFilter, setBathroomsFilter] = useState<number | ''>('');
+  const [furnishedFilter, setFurnishedFilter] = useState<'' | 'yes' | 'no'>('');
   const [nearMeEnabled, setNearMeEnabled] = useState(true);
   const [radiusKm, setRadiusKm] = useState(25);
 

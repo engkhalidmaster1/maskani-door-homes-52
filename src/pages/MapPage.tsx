@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
-import { Search, X, List, Layers, TrendingUp, Home, Bed, MapPinned, Share2 } from 'lucide-react';
+import { Search, X, List, Layers, TrendingUp, Home, Bed, MapPinned, Share2, Ruler, CircleDot } from 'lucide-react';
 import { MapPropertyPopup } from '@/components/Map/MapPropertyPopup';
 import { MapSidebar } from '@/components/Map/MapSidebar';
 import { createPriceIcon, createUserLocationIcon } from '@/components/Map/PriceMarker';

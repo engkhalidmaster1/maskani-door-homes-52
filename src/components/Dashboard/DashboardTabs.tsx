@@ -55,22 +55,13 @@ export const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) =>
     },
     {
       id: "users",
-      label: "إدارة المستخدمين",
+      label: "المستخدمون والصلاحيات",
       icon: UserCog,
       color: "text-indigo-600",
       gradient: "from-indigo-500 via-indigo-600 to-purple-600",
       hoverGradient: "from-indigo-400 to-indigo-500",
       shadowColor: "shadow-indigo-500/25",
-      badge: "محدث"
-    },
-    {
-      id: "user-roles",
-      label: "الصلاحيات",
-      icon: Shield,
-      color: "text-red-600",
-      gradient: "from-red-500 via-red-600 to-rose-600",
-      hoverGradient: "from-red-400 to-red-500",
-      shadowColor: "shadow-red-500/25"
+      badge: "موحد"
     },
     {
       id: "banner-settings",

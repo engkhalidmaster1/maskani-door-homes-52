@@ -103,7 +103,7 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
     <Card className="w-full max-w-sm mx-auto overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 border-2 border-border">
       <div onClick={handleCardClick}>
         {/* Image Section */}
-        <div className="relative h-48 bg-gray-100">
+        <div className="relative h-48 bg-muted">
           {/* Property Status Badge - Deal Status */}
           <PropertyStatusBadgeEnhanced 
             status={property.status} 

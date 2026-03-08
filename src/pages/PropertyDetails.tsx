@@ -598,7 +598,40 @@ export const PropertyDetails = () => {
                         {property.area ? `${property.area} م²` : "غير محددة"}
                       </p>
                     </div>
+                    {property.furnished && (
+                      <div className="rounded-2xl border bg-slate-50 p-4 text-center">
+                        <CheckCircle2 className="mx-auto mb-2 h-6 w-6 text-primary" />
+                        <p className="text-sm text-gray-500">الأثاث</p>
+                        <p className="text-xl font-semibold text-gray-900">
+                          {property.furnished === 'yes' ? 'مفروش' : 'فارغ'}
+                        </p>
+                      </div>
+                    )}
                   </div>
+
+                  {/* تفاصيل البناء */}
+                  {(property.building || property.apartment || property.floor) && (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                      {property.building && (
+                        <div className="rounded-2xl border bg-slate-50 p-4 text-center">
+                          <p className="text-sm text-gray-500">العمارة</p>
+                          <p className="text-lg font-semibold text-gray-900">{property.building}</p>
+                        </div>
+                      )}
+                      {property.apartment && (
+                        <div className="rounded-2xl border bg-slate-50 p-4 text-center">
+                          <p className="text-sm text-gray-500">رقم الشقة</p>
+                          <p className="text-lg font-semibold text-gray-900">{property.apartment}</p>
+                        </div>
+                      )}
+                      {property.floor && (
+                        <div className="rounded-2xl border bg-slate-50 p-4 text-center">
+                          <p className="text-sm text-gray-500">الطابق</p>
+                          <p className="text-lg font-semibold text-gray-900">{property.floor}</p>
+                        </div>
+                      )}
+                    </div>
+                  )
                 </CardContent>
               </Card>
 

@@ -291,6 +291,8 @@ export function MapPage() {
     if (minArea > 0) list = list.filter((m) => (m.property.area ?? 0) >= minArea);
     if (maxArea < 500) list = list.filter((m) => (m.property.area ?? Infinity) <= maxArea);
     if (statusFilter) list = list.filter((m) => (m.property.status || 'available') === statusFilter);
+    if (bathroomsFilter !== '') list = list.filter((m) => m.property.bathrooms >= Number(bathroomsFilter));
+    if (furnishedFilter) list = list.filter((m) => m.property.furnished === furnishedFilter);
     if (debouncedSearch) {
       const s = debouncedSearch;
       list = list.filter((m) =>

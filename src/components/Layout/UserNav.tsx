@@ -15,6 +15,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { User, Settings, LogOut, UserCircle } from "lucide-react";
 
 export function UserNav() {
+  const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { profileData } = useProfile();
 

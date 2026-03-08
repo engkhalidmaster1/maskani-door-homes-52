@@ -138,8 +138,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       
       if (session?.user) {
         setTimeout(async () => {
-          const role = await fetchUserRole(session.user.id);
-          setUserRole(role);
+          await fetchUserRole(session.user.id);
         }, 0);
       }
       

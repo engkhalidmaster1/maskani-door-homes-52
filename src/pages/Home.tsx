@@ -15,7 +15,7 @@ import { useEffect } from "react";
 
 export const Home = () => {
   const navigate = useNavigate();
-  const { properties, isLoading, refetch } = useProperties();
+  const { properties, isLoading, fetchProperties } = useProperties();
   const { user } = useAuth();
   const { toast } = useToast();
   const { cards, isLoading: cardsLoading } = useHomeCards();

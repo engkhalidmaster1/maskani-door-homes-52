@@ -83,7 +83,18 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
           </nav>
 
           {/* Right side actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 md:gap-2">
+            {/* Theme toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="text-primary-foreground hover:bg-white/20 h-9 w-9"
+              aria-label={theme === "dark" ? "الوضع الفاتح" : "الوضع الداكن"}
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
+
             {/* Notifications bell */}
             {user && <NotificationsBell />}
 

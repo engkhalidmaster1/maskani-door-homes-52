@@ -138,5 +138,6 @@ export const Favorites = () => {
         )}
       </div>
     </div>
+    </PullToRefresh>
   );
 };

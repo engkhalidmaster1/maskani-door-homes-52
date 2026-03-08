@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +18,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Activity,
-  UsersRound
+  UsersRound,
+  BookOpen
 } from "lucide-react";
 
 interface DashboardSidebarProps {
@@ -29,6 +31,7 @@ interface DashboardSidebarProps {
 }
 
 export const DashboardSidebar = ({ activeTab, onTabChange, isOpen, onClose, onToggle }: DashboardSidebarProps) => {
+  const navigate = useNavigate();
   const sidebarSections = [
     {
       title: "الرئيسية",
@@ -124,6 +127,19 @@ export const DashboardSidebar = ({ activeTab, onTabChange, isOpen, onClose, onTo
           description: "معلوماتك الشخصية"
         },
       ]
+    },
+    {
+      title: "التوثيق",
+      items: [
+        {
+          id: "dev-docs",
+          label: "توثيق التطوير",
+          icon: BookOpen,
+          color: "text-teal-600",
+          bgColor: "bg-teal-50",
+          description: "توثيق نظام WhatsApp OTP"
+        },
+      ]
     }
   ];
 
@@ -214,7 +230,11 @@ export const DashboardSidebar = ({ activeTab, onTabChange, isOpen, onClose, onTo
                         }
                       `}
                       onClick={() => {
-                        onTabChange(item.id);
+                        if (item.id === 'dev-docs') {
+                          navigate('/dev-docs');
+                        } else {
+                          onTabChange(item.id);
+                        }
                         onClose();
                       }}
                     >

@@ -105,7 +105,7 @@ export const PropertyCard = ({
   };
 
   return (
-    <Card className="overflow-hidden hover-lift shadow-md group relative border-2 border-gray-100">
+    <Card className="overflow-hidden hover-lift shadow-md group relative border-2 border-border">
 
       {/* Selection Checkbox */}
       {showCheckbox && (

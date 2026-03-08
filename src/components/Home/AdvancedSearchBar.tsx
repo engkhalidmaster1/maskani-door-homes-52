@@ -36,7 +36,6 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({ className 
 
   const debouncedSearch = useDebounce(searchQuery, 300);
 
-  // جلب اقتراحات البحث الفورية
   const fetchSuggestions = useCallback(async () => {
     if (!debouncedSearch || debouncedSearch.length < 2) {
       setSuggestions([]);
@@ -53,16 +52,9 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({ className 
         .ilike('title', `%${debouncedSearch}%`)
         .limit(5);
 
-      // تطبيق الفلاتر
-      if (propertyType !== 'all') {
-        query = query.eq('property_type', propertyType);
-      }
-      if (location) {
-        query = query.ilike('location', `%${location}%`);
-      }
-      if (bedrooms !== 'all') {
-        query = query.eq('bedrooms', parseInt(bedrooms));
-      }
+      if (propertyType !== 'all') query = query.eq('property_type', propertyType);
+      if (location) query = query.ilike('location', `%${location}%`);
+      if (bedrooms !== 'all') query = query.eq('bedrooms', parseInt(bedrooms));
       if (priceRange !== 'all') {
         const [min, max] = priceRange.split('-').map(Number);
         query = query.gte('price', min);
@@ -70,7 +62,6 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({ className 
       }
 
       const { data, error } = await query;
-
       if (error) throw error;
       setSuggestions(data || []);
       setShowSuggestions(true);
@@ -86,7 +77,6 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({ className 
     fetchSuggestions();
   }, [fetchSuggestions]);
 
-  // البحث الكامل
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (searchQuery) params.set('search', searchQuery);
@@ -94,15 +84,12 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({ className 
     if (location) params.set('location', location);
     if (bedrooms !== 'all') params.set('bedrooms', bedrooms);
     if (priceRange !== 'all') params.set('priceRange', priceRange);
-
     navigate(`/properties?${params.toString()}`);
     setShowSuggestions(false);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
+    if (e.key === 'Enter') handleSearch();
   };
 
   const handleSuggestionClick = (propertyId: string) => {
@@ -123,12 +110,12 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({ className 
 
   return (
     <div className={cn("w-full relative", className)}>
-      {/* شريط البحث الرئيسي */}
-      <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-4">
-        <div className="flex flex-col lg:flex-row gap-3">
-          {/* حقل البحث الرئيسي */}
-          <div className="flex-1 relative">
-            <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+      {/* Main search bar */}
+      <div className="bg-card rounded-xl md:rounded-2xl shadow-lg border border-border p-3 md:p-4">
+        {/* Search input + buttons */}
+        <div className="flex flex-col gap-2.5 md:gap-3">
+          <div className="relative">
+            <Search className="absolute right-3 md:right-4 top-1/2 -translate-y-1/2 h-4 w-4 md:h-5 md:w-5 text-muted-foreground" />
             <Input
               type="text"
               placeholder="ابحث عن عقار... (العنوان، المنطقة، الوصف)"
@@ -136,52 +123,51 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({ className 
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={handleKeyPress}
               onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-              className="pr-12 pl-4 h-12 text-lg rounded-xl border-gray-200 focus:ring-2 focus:ring-primary"
+              className="pr-10 md:pr-12 pl-10 h-10 md:h-12 text-sm md:text-lg rounded-lg md:rounded-xl border-border focus:ring-2 focus:ring-primary bg-background"
             />
             {searchQuery && (
               <button
                 onClick={clearSearch}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 aria-label="مسح البحث"
-                title="مسح البحث"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4 md:h-5 md:w-5" />
               </button>
             )}
           </div>
 
-          {/* أزرار التحكم */}
+          {/* Buttons row - side by side on mobile */}
           <div className="flex gap-2">
             <Button
               variant="outline"
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="h-12 px-4 rounded-xl"
+              className="h-9 md:h-12 px-3 md:px-4 rounded-lg md:rounded-xl flex-1 md:flex-none text-xs md:text-sm"
             >
-              <SlidersHorizontal className="h-5 w-5 ml-2" />
+              <SlidersHorizontal className="h-4 w-4 ml-1 md:ml-2" />
               فلاتر متقدمة
             </Button>
             <Button
               onClick={handleSearch}
-              className="h-12 px-8 rounded-xl bg-primary hover:bg-primary/90"
+              className="h-9 md:h-12 px-4 md:px-8 rounded-lg md:rounded-xl flex-1 md:flex-none text-xs md:text-sm"
             >
-              <Search className="h-5 w-5 ml-2" />
+              <Search className="h-4 w-4 ml-1 md:ml-2" />
               بحث
             </Button>
           </div>
         </div>
 
-        {/* الفلاتر المتقدمة */}
+        {/* Advanced filters */}
         {showAdvanced && (
-          <div className="mt-4 pt-4 border-t border-gray-100">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-              {/* نوع العقار */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <Home className="h-4 w-4" />
+          <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-border">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 md:gap-3">
+              {/* Property type */}
+              <div className="space-y-1.5">
+                <label className="text-xs md:text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+                  <Home className="h-3.5 w-3.5" />
                   نوع العقار
                 </label>
                 <Select value={propertyType} onValueChange={setPropertyType}>
-                  <SelectTrigger className="h-10 rounded-lg">
+                  <SelectTrigger className="h-9 md:h-10 rounded-lg text-xs md:text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -193,10 +179,10 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({ className 
                 </Select>
               </div>
 
-              {/* الموقع */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
+              {/* Location */}
+              <div className="space-y-1.5">
+                <label className="text-xs md:text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+                  <MapPin className="h-3.5 w-3.5" />
                   المنطقة
                 </label>
                 <Input
@@ -204,18 +190,18 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({ className 
                   placeholder="اسم المنطقة..."
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="h-10 rounded-lg"
+                  className="h-9 md:h-10 rounded-lg text-xs md:text-sm"
                 />
               </div>
 
-              {/* نطاق السعر */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <DollarSign className="h-4 w-4" />
+              {/* Price range */}
+              <div className="space-y-1.5">
+                <label className="text-xs md:text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+                  <DollarSign className="h-3.5 w-3.5" />
                   نطاق السعر
                 </label>
                 <Select value={priceRange} onValueChange={setPriceRange}>
-                  <SelectTrigger className="h-10 rounded-lg">
+                  <SelectTrigger className="h-9 md:h-10 rounded-lg text-xs md:text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -230,14 +216,14 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({ className 
                 </Select>
               </div>
 
-              {/* عدد الغرف */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <Bed className="h-4 w-4" />
+              {/* Bedrooms */}
+              <div className="space-y-1.5">
+                <label className="text-xs md:text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+                  <Bed className="h-3.5 w-3.5" />
                   عدد الغرف
                 </label>
                 <Select value={bedrooms} onValueChange={setBedrooms}>
-                  <SelectTrigger className="h-10 rounded-lg">
+                  <SelectTrigger className="h-9 md:h-10 rounded-lg text-xs md:text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -255,11 +241,11 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({ className 
         )}
       </div>
 
-      {/* نتائج البحث الفورية (Autocomplete) */}
+      {/* Autocomplete suggestions */}
       {showSuggestions && suggestions.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-xl shadow-2xl border border-border overflow-hidden z-50 max-h-80 overflow-y-auto">
           {isLoading && (
-            <div className="p-4 text-center text-gray-500">
+            <div className="p-4 text-center text-muted-foreground">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
             </div>
           )}
@@ -267,15 +253,15 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({ className 
             <button
               key={property.id}
               onClick={() => handleSuggestionClick(property.id)}
-              className="w-full p-4 hover:bg-gray-50 transition-colors text-right border-b border-gray-100 last:border-0"
+              className="w-full p-3 md:p-4 hover:bg-muted/50 transition-colors text-right border-b border-border last:border-0"
             >
-              <div className="flex items-start gap-3">
-                <div className="bg-primary/10 p-2 rounded-lg">
-                  <Home className="h-5 w-5 text-primary" />
+              <div className="flex items-start gap-2.5 md:gap-3">
+                <div className="bg-primary/10 p-1.5 md:p-2 rounded-lg shrink-0">
+                  <Home className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                 </div>
-                <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900 mb-1">{property.title}</h4>
-                  <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold text-card-foreground text-sm md:text-base mb-0.5 truncate">{property.title}</h4>
+                  <div className="flex flex-wrap items-center gap-2 md:gap-3 text-xs md:text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <MapPin className="h-3 w-3" />
                       {property.location}
@@ -292,11 +278,11 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({ className 
               </div>
             </button>
           ))}
-          <div className="p-3 bg-gray-50 text-center">
+          <div className="p-2.5 md:p-3 bg-muted/30 text-center">
             <Button
               variant="ghost"
               onClick={handleSearch}
-              className="text-sm text-primary hover:text-primary/80"
+              className="text-xs md:text-sm text-primary hover:text-primary/80"
             >
               عرض جميع النتائج
             </Button>
@@ -304,16 +290,16 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({ className 
         </div>
       )}
 
-      {/* رسالة عند عدم وجود نتائج */}
+      {/* No results */}
       {showSuggestions && !isLoading && suggestions.length === 0 && debouncedSearch.length >= 2 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 p-6 text-center z-50">
-          <Search className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-600 mb-2">لم يتم العثور على نتائج</p>
-          <p className="text-sm text-gray-500">جرب استخدام كلمات بحث مختلفة أو قم بتعديل الفلاتر</p>
+        <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-xl shadow-2xl border border-border p-4 md:p-6 text-center z-50">
+          <Search className="h-8 w-8 md:h-12 md:w-12 text-muted-foreground/40 mx-auto mb-2 md:mb-3" />
+          <p className="text-card-foreground text-sm mb-1">لم يتم العثور على نتائج</p>
+          <p className="text-xs md:text-sm text-muted-foreground">جرب استخدام كلمات بحث مختلفة أو قم بتعديل الفلاتر</p>
         </div>
       )}
 
-      {/* Overlay لإغلاق الاقتراحات */}
+      {/* Overlay to close suggestions */}
       {showSuggestions && (
         <div
           className="fixed inset-0 z-40"

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Search, MapPin, Home, DollarSign, Bed, X, SlidersHorizontal } from 'lucide-react';
 import { Input } from '@/components/ui/input';

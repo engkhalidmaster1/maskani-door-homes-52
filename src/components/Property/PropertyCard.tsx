@@ -345,7 +345,7 @@ export const PropertyCard = ({
                   e.preventDefault();
                   onEdit(property.id);
                 }}
-                className="flex-1 bg-white hover:bg-primary hover:text-white border-gray-300"
+                className="flex-1 bg-card hover:bg-primary hover:text-primary-foreground border-border"
               >
                 <Edit className="h-4 w-4 ml-1" />
                 تعديل

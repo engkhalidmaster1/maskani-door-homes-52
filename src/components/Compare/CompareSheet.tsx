@@ -55,7 +55,7 @@ const rows: CompareRow[] = [
     label: 'الموقع',
     icon: <MapPin className="w-4 h-4" />,
     render: (p) => {
-      const market = p.market ? getMarketLabel(p.market) : null;
+      const market = p.market ? getMarketLabel(p.market as any) : null;
       return <span className="text-xs">{market || p.location || p.address || '—'}</span>;
     },
   },

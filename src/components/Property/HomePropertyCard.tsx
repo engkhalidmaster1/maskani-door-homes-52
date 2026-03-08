@@ -1,6 +1,5 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { PropertyStatusBadge } from "@/components/Property/PropertyStatusBadge";
 import { Building, Home as HomeIcon, MapPin, Bed, Bath, Ruler, Heart, Store, GitCompareArrows } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -27,7 +26,7 @@ interface Property {
   amenities?: string[] | null;
   images?: string[] | null;
   is_published: boolean;
-  status?: string; // available, sold, rented, under_negotiation
+  status?: string;
   created_at: string;
   updated_at: string;
   marketLabel?: string | null;
@@ -48,24 +47,23 @@ export const HomePropertyCard = ({ property }: HomePropertyCardProps) => {
 
   const getPropertyIcon = () => {
     switch (property.property_type) {
-      case "apartment":
-        return <Building className="h-12 w-12" />;
+      case "apartment": return <Building className="h-8 w-8 md:h-12 md:w-12" />;
       case "house":
-        return <HomeIcon className="h-12 w-12" />;
-      case "villa":
-        return <HomeIcon className="h-12 w-12" />;
-      default:
-        return <HomeIcon className="h-12 w-12" />;
+      case "villa": return <HomeIcon className="h-8 w-8 md:h-12 md:w-12" />;
+      default: return <HomeIcon className="h-8 w-8 md:h-12 md:w-12" />;
     }
   };
 
+  const fav = isFavorite(property.id);
+  const compared = isInCompare(property.id);
+
   return (
-    <Card className="overflow-hidden hover-lift shadow-md group relative border-2 border-border">
-      {/* Favorite & Compare Buttons */}
+    <Card className="overflow-hidden shadow-card hover:shadow-lg transition-all duration-300 group relative border border-border">
+      {/* Action buttons */}
       {user && (
-        <div className="absolute top-3 left-3 z-10 flex gap-1.5">
+        <div className="absolute top-2 md:top-3 left-2 md:left-3 z-10 flex gap-1.5">
           <button
-            title={isFavorite(property.id) ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
+            title={fav ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -75,20 +73,14 @@ export const HomePropertyCard = ({ property }: HomePropertyCardProps) => {
               }
             }}
             disabled={isToggling}
-            className={`w-8 h-8 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm shadow-md transition-all hover:scale-110 ${
-              isFavorite(property.id) 
-                ? 'text-red-500' 
-                : 'text-gray-400 hover:text-red-500'
+            className={`w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-full bg-card/90 backdrop-blur-sm shadow-md transition-all hover:scale-110 ${
+              fav ? 'text-destructive' : 'text-muted-foreground hover:text-destructive'
             }`}
           >
-            <Heart 
-              className={`w-4 h-4 transition-all ${
-                isFavorite(property.id) ? 'fill-current' : ''
-              }`} 
-            />
+            <Heart className={`w-3.5 h-3.5 md:w-4 md:h-4 ${fav ? 'fill-current' : ''}`} />
           </button>
           <button
-            title={isInCompare(property.id) ? "إزالة من المقارنة" : "إضافة للمقارنة"}
+            title={compared ? "إزالة من المقارنة" : "إضافة للمقارنة"}
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -111,24 +103,19 @@ export const HomePropertyCard = ({ property }: HomePropertyCardProps) => {
                 created_at: property.created_at,
               });
             }}
-            className={`w-8 h-8 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm shadow-md transition-all hover:scale-110 ${
-              isInCompare(property.id)
-                ? 'text-primary ring-2 ring-primary/30'
-                : 'text-gray-400 hover:text-primary'
+            className={`w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-full bg-card/90 backdrop-blur-sm shadow-md transition-all hover:scale-110 ${
+              compared ? 'text-primary ring-2 ring-primary/30' : 'text-muted-foreground hover:text-primary'
             }`}
           >
-            <GitCompareArrows className="w-4 h-4" />
+            <GitCompareArrows className="w-3.5 h-3.5 md:w-4 md:h-4" />
           </button>
         </div>
       )}
 
-      {/* Main Content - Clickable Area */}
-      <div 
-        onClick={() => navigate(`/property/${property.id}`)} 
-        className="cursor-pointer"
-      >
-        {/* Property Image/Icon */}
-        <div className="relative h-48 overflow-hidden">
+      {/* Clickable area */}
+      <div onClick={() => navigate(`/property/${property.id}`)} className="cursor-pointer">
+        {/* Image */}
+        <div className="relative h-36 md:h-48 overflow-hidden">
           {(() => {
             const imageUrl = property.images?.[0];
             return imageUrl ? (
@@ -136,103 +123,77 @@ export const HomePropertyCard = ({ property }: HomePropertyCardProps) => {
                 src={imageUrl}
                 alt={property.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                loading="lazy"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
-                  const fallbackDiv = e.currentTarget.parentElement?.querySelector('.fallback-bg') as HTMLElement;
-                  if (fallbackDiv) fallbackDiv.style.display = 'flex';
+                  const fallback = e.currentTarget.parentElement?.querySelector('.fallback-bg') as HTMLElement;
+                  if (fallback) fallback.style.display = 'flex';
                 }}
               />
             ) : (
-              <div className="fallback-bg w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-muted to-muted/70 text-muted-foreground relative">
+              <div className="fallback-bg w-full h-full flex flex-col items-center justify-center bg-muted text-muted-foreground">
                 {getPropertyIcon()}
-                <div className="mt-3 text-center">
-                  <span className="text-sm font-medium text-muted-foreground">عقار</span>
-                  <div className="flex items-center gap-1 mt-1 justify-center">
-                    <svg className="w-3 h-3 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                    <span className="text-xs text-orange-600 font-medium">بلا صورة</span>
-                  </div>
-                </div>
+                <span className="text-xs mt-2 text-muted-foreground">بلا صورة</span>
               </div>
             );
           })()}
 
-          {/* Status Badges */}
+          {/* Listing type badge */}
           <Badge
-            variant="default"
-            className={`absolute top-3 right-3 backdrop-blur-sm font-bold ${
-              property.listing_type === "sale" 
-                ? "bg-red-500 text-white" 
-                : "bg-green-500 text-white"
+            className={`absolute top-2 md:top-3 right-2 md:right-3 text-[10px] md:text-xs font-bold backdrop-blur-sm ${
+              property.listing_type === "sale"
+                ? "bg-destructive text-destructive-foreground"
+                : "bg-green-600 text-white"
             }`}
           >
             {property.listing_type === "sale" ? "للبيع" : "للإيجار"}
           </Badge>
         </div>
 
-        {/* Property Details */}
-        <div className="p-4 bg-card">
-          {/* Title and Price */}
-          <div className="flex items-center justify-between mb-3 border-b pb-3 border-border" dir="rtl">
-            <div className="text-right w-3/5">
-              <h3 className="text-lg font-bold text-card-foreground line-clamp-1" dir="rtl">{property.title}</h3>
-            </div>
-            <div className="w-2/5 text-left">
-              <span className="text-xl font-bold text-primary bg-primary/10 px-2 py-1 rounded">
-                {formatCurrency(property.price)}
-              </span>
-            </div>
+        {/* Details */}
+        <div className="p-3 md:p-4 bg-card">
+          {/* Title + Price */}
+          <div className="flex items-start justify-between gap-2 mb-2 md:mb-3" dir="rtl">
+            <h3 className="text-sm md:text-lg font-bold text-card-foreground line-clamp-1 flex-1">
+              {property.title}
+            </h3>
+            <span className="text-xs md:text-base font-bold text-primary bg-primary/10 px-1.5 md:px-2 py-0.5 md:py-1 rounded whitespace-nowrap shrink-0">
+              {formatCurrency(property.price)}
+            </span>
           </div>
 
           {/* Location */}
           {(property.location || marketLabel) && (
-            <div className="space-y-1 mb-3 text-right" dir="rtl">
+            <div className="mb-2 md:mb-3 space-y-1" dir="rtl">
               {property.location && (
-                <div className="flex items-center">
-                  <MapPin className="h-4 w-4 ml-1 text-blue-500" />
-                  <span className="text-muted-foreground text-sm line-clamp-1">{property.location}</span>
+                <div className="flex items-center text-muted-foreground">
+                  <MapPin className="h-3 w-3 md:h-4 md:w-4 ml-1 text-primary shrink-0" />
+                  <span className="text-xs md:text-sm line-clamp-1">{property.location}</span>
                 </div>
               )}
               {marketLabel && (
-                <div className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-xs font-medium px-2 py-1 rounded-full border border-amber-200">
-                  <Store className="h-3 w-3" />
+                <div className="inline-flex items-center gap-1 bg-accent/20 text-accent-foreground text-[10px] md:text-xs font-medium px-1.5 md:px-2 py-0.5 rounded-full">
+                  <Store className="h-2.5 w-2.5 md:h-3 md:w-3" />
                   <span>قرب {marketLabel}</span>
                 </div>
               )}
             </div>
           )}
 
-          {/* Features */}
-          <div className="flex items-center gap-3 justify-start border-t pt-3 border-border">
-            <div className="flex items-center flex-row-reverse bg-purple-50 p-1 px-2 rounded">
-              <Bed className="h-4 w-4 mr-1 text-purple-500" />
-              <span className="text-foreground font-medium text-sm">{property.bedrooms}</span>
+          {/* Features row */}
+          <div className="flex items-center gap-1.5 md:gap-3 flex-wrap border-t border-border pt-2 md:pt-3">
+            <div className="flex items-center gap-1 bg-secondary px-1.5 md:px-2 py-0.5 md:py-1 rounded text-secondary-foreground">
+              <Bed className="h-3 w-3 md:h-4 md:w-4" />
+              <span className="text-[10px] md:text-sm font-medium">{property.bedrooms}</span>
             </div>
-            <div className="flex items-center flex-row-reverse bg-green-50 p-1 px-2 rounded">
-              <Bath className="h-4 w-4 mr-1 text-green-500" />
-              <span className="text-foreground font-medium text-sm">{property.bathrooms}</span>
+            <div className="flex items-center gap-1 bg-secondary px-1.5 md:px-2 py-0.5 md:py-1 rounded text-secondary-foreground">
+              <Bath className="h-3 w-3 md:h-4 md:w-4" />
+              <span className="text-[10px] md:text-sm font-medium">{property.bathrooms}</span>
             </div>
             {property.area && (
-              <div className="flex items-center flex-row-reverse bg-blue-50 p-1 px-2 rounded">
-                <Ruler className="h-4 w-4 mr-1 text-blue-500" />
-                <span className="text-foreground font-medium text-sm">{property.area} م²</span>
-              </div>
-            )}
-            {/* معلومات الصور */}
-            {property.images && property.images.length > 0 ? (
-              <div className="flex items-center flex-row-reverse bg-emerald-50 p-1 px-2 rounded">
-                <svg className="w-4 h-4 mr-1 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                </svg>
-                <span className="text-foreground font-medium text-sm">{property.images.length}</span>
-              </div>
-            ) : (
-              <div className="flex items-center flex-row-reverse bg-orange-50 p-1 px-2 rounded">
-                <svg className="w-4 h-4 mr-1 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-                <span className="text-foreground font-medium text-sm">بلا صورة</span>
+              <div className="flex items-center gap-1 bg-secondary px-1.5 md:px-2 py-0.5 md:py-1 rounded text-secondary-foreground">
+                <Ruler className="h-3 w-3 md:h-4 md:w-4" />
+                <span className="text-[10px] md:text-sm font-medium">{property.area} م²</span>
               </div>
             )}
           </div>

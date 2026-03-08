@@ -200,6 +200,11 @@ export function MapPage() {
   const [searchOnMove, setSearchOnMove] = useState(false);
   const [visibleBounds, setVisibleBounds] = useState<L.LatLngBounds | null>(null);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [saveFilterName, setSaveFilterName] = useState('');
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+
+  // Saved filters
+  const { presets, savePreset, deletePreset } = useSavedFilters();
 
   // Filter state
   const [searchTerm, setSearchTerm] = useState('');

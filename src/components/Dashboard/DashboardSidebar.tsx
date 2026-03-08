@@ -12,13 +12,11 @@ import {
   X, 
   MessageSquare, 
   Settings, 
-  Shield, 
   Bell,
   LayoutDashboard,
   ChevronLeft,
   ChevronRight,
   Activity,
-  UsersRound,
   BookOpen
 } from "lucide-react";
 

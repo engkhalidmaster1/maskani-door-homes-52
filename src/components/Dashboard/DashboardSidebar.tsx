@@ -74,19 +74,6 @@ export const DashboardSidebar = ({ activeTab, onTabChange, isOpen, onClose, onTo
       ]
     },
     {
-      title: "المستخدمين",
-      items: [
-        { 
-          id: "users-view", 
-          label: "قائمة المستخدمين", 
-          icon: UsersRound,
-          color: "text-sky-600",
-          bgColor: "bg-sky-50",
-          description: "عرض بيانات المستخدمين"
-        },
-      ]
-    },
-    {
       title: "إدارة المستخدمين",
       items: [
         { 
@@ -115,20 +102,6 @@ export const DashboardSidebar = ({ activeTab, onTabChange, isOpen, onClose, onTo
           description: "إعدادات النظام العامة"
         },
         // التوثيق أُزيل من الشريط الجانبي — الإشعارات تُعرض بدلاً منه
-      ]
-    },
-    {
-      title: "المشتركين",
-      items: [
-        {
-          id: "subscribers",
-          label: "المشتركين",
-          icon: Users,
-          color: "text-green-600",
-          bgColor: "bg-green-50",
-          badge: "جديد",
-          description: "عرض جميع المشتركين"
-        },
       ]
     },
     {

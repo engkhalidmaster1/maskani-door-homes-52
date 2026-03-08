@@ -45,6 +45,15 @@ export const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) =>
       shadowColor: "shadow-emerald-500/25"
     },
     {
+      id: "edit-properties",
+      label: "تعديل العقارات",
+      icon: Building2,
+      color: "text-teal-600",
+      gradient: "from-teal-500 via-teal-600 to-cyan-600",
+      hoverGradient: "from-teal-400 to-teal-500",
+      shadowColor: "shadow-teal-500/25"
+    },
+    {
       id: "users",
       label: "إدارة المستخدمين",
       icon: UserCog,

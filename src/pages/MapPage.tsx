@@ -196,6 +196,7 @@ export function MapPage() {
   const [fitBoundsEnabled, setFitBoundsEnabled] = useState(true);
   const [searchOnMove, setSearchOnMove] = useState(false);
   const [visibleBounds, setVisibleBounds] = useState<L.LatLngBounds | null>(null);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   // Filter state
   const [searchTerm, setSearchTerm] = useState('');

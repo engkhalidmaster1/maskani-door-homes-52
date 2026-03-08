@@ -4,6 +4,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { haptic } from "@/utils/haptic";
 
 interface MobileBottomNavProps {
   onDrawerOpen: () => void;

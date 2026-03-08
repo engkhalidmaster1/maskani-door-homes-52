@@ -158,7 +158,7 @@ function AnimatedRoutes() {
                   <Route path="/system-documentation" element={<ProtectedRoute><SystemDocumentation /></ProtectedRoute>} />
                   {/* /users-view removed — unified into /admin/users */}
                   <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-                  <Route path="/dev-docs" element={<ProtectedRoute><DevDocumentation /></ProtectedRoute>} />
+                  {/* dev-docs moved to Dashboard tab */}
                   <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           </Routes>

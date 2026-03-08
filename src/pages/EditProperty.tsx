@@ -116,6 +116,7 @@ export const EditProperty = () => {
     price: 0,
     description: "",
     bedrooms: 2,
+    bathrooms: 1,
     area: 0,
     is_published: false,
     status: 'available',

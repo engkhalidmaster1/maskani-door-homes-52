@@ -125,6 +125,19 @@ export const DashboardSidebar = ({ activeTab, onTabChange, isOpen, onClose, onTo
           description: "معلوماتك الشخصية"
         },
       ]
+    },
+    {
+      title: "التوثيق",
+      items: [
+        {
+          id: "dev-docs",
+          label: "توثيق التطوير",
+          icon: BookOpen,
+          color: "text-teal-600",
+          bgColor: "bg-teal-50",
+          description: "توثيق نظام WhatsApp OTP"
+        },
+      ]
     }
   ];
 

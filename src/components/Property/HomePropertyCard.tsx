@@ -61,31 +61,65 @@ export const HomePropertyCard = ({ property }: HomePropertyCardProps) => {
 
   return (
     <Card className="overflow-hidden hover-lift shadow-md group relative border-2 border-gray-100">
-      {/* Favorite Button */}
+      {/* Favorite & Compare Buttons */}
       {user && (
-        <button
-          title={isFavorite(property.id) ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
-          onClick={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            if (!isToggling) {
-              setIsToggling(true);
-              toggleFavorite(property.id).finally(() => setIsToggling(false));
-            }
-          }}
-          disabled={isToggling}
-          className={`absolute top-3 left-3 z-10 p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-md transition-all hover:scale-110 ${
-            isFavorite(property.id) 
-              ? 'text-red-500' 
-              : 'text-gray-400 hover:text-red-500'
-          }`}
-        >
-          <Heart 
-            className={`w-4 h-4 transition-all ${
-              isFavorite(property.id) ? 'fill-current' : ''
-            }`} 
-          />
-        </button>
+        <div className="absolute top-3 left-3 z-10 flex gap-1.5">
+          <button
+            title={isFavorite(property.id) ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              if (!isToggling) {
+                setIsToggling(true);
+                toggleFavorite(property.id).finally(() => setIsToggling(false));
+              }
+            }}
+            disabled={isToggling}
+            className={`w-8 h-8 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm shadow-md transition-all hover:scale-110 ${
+              isFavorite(property.id) 
+                ? 'text-red-500' 
+                : 'text-gray-400 hover:text-red-500'
+            }`}
+          >
+            <Heart 
+              className={`w-4 h-4 transition-all ${
+                isFavorite(property.id) ? 'fill-current' : ''
+              }`} 
+            />
+          </button>
+          <button
+            title={isInCompare(property.id) ? "إزالة من المقارنة" : "إضافة للمقارنة"}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              toggleCompare({
+                id: property.id,
+                title: property.title,
+                property_type: property.property_type,
+                listing_type: property.listing_type,
+                price: property.price,
+                area: property.area,
+                bedrooms: property.bedrooms,
+                bathrooms: property.bathrooms,
+                location: property.location,
+                address: property.address,
+                images: property.images,
+                furnished: (property as any).furnished,
+                amenities: property.amenities,
+                market: property.market,
+                status: property.status,
+                created_at: property.created_at,
+              });
+            }}
+            className={`w-8 h-8 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm shadow-md transition-all hover:scale-110 ${
+              isInCompare(property.id)
+                ? 'text-primary ring-2 ring-primary/30'
+                : 'text-gray-400 hover:text-primary'
+            }`}
+          >
+            <GitCompareArrows className="w-4 h-4" />
+          </button>
+        </div>
       )}
 
       {/* Main Content - Clickable Area */}

@@ -631,7 +631,7 @@ export const PropertyDetails = () => {
                         </div>
                       )}
                     </div>
-                  )
+                  )}
                 </CardContent>
               </Card>
 

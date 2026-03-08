@@ -35,7 +35,7 @@ const AdminUsers = lazy(() => import("@/pages/AdminUsers"));
 const AdminAddUser = lazy(() => import("@/pages/AdminAddUser"));
 const SystemDocumentation = lazy(() => import("@/pages/SystemDocumentation"));
 const SettingsTab = lazy(() => import("@/components/Dashboard/SettingsTab").then(m => ({ default: m.SettingsTab })));
-// import { SmartSearchPage } from "@/pages/SmartSearchPage"; // مخفي مؤقتاً  
+  
 import { useEffect } from "react";
 
 const queryClient = new QueryClient({
@@ -92,7 +92,7 @@ function AnimatedRoutes() {
                 <Route path="/properties" element={<PropertiesManagement />} />
                 <Route path="/offices" element={<Offices />} />
                 <Route path="/map" element={<MapPage />} />
-                {/* <Route path="/smart-search" element={<SmartSearchPage />} /> */} {/* مخفي مؤقتاً */}
+                
                 <Route path="/favorites" element={<Favorites />} />
                 {/* Dashboard: redirect bare /dashboard to a default tab and allow tab-specific routes */}
                 <Route path="/dashboard" element={<Navigate to="/dashboard/overview" replace />} />

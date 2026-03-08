@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { PullToRefresh } from "@/components/PullToRefresh";
 import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -400,6 +401,7 @@ export const PropertiesManagement = () => {
   }
 
   return (
+    <PullToRefresh onRefresh={fetchProperties}>
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Sticky Filter Bar matching Header */}
       <div className="gradient-primary text-primary-foreground shadow-elegant sticky top-16 z-40">
@@ -810,5 +812,6 @@ export const PropertiesManagement = () => {
         )}
       </div>
     </div>
+    </PullToRefresh>
   );
 };

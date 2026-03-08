@@ -223,9 +223,9 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
           {(property.location || marketLabel) && (
             <div className="space-y-1 mb-2 text-right" dir="rtl">
               {property.location && (
-                <div className="flex items-center gap-1 text-gray-600">
+                <div className="flex items-center gap-1 text-muted-foreground">
                   <MapPin className="h-3 w-3 ml-1 text-blue-500" />
-                  <span className="text-xs line-clamp-1 text-gray-700">{property.location}</span>
+                  <span className="text-xs line-clamp-1 text-muted-foreground">{property.location}</span>
                 </div>
               )}
               {marketLabel && (

@@ -144,5 +144,6 @@ export default function Offices() {
         )}
       </div>
     </div>
+    </PullToRefresh>
   );
 }

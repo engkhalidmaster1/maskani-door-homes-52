@@ -1,5 +1,6 @@
 import React from 'react';
 import { PropertyCard } from "@/components/Property/PropertyCard";
+import { PullToRefresh } from "@/components/PullToRefresh";
 import { PropertyCardMobile } from "@/components/Property/PropertyCardMobile";
 import { Button } from "@/components/ui/button";
 import { Heart, Building, ArrowRight } from "lucide-react";

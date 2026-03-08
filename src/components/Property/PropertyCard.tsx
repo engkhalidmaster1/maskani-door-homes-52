@@ -251,7 +251,7 @@ export const PropertyCard = ({
         </div>
 
         {/* Property Details */}
-        <div className="p-4 bg-white">
+        <div className="p-4 bg-card">
           {/* Title and Price */}
           <div className="flex items-center justify-between mb-3 border-b pb-3 border-gray-200" dir="rtl">
             <div className="text-right w-3/5">

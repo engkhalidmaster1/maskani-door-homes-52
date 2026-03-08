@@ -280,7 +280,7 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
 
           {/* Action Buttons */}
           {showActions && (user?.id === property.user_id || onEdit || onDelete) && (
-            <div className="flex gap-2 pt-2 border-t bg-gray-50 -mx-3 px-3 pb-1">
+            <div className="flex gap-2 pt-2 border-t border-border bg-muted/50 -mx-3 px-3 pb-1">
               {(user?.id === property.user_id || onEdit) && (
                 <Button
                   size="sm"

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Search, MapPin, Home, DollarSign, Bed, X, SlidersHorizontal } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -157,88 +158,98 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({ className 
         </div>
 
         {/* Advanced filters */}
-        {showAdvanced && (
-          <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-border">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 md:gap-3">
-              {/* Property type */}
-              <div className="space-y-1.5">
-                <label className="text-xs md:text-sm font-medium text-muted-foreground flex items-center gap-1.5">
-                  <Home className="h-3.5 w-3.5" />
-                  نوع العقار
-                </label>
-                <Select value={propertyType} onValueChange={setPropertyType}>
-                  <SelectTrigger className="h-9 md:h-10 rounded-lg text-xs md:text-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">جميع الأنواع</SelectItem>
-                    <SelectItem value="apartment">شقة</SelectItem>
-                    <SelectItem value="house">بيت</SelectItem>
-                    <SelectItem value="commercial">تجاري</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+        <AnimatePresence>
+          {showAdvanced && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+              className="overflow-hidden"
+            >
+              <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-border">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 md:gap-3">
+                  {/* Property type */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs md:text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+                      <Home className="h-3.5 w-3.5" />
+                      نوع العقار
+                    </label>
+                    <Select value={propertyType} onValueChange={setPropertyType}>
+                      <SelectTrigger className="h-9 md:h-10 rounded-lg text-xs md:text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">جميع الأنواع</SelectItem>
+                        <SelectItem value="apartment">شقة</SelectItem>
+                        <SelectItem value="house">بيت</SelectItem>
+                        <SelectItem value="commercial">تجاري</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-              {/* Location */}
-              <div className="space-y-1.5">
-                <label className="text-xs md:text-sm font-medium text-muted-foreground flex items-center gap-1.5">
-                  <MapPin className="h-3.5 w-3.5" />
-                  المنطقة
-                </label>
-                <Input
-                  type="text"
-                  placeholder="اسم المنطقة..."
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  className="h-9 md:h-10 rounded-lg text-xs md:text-sm"
-                />
-              </div>
+                  {/* Location */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs md:text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+                      <MapPin className="h-3.5 w-3.5" />
+                      المنطقة
+                    </label>
+                    <Input
+                      type="text"
+                      placeholder="اسم المنطقة..."
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      className="h-9 md:h-10 rounded-lg text-xs md:text-sm"
+                    />
+                  </div>
 
-              {/* Price range */}
-              <div className="space-y-1.5">
-                <label className="text-xs md:text-sm font-medium text-muted-foreground flex items-center gap-1.5">
-                  <DollarSign className="h-3.5 w-3.5" />
-                  نطاق السعر
-                </label>
-                <Select value={priceRange} onValueChange={setPriceRange}>
-                  <SelectTrigger className="h-9 md:h-10 rounded-lg text-xs md:text-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">جميع الأسعار</SelectItem>
-                    <SelectItem value="0-50000">أقل من 50,000</SelectItem>
-                    <SelectItem value="50000-100000">50,000 - 100,000</SelectItem>
-                    <SelectItem value="100000-200000">100,000 - 200,000</SelectItem>
-                    <SelectItem value="200000-500000">200,000 - 500,000</SelectItem>
-                    <SelectItem value="500000-1000000">500,000 - 1,000,000</SelectItem>
-                    <SelectItem value="1000000-999999999">أكثر من 1,000,000</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                  {/* Price range */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs md:text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+                      <DollarSign className="h-3.5 w-3.5" />
+                      نطاق السعر
+                    </label>
+                    <Select value={priceRange} onValueChange={setPriceRange}>
+                      <SelectTrigger className="h-9 md:h-10 rounded-lg text-xs md:text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">جميع الأسعار</SelectItem>
+                        <SelectItem value="0-50000">أقل من 50,000</SelectItem>
+                        <SelectItem value="50000-100000">50,000 - 100,000</SelectItem>
+                        <SelectItem value="100000-200000">100,000 - 200,000</SelectItem>
+                        <SelectItem value="200000-500000">200,000 - 500,000</SelectItem>
+                        <SelectItem value="500000-1000000">500,000 - 1,000,000</SelectItem>
+                        <SelectItem value="1000000-999999999">أكثر من 1,000,000</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-              {/* Bedrooms */}
-              <div className="space-y-1.5">
-                <label className="text-xs md:text-sm font-medium text-muted-foreground flex items-center gap-1.5">
-                  <Bed className="h-3.5 w-3.5" />
-                  عدد الغرف
-                </label>
-                <Select value={bedrooms} onValueChange={setBedrooms}>
-                  <SelectTrigger className="h-9 md:h-10 rounded-lg text-xs md:text-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">أي عدد</SelectItem>
-                    <SelectItem value="1">1 غرفة</SelectItem>
-                    <SelectItem value="2">2 غرفة</SelectItem>
-                    <SelectItem value="3">3 غرف</SelectItem>
-                    <SelectItem value="4">4 غرف</SelectItem>
-                    <SelectItem value="5">5+ غرف</SelectItem>
-                  </SelectContent>
-                </Select>
+                  {/* Bedrooms */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs md:text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+                      <Bed className="h-3.5 w-3.5" />
+                      عدد الغرف
+                    </label>
+                    <Select value={bedrooms} onValueChange={setBedrooms}>
+                      <SelectTrigger className="h-9 md:h-10 rounded-lg text-xs md:text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">أي عدد</SelectItem>
+                        <SelectItem value="1">1 غرفة</SelectItem>
+                        <SelectItem value="2">2 غرفة</SelectItem>
+                        <SelectItem value="3">3 غرف</SelectItem>
+                        <SelectItem value="4">4 غرف</SelectItem>
+                        <SelectItem value="5">5+ غرف</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Autocomplete suggestions */}

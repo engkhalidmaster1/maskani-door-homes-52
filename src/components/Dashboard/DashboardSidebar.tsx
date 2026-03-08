@@ -230,7 +230,11 @@ export const DashboardSidebar = ({ activeTab, onTabChange, isOpen, onClose, onTo
                         }
                       `}
                       onClick={() => {
-                        onTabChange(item.id);
+                        if (item.id === 'dev-docs') {
+                          navigate('/dev-docs');
+                        } else {
+                          onTabChange(item.id);
+                        }
                         onClose();
                       }}
                     >

@@ -631,6 +631,57 @@ export function MapPage() {
               >
                 <Share2 className="w-3.5 h-3.5" />
               </Button>
+
+              {/* Save/Load Filters */}
+              {user && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={`h-8 px-2.5 shrink-0 ${presets.length > 0 ? 'text-primary-foreground' : 'text-primary-foreground/70'} hover:bg-primary-foreground/20`}
+                      title="الفلاتر المحفوظة"
+                    >
+                      {presets.length > 0 ? <BookmarkCheck className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 z-[2000]">
+                    <DropdownMenuItem
+                      onClick={() => setShowSaveDialog(true)}
+                      disabled={!hasActiveFilters}
+                      className="gap-2 text-xs"
+                    >
+                      <Bookmark className="w-3.5 h-3.5" />
+                      حفظ الفلاتر الحالية
+                    </DropdownMenuItem>
+                    {presets.length > 0 && (
+                      <>
+                        <DropdownMenuSeparator />
+                        {presets.map((preset) => (
+                          <DropdownMenuItem
+                            key={preset.id}
+                            className="flex items-center justify-between text-xs group"
+                            onClick={() => loadFilters(preset.filters)}
+                          >
+                            <span className="truncate">📂 {preset.name}</span>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); deletePreset(preset.id); }}
+                              className="opacity-0 group-hover:opacity-100 hover:text-destructive transition-opacity p-0.5"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </DropdownMenuItem>
+                        ))}
+                      </>
+                    )}
+                    {presets.length === 0 && (
+                      <div className="px-2 py-3 text-center text-xs text-muted-foreground">
+                        لا توجد فلاتر محفوظة بعد
+                      </div>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </div>
 
             {/* Advanced filters panel (mobile only) */}

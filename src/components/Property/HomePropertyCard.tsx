@@ -2,13 +2,14 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PropertyStatusBadge } from "@/components/Property/PropertyStatusBadge";
-import { Building, Home as HomeIcon, MapPin, Bed, Bath, Ruler, Heart, Store } from "lucide-react";
+import { Building, Home as HomeIcon, MapPin, Bed, Bath, Ruler, Heart, Store, GitCompareArrows } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useAuth } from "@/hooks/useAuth";
 import { formatCurrency } from "@/lib/utils";
 import { getMarketLabel, resolveMarketValue } from "@/constants/markets";
+import { useCompare } from "@/context/CompareContext";
 
 interface Property {
   id: string;

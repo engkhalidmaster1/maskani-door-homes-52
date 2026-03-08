@@ -298,7 +298,7 @@ export const PropertyCard = ({
           )}
 
           {/* Features */}
-          <div className="flex items-center gap-3 justify-end border-t pt-3 border-gray-200">
+          <div className="flex items-center gap-3 justify-end border-t pt-3 border-border">
             {property.area && (
               <div className="flex items-center flex-row-reverse bg-blue-50 p-1 px-2 rounded">
                 <Ruler className="h-4 w-4 ml-1 text-blue-500" />

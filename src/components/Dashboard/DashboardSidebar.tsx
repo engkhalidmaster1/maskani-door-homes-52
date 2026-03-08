@@ -31,6 +31,7 @@ interface DashboardSidebarProps {
 }
 
 export const DashboardSidebar = ({ activeTab, onTabChange, isOpen, onClose, onToggle }: DashboardSidebarProps) => {
+  const navigate = useNavigate();
   const sidebarSections = [
     {
       title: "الرئيسية",

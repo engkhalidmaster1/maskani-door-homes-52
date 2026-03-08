@@ -204,7 +204,7 @@ export const HomePropertyCard = ({ property }: HomePropertyCardProps) => {
           )}
 
           {/* Features */}
-          <div className="flex items-center gap-3 justify-start border-t pt-3 border-gray-200">
+          <div className="flex items-center gap-3 justify-start border-t pt-3 border-border">
             <div className="flex items-center flex-row-reverse bg-purple-50 p-1 px-2 rounded">
               <Bed className="h-4 w-4 mr-1 text-purple-500" />
               <span className="text-gray-700 font-medium text-sm">{property.bedrooms}</span>

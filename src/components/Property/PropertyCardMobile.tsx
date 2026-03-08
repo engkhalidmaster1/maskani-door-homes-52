@@ -238,7 +238,7 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
           )}
 
           {/* Property Details */}
-          <div className="flex items-center gap-2 justify-end border-t pt-2 border-gray-200">
+          <div className="flex items-center gap-2 justify-end border-t pt-2 border-border">
             {property.area && (
               <div className="flex items-center gap-1 flex-row-reverse bg-blue-50 p-1 px-2 rounded">
                 <Square className="h-3 w-3 ml-1 text-blue-500" />

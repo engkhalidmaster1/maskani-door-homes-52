@@ -334,7 +334,7 @@ export const PropertyCard = ({
 
         {/* Actions Buttons - Moved to Bottom */}
         {showActions && (
-          <div className="p-3 bg-white border-t border-gray-200 flex gap-2 justify-center">
+          <div className="p-3 bg-card border-t border-border flex gap-2 justify-center">
             {onEdit && (
               <Button
                 size="sm"

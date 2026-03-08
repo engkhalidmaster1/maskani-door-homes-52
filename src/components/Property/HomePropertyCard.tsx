@@ -40,6 +40,7 @@ interface HomePropertyCardProps {
 export const HomePropertyCard = ({ property }: HomePropertyCardProps) => {
   const { user } = useAuth();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { has: isInCompare, toggle: toggleCompare } = useCompare();
   const [isToggling, setIsToggling] = useState(false);
   const navigate = useNavigate();
   const resolvedMarket = resolveMarketValue(property.market ?? property.location ?? property.address ?? undefined);

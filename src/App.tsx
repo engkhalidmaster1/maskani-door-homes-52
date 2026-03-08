@@ -12,9 +12,7 @@ import { CompareFloatingBar } from '@/components/Compare/CompareFloatingBar';
 import { CompareSheet } from '@/components/Compare/CompareSheet';
 import { SwipeBackWrapper } from "@/components/Layout/SwipeBackWrapper";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { CompareProvider } from '@/context/CompareContext';
-import { CompareFloatingBar } from '@/components/Compare/CompareFloatingBar';
-import { CompareSheet } from '@/components/Compare/CompareSheet';
+// Lazy-loaded pages/components
 // Lazy-loaded pages/components
 const Home = lazy(() => import("@/pages/Home").then(m => ({ default: m.Home })));
 const DashboardPage = lazy(() => import("@/pages/Dashboard"));

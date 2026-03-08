@@ -85,6 +85,7 @@ interface PropertyForm {
   price: number;
   description: string;
   bedrooms: number;
+  bathrooms: number;
   area: number;
   is_published: boolean;
   status: 'available' | 'sold' | 'rented';

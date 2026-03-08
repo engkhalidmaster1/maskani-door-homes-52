@@ -60,7 +60,7 @@ export const HomePropertyCard = ({ property }: HomePropertyCardProps) => {
   };
 
   return (
-    <Card className="overflow-hidden hover-lift shadow-md group relative border-2 border-gray-100">
+    <Card className="overflow-hidden hover-lift shadow-md group relative border-2 border-border">
       {/* Favorite & Compare Buttons */}
       {user && (
         <div className="absolute top-3 left-3 z-10 flex gap-1.5">

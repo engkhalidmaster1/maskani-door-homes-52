@@ -85,7 +85,7 @@ export const Home = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-3 md:px-4 py-4 md:py-8">
         <ScrollingBanner />
         
         {/* Floating Welcome Button */}
@@ -93,15 +93,15 @@ export const Home = () => {
 
         {/* Advanced Search Bar */}
         {homeSettings?.show_search_bar && (
-          <section className="mb-12">
-            <div className="text-center mb-6">
+          <section className="mb-8 md:mb-12">
+            <div className="text-center mb-4 md:mb-6">
               {homeSettings.search_bar_title && (
-                <h2 className="text-3xl font-bold text-foreground mb-2">
+                <h2 className="text-xl md:text-3xl font-bold text-foreground mb-1 md:mb-2">
                   {homeSettings.search_bar_title}
                 </h2>
               )}
               {homeSettings.search_bar_subtitle && (
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground text-sm md:text-base">
                   {homeSettings.search_bar_subtitle}
                 </p>
               )}
@@ -110,34 +110,34 @@ export const Home = () => {
           </section>
         )}
 
-        {/* Main Navigation Cards - مثل الصورة */}
-        <section className="mb-16">
+        {/* Main Navigation Cards */}
+        <section className="mb-8 md:mb-16">
           {cardsLoading ? (
-            <div className="flex items-center justify-center py-12">
+            <div className="flex items-center justify-center py-8 md:py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
               {navigationCards.map((card, index) => {
                 const Icon = card.icon;
                 return (
                   <div
                     key={index}
-                    className={`${card.bgColor} rounded-2xl p-6 shadow-card hover:shadow-lg transition-all duration-300 cursor-pointer border border-border`}
+                    className={`${card.bgColor} rounded-xl md:rounded-2xl p-4 md:p-6 shadow-card hover:shadow-lg transition-all duration-300 cursor-pointer border border-border`}
                     onClick={() => handleNavigation(card.path, card.requiresAuth)}
                   >
-                    <div className={`${card.iconColor} w-12 h-12 rounded-xl flex items-center justify-center mb-4`}>
-                      <Icon className="h-6 w-6 text-white" />
+                    <div className={`${card.iconColor} w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center mb-3 md:mb-4`}>
+                      <Icon className="h-5 w-5 md:h-6 md:w-6 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold mb-3 text-card-foreground">
+                    <h3 className="text-base md:text-xl font-bold mb-1 md:mb-3 text-card-foreground line-clamp-1">
                       {card.title}
                     </h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
+                    <p className="text-muted-foreground text-xs md:text-sm leading-relaxed line-clamp-2">
                       {card.description}
                     </p>
                     {card.requiresAuth && !user && (
-                      <div className="mt-3">
-                        <span className="text-xs text-orange-600 bg-orange-100 px-2 py-1 rounded-full">
+                      <div className="mt-2 md:mt-3">
+                        <span className="text-[10px] md:text-xs text-orange-600 bg-orange-100 px-1.5 md:px-2 py-0.5 md:py-1 rounded-full">
                         يتطلب تسجيل دخول
                         </span>
                       </div>

@@ -15,6 +15,7 @@ export const DASHBOARD_TABS = [
   'system-health',
   'settings',
   'profile',
+  'dev-docs',
 ] as const;
 
 export type DashboardTabId = typeof DASHBOARD_TABS[number];

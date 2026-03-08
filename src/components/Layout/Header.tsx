@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Home, Building, PlusCircle, User, Menu, LogOut, Settings, LogIn, UserPlus, Heart, MapPin } from "lucide-react";
+import { Home, Building, PlusCircle, User, Menu, LogOut, Settings, LogIn, UserPlus, Heart, MapPin, Moon, Sun } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/hooks/useAuth";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useFavorites } from "@/hooks/useFavorites";

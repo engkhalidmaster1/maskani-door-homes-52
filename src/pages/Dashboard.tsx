@@ -136,6 +136,7 @@ export const Dashboard = ({ onPageChange, onEditProperty }: DashboardProps) => {
       case "broadcast-notification": return <BroadcastNotification />;
       case "system-health": return <SystemHealthTab />;
       case "profile": return <Profile />;
+      case "dev-docs": return <DevDocumentation />;
       default: return renderOverviewTab();
     }
   };

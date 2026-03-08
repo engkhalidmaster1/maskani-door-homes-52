@@ -14,7 +14,8 @@ import {
   UserCog,
   MonitorSpeaker,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  BookOpen
 } from "lucide-react";
 
 interface DashboardTabsProps {

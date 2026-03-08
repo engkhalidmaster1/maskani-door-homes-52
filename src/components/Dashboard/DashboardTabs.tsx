@@ -133,6 +133,15 @@ export const DashboardTabs = ({ activeTab, onTabChange }: DashboardTabsProps) =>
       gradient: "from-slate-500 via-slate-600 to-gray-600",
       hoverGradient: "from-slate-400 to-slate-500",
       shadowColor: "shadow-slate-500/25"
+    },
+    {
+      id: "dev-docs",
+      label: "توثيق التطوير",
+      icon: BookOpen,
+      color: "text-teal-600",
+      gradient: "from-teal-500 via-teal-600 to-emerald-600",
+      hoverGradient: "from-teal-400 to-teal-500",
+      shadowColor: "shadow-teal-500/25"
     }
   ];
 

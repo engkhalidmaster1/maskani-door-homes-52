@@ -50,7 +50,10 @@ export const Favorites = () => {
     );
   }
 
+  const handleRefresh = async () => { window.location.reload(); };
+
   return (
+    <PullToRefresh onRefresh={handleRefresh}>
     <div className="min-h-screen">
       <div className="container mx-auto px-3 md:px-4 py-4 md:py-8">
         {/* Page Header */}

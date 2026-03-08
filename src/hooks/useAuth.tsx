@@ -87,7 +87,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         .single();
 
       if (error || !data) {
-        console.error('Error fetching user role:', error);
         setUserRole('publisher');
         return 'publisher';
       }

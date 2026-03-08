@@ -206,7 +206,7 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
         </div>
 
         {/* Content Section */}
-        <CardContent className="p-3 bg-white">
+        <CardContent className="p-3 bg-card">
           {/* Title and Price */}
           <div className="flex items-center justify-between mb-3 border-b pb-2 border-gray-200" dir="rtl">
             <div className="text-right w-3/5">

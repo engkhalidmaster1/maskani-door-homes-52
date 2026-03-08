@@ -26,6 +26,7 @@ const initialFormData = {
   price: "",
   description: "",
   bedrooms: "2",
+  bathrooms: "1",
   area: "",
   latitude: null as number | null,
   longitude: null as number | null,

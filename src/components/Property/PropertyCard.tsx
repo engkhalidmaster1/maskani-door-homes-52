@@ -65,6 +65,7 @@ export const PropertyCard = ({
 }: PropertyCardProps) => {
   const { user } = useAuth();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { has: isInCompare, toggle: toggleCompare } = useCompare();
   const [isToggling, setIsToggling] = useState(false);
   const [optimisticPublished, setOptimisticPublished] = useState<undefined | boolean>(undefined);
   const [optimisticHidden, setOptimisticHidden] = useState<undefined | boolean>(undefined);

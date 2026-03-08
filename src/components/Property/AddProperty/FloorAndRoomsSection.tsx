@@ -1,21 +1,20 @@
 import React from "react";
-import { NumberSelector, FLOOR_QUICK_OPTIONS, BEDROOM_QUICK_OPTIONS } from "@/components/ui/number-selector";
+import { NumberSelector, FLOOR_QUICK_OPTIONS, BEDROOM_QUICK_OPTIONS, BATHROOM_QUICK_OPTIONS } from "@/components/ui/number-selector";
 
 interface FloorAndRoomsSectionProps {
   formData: {
     floor: string;
     bedrooms: string;
+    bathrooms: string;
     property_type: string;
   };
   onChange: (field: string, value: string) => void;
 }
 
 export const FloorAndRoomsSection = React.memo(({ formData, onChange }: FloorAndRoomsSectionProps) => {
-  // إظهار الطابق وغرف النوم فقط للشقق والبيوت (إخفاؤها للمحلات التجارية)
   const isCommercial = formData.property_type === 'commercial';
   const isApartment = formData.property_type === 'apartment';
 
-  // إخفاء القسم بالكامل للمحلات التجارية
   if (isCommercial) {
     return null;
   }
@@ -31,7 +30,7 @@ export const FloorAndRoomsSection = React.memo(({ formData, onChange }: FloorAnd
         </span>
       </h2>
 
-      <div className={`grid grid-cols-1 ${isApartment ? 'lg:grid-cols-2' : 'lg:grid-cols-1'} gap-6`}>
+      <div className={`grid grid-cols-1 ${isApartment ? 'lg:grid-cols-3' : 'lg:grid-cols-2'} gap-6`}>
         {/* اختيار الطابق - يظهر فقط للشقق */}
         {isApartment && (
           <NumberSelector
@@ -62,6 +61,21 @@ export const FloorAndRoomsSection = React.memo(({ formData, onChange }: FloorAnd
           required
           icon="🛏️"
           colorScheme="cyan"
+        />
+
+        {/* الحمامات */}
+        <NumberSelector
+          label="الحمامات"
+          value={formData.bathrooms}
+          onChange={(value) => onChange('bathrooms', value)}
+          quickOptions={BATHROOM_QUICK_OPTIONS}
+          customLabel="عدد آخر"
+          customPlaceholder="مثال: 5, 6"
+          maxValue={10}
+          minValue={1}
+          required
+          icon="🚿"
+          colorScheme="blue"
         />
       </div>
     </div>

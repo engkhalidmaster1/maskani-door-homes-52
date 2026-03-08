@@ -242,16 +242,16 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
             {property.area && (
               <div className="flex items-center gap-1 flex-row-reverse bg-blue-50 p-1 px-2 rounded">
                 <Square className="h-3 w-3 ml-1 text-blue-500" />
-                <span className="text-xs font-medium text-gray-700">{property.area}م²</span>
+                <span className="text-xs font-medium text-foreground">{property.area}م²</span>
               </div>
             )}
             <div className="flex items-center gap-1 flex-row-reverse bg-green-50 p-1 px-2 rounded">
               <Bath className="h-3 w-3 ml-1 text-green-500" />
-              <span className="text-xs font-medium text-gray-700">{property.bathrooms}</span>
+              <span className="text-xs font-medium text-foreground">{property.bathrooms}</span>
             </div>
             <div className="flex items-center gap-1 flex-row-reverse bg-purple-50 p-1 px-2 rounded">
               <BedDouble className="h-3 w-3 ml-1 text-purple-500" />
-              <span className="text-xs font-medium text-gray-700">{property.bedrooms}</span>
+              <span className="text-xs font-medium text-foreground">{property.bedrooms}</span>
             </div>
             {/* معلومات الصور */}
             {property.images && property.images.length > 0 ? (

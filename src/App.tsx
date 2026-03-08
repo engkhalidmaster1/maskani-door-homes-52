@@ -33,7 +33,7 @@ const Register = lazy(() => import("@/pages/Auth/Register").then(m => ({ default
 const MapPage = lazy(() => import("@/pages/MapPage").then(m => ({ default: m.MapPage })));
 const EditOffice = lazy(() => import("@/pages/EditOffice").then(m => ({ default: m.EditOffice })));
 const PropertyDetails = lazy(() => import("@/pages/PropertyDetails").then(m => ({ default: m.PropertyDetails })));
-const UsersView = lazy(() => import("@/pages/UsersView"));
+// UsersView removed — unified into AdminUsers
 const AdminDebug = lazy(() => import("@/pages/AdminDebug").then(m => ({ default: m.AdminDebug })));
 const AdminUsers = lazy(() => import("@/pages/AdminUsers"));
 const AdminAddUser = lazy(() => import("@/pages/AdminAddUser"));
@@ -156,7 +156,7 @@ function AnimatedRoutes() {
                   <Route path="/admin/add-user" element={<ProtectedRoute><AdminAddUser /></ProtectedRoute>} />
                   
                   <Route path="/system-documentation" element={<ProtectedRoute><SystemDocumentation /></ProtectedRoute>} />
-                  <Route path="/users-view" element={<ProtectedRoute><UsersView /></ProtectedRoute>} />
+                  {/* /users-view removed — unified into /admin/users */}
                   <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
                   <Route path="/dev-docs" element={<ProtectedRoute><DevDocumentation /></ProtectedRoute>} />
                   <Route path="*" element={<Navigate to="/" replace />} />

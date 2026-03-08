@@ -12,13 +12,11 @@ import {
   X, 
   MessageSquare, 
   Settings, 
-  Shield, 
   Bell,
   LayoutDashboard,
   ChevronLeft,
   ChevronRight,
   Activity,
-  UsersRound,
   BookOpen
 } from "lucide-react";
 
@@ -81,20 +79,12 @@ export const DashboardSidebar = ({ activeTab, onTabChange, isOpen, onClose, onTo
       items: [
         { 
           id: "users", 
-          label: "المستخدمون", 
+          label: "المستخدمون والصلاحيات", 
           icon: Users,
           color: "text-indigo-600",
           bgColor: "bg-indigo-50",
-          badge: "جديد",
-          description: "عرض وإدارة المستخدمين"
-        },
-        { 
-          id: "user-roles", 
-          label: "الصلاحيات", 
-          icon: Shield,
-          color: "text-red-600",
-          bgColor: "bg-red-50",
-          description: "تحديد الأدوار والصلاحيات"
+          badge: "موحد",
+          description: "إدارة شاملة للمستخدمين والأدوار"
         },
         {
           id: "settings",
@@ -104,7 +94,6 @@ export const DashboardSidebar = ({ activeTab, onTabChange, isOpen, onClose, onTo
           bgColor: "bg-violet-50",
           description: "إعدادات النظام العامة"
         },
-        // التوثيق أُزيل من الشريط الجانبي — الإشعارات تُعرض بدلاً منه
       ]
     },
     {
@@ -232,6 +221,8 @@ export const DashboardSidebar = ({ activeTab, onTabChange, isOpen, onClose, onTo
                       onClick={() => {
                         if (item.id === 'dev-docs') {
                           navigate('/dev-docs');
+                        } else if (item.id === 'users') {
+                          navigate('/admin/users');
                         } else {
                           onTabChange(item.id);
                         }

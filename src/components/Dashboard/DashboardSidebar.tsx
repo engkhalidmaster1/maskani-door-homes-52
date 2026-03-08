@@ -105,20 +105,6 @@ export const DashboardSidebar = ({ activeTab, onTabChange, isOpen, onClose, onTo
       ]
     },
     {
-      title: "المشتركين",
-      items: [
-        {
-          id: "subscribers",
-          label: "المشتركين",
-          icon: Users,
-          color: "text-green-600",
-          bgColor: "bg-green-50",
-          badge: "جديد",
-          description: "عرض جميع المشتركين"
-        },
-      ]
-    },
-    {
       title: "الإشعارات والملف",
       items: [
         { 

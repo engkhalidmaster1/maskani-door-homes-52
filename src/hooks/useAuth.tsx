@@ -91,9 +91,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         return 'publisher';
       }
 
-      console.log('User role data:', data);
-  const role = data.role || 'publisher';
-      console.log('User role fetched:', role);
+      const role = data.role || 'publisher';
       setUserRole(role);
       return role;
     } catch (error) {

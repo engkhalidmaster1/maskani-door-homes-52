@@ -40,6 +40,7 @@ const AdminAddUser = lazy(() => import("@/pages/AdminAddUser"));
 const SystemDocumentation = lazy(() => import("@/pages/SystemDocumentation"));
 const SettingsTab = lazy(() => import("@/components/Dashboard/SettingsTab").then(m => ({ default: m.SettingsTab })));
 const SettingsPage = lazy(() => import("@/pages/Settings").then(m => ({ default: m.Settings })));
+const DevDocumentation = lazy(() => import("@/pages/DevDocumentation"));
   
 import { useEffect } from "react";
 

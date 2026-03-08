@@ -54,6 +54,7 @@ interface Property {
   images: string[] | null;
   is_published: boolean;
   status?: string;
+  furnished?: string | null;
   created_at: string;
   updated_at: string;
   latitude?: number | null;
@@ -206,6 +207,8 @@ export function MapPage() {
   const [minArea, setMinArea] = useState<number>(0);
   const [maxArea, setMaxArea] = useState<number>(500);
   const [statusFilter, setStatusFilter] = useState<'' | 'available' | 'negotiating'>('');
+  const [bathroomsFilter, setBathroomsFilter] = useState<number | ''>('');
+  const [furnishedFilter, setFurnishedFilter] = useState<'' | 'yes' | 'no'>('');
   const [nearMeEnabled, setNearMeEnabled] = useState(true);
   const [radiusKm, setRadiusKm] = useState(25);
 
@@ -288,6 +291,8 @@ export function MapPage() {
     if (minArea > 0) list = list.filter((m) => (m.property.area ?? 0) >= minArea);
     if (maxArea < 500) list = list.filter((m) => (m.property.area ?? Infinity) <= maxArea);
     if (statusFilter) list = list.filter((m) => (m.property.status || 'available') === statusFilter);
+    if (bathroomsFilter !== '') list = list.filter((m) => m.property.bathrooms >= Number(bathroomsFilter));
+    if (furnishedFilter) list = list.filter((m) => m.property.furnished === furnishedFilter);
     if (debouncedSearch) {
       const s = debouncedSearch;
       list = list.filter((m) =>
@@ -309,7 +314,7 @@ export function MapPage() {
       list = list.filter(({ coords: [lat, lng] }) => visibleBounds.contains(L.latLng(lat, lng)));
     }
     return list;
-  }, [mapProperties, listingTypeFilter, propertyTypeFilter, debouncedSearch, nearMeEnabled, userLocation, radiusKm, minPrice, maxPrice, bedroomsFilter, minArea, maxArea, statusFilter, searchOnMove, visibleBounds]);
+  }, [mapProperties, listingTypeFilter, propertyTypeFilter, debouncedSearch, nearMeEnabled, userLocation, radiusKm, minPrice, maxPrice, bedroomsFilter, minArea, maxArea, statusFilter, bathroomsFilter, furnishedFilter, searchOnMove, visibleBounds]);
 
   // Disable auto-fit after first load
   useEffect(() => {
@@ -319,12 +324,13 @@ export function MapPage() {
     }
   }, [filteredMapProperties.length, fitBoundsEnabled]);
 
-  const hasActiveFilters = searchTerm.trim().length > 0 || listingTypeFilter !== '' || propertyTypeFilter !== '' || minPrice !== '' || maxPrice !== '' || bedroomsFilter !== '' || minArea > 0 || maxArea < 500 || statusFilter !== '';
+  const hasActiveFilters = searchTerm.trim().length > 0 || listingTypeFilter !== '' || propertyTypeFilter !== '' || minPrice !== '' || maxPrice !== '' || bedroomsFilter !== '' || minArea > 0 || maxArea < 500 || statusFilter !== '' || bathroomsFilter !== '' || furnishedFilter !== '';
 
   const clearAllFilters = () => {
     setSearchTerm(''); setListingTypeFilter(''); setPropertyTypeFilter('');
     setMinPrice(''); setMaxPrice(''); setBedroomsFilter('');
     setMinArea(0); setMaxArea(500); setStatusFilter('');
+    setBathroomsFilter(''); setFurnishedFilter('');
   };
 
   // ===== Stats =====
@@ -534,6 +540,50 @@ export function MapPage() {
                 ))}
               </div>
 
+              {/* Bathrooms */}
+              <div className="flex rounded-lg p-0.5 bg-primary-foreground/15 backdrop-blur-sm shrink-0">
+                {[1, 2, 3].map((n) => (
+                  <Button
+                    key={n}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setBathroomsFilter((p) => (p === n ? '' : n))}
+                    className={`h-8 w-8 p-0 rounded-md text-xs transition ${
+                      bathroomsFilter === n
+                        ? 'bg-background text-foreground shadow'
+                        : 'text-primary-foreground hover:bg-primary-foreground/20'
+                    }`}
+                    title={`${n}+ حمام`}
+                  >
+                    {n}+
+                  </Button>
+                ))}
+                <span className="text-[10px] text-primary-foreground/60 mx-1 self-center">🚿</span>
+              </div>
+
+              {/* Furnished */}
+              <div className="flex rounded-lg p-0.5 bg-primary-foreground/15 backdrop-blur-sm shrink-0">
+                {([
+                  { key: 'yes', label: 'مفروش' },
+                  { key: 'no', label: 'فارغ' },
+                ] as const).map(({ key, label }) => (
+                  <Button
+                    key={key}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setFurnishedFilter((p) => (p === key ? '' : key))}
+                    className={`h-8 px-2.5 rounded-md text-xs transition ${
+                      furnishedFilter === key
+                        ? 'bg-background text-foreground shadow'
+                        : 'text-primary-foreground hover:bg-primary-foreground/20'
+                    }`}
+                  >
+                    {key === 'yes' ? '🛋️' : '📦'} {!isMobile && label}
+                  </Button>
+                ))}
+              </div>
+
+              {/* Clear */}
               {hasActiveFilters && (
                 <Button
                   variant="ghost"

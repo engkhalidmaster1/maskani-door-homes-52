@@ -337,7 +337,7 @@ export const EditProperty = () => {
         price: property.price,
         description: property.description,
         bedrooms: property.bedrooms,
-        area: property.area,
+        bathrooms: property.bathrooms,
         is_published: property.is_published,
         status: property.status,
         location: mergedLocation,

@@ -174,7 +174,7 @@ export const Dashboard = ({ onPageChange, onEditProperty }: DashboardProps) => {
     );
   };
 
-  const handleDeleteUser = (userId: string) => {
+  const handleDeleteUser = async (userId: string) => {
     showConfirm(
       "حذف المستخدم",
       "هل أنت متأكد من حذف هذا المستخدم؟ سيتم حذف جميع عقاراته أيضاً.",

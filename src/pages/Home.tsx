@@ -116,9 +116,7 @@ export const Home = () => {
         {/* Main Navigation Cards */}
         <section className="mb-8 md:mb-16">
           {cardsLoading ? (
-            <div className="flex items-center justify-center py-8 md:py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            </div>
+            <NavCardSkeletonGrid />
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
               {navigationCards.map((card, index) => {

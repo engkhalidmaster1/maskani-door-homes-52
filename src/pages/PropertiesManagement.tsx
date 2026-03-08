@@ -401,6 +401,7 @@ export const PropertiesManagement = () => {
   }
 
   return (
+    <PullToRefresh onRefresh={fetchProperties}>
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Sticky Filter Bar matching Header */}
       <div className="gradient-primary text-primary-foreground shadow-elegant sticky top-16 z-40">

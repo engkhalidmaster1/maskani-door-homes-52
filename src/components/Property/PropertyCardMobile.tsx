@@ -285,7 +285,7 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
                 <Button
                   size="sm"
                   variant="outline"
-                  className="flex-1 h-8 text-xs bg-white hover:bg-primary hover:text-white"
+                  className="flex-1 h-8 text-xs bg-card hover:bg-primary hover:text-primary-foreground"
                   onClick={(e) => {
                     e.stopPropagation();
                     if (onEdit) {

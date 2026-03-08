@@ -35,7 +35,7 @@ const AdminUsers = lazy(() => import("@/pages/AdminUsers"));
 const AdminAddUser = lazy(() => import("@/pages/AdminAddUser"));
 const SystemDocumentation = lazy(() => import("@/pages/SystemDocumentation"));
 const SettingsTab = lazy(() => import("@/components/Dashboard/SettingsTab").then(m => ({ default: m.SettingsTab })));
-// import { SmartSearchPage } from "@/pages/SmartSearchPage"; // مخفي مؤقتاً  
+  
 import { useEffect } from "react";
 
 const queryClient = new QueryClient({

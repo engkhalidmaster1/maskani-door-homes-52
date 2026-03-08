@@ -207,11 +207,11 @@ export const HomePropertyCard = ({ property }: HomePropertyCardProps) => {
           <div className="flex items-center gap-3 justify-start border-t pt-3 border-border">
             <div className="flex items-center flex-row-reverse bg-purple-50 p-1 px-2 rounded">
               <Bed className="h-4 w-4 mr-1 text-purple-500" />
-              <span className="text-gray-700 font-medium text-sm">{property.bedrooms}</span>
+              <span className="text-foreground font-medium text-sm">{property.bedrooms}</span>
             </div>
             <div className="flex items-center flex-row-reverse bg-green-50 p-1 px-2 rounded">
               <Bath className="h-4 w-4 mr-1 text-green-500" />
-              <span className="text-gray-700 font-medium text-sm">{property.bathrooms}</span>
+              <span className="text-foreground font-medium text-sm">{property.bathrooms}</span>
             </div>
             {property.area && (
               <div className="flex items-center flex-row-reverse bg-blue-50 p-1 px-2 rounded">

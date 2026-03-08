@@ -191,7 +191,7 @@ export const HomePropertyCard = ({ property }: HomePropertyCardProps) => {
               {property.location && (
                 <div className="flex items-center">
                   <MapPin className="h-4 w-4 ml-1 text-blue-500" />
-                  <span className="text-gray-700 text-sm line-clamp-1">{property.location}</span>
+                  <span className="text-muted-foreground text-sm line-clamp-1">{property.location}</span>
                 </div>
               )}
               {marketLabel && (

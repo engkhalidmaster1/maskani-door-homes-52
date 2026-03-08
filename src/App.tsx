@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Suspense, lazy, useRef } from "react";
+import { Suspense, lazy, useRef, useState, useCallback } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { AppLayout } from "@/components/Layout/AppLayout";
 import { OfflineStatusIndicator } from "@/components/OfflineStatusIndicator";
@@ -12,6 +12,7 @@ import { CompareFloatingBar } from '@/components/Compare/CompareFloatingBar';
 import { CompareSheet } from '@/components/Compare/CompareSheet';
 import { SwipeBackWrapper } from "@/components/Layout/SwipeBackWrapper";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { SplashScreen } from "@/components/SplashScreen";
 // Lazy-loaded pages/components
 // Lazy-loaded pages/components
 const Home = lazy(() => import("@/pages/Home").then(m => ({ default: m.Home })));
@@ -164,10 +165,21 @@ function AnimatedRoutes() {
 }
 
 function App() {
-  // Service Worker تم تعطيله مؤقتاً لحل مشكلة الشاشة البيضاء
+  const isMobile = useIsMobile();
+  const [showSplash, setShowSplash] = useState(() => {
+    // Show splash only on mobile and only once per session
+    if (typeof window !== 'undefined' && sessionStorage.getItem('splash_shown')) return false;
+    return true;
+  });
+
+  const handleSplashComplete = useCallback(() => {
+    setShowSplash(false);
+    sessionStorage.setItem('splash_shown', 'true');
+  }, []);
 
   return (
     <HelmetProvider>
+    {isMobile && showSplash && <SplashScreen onComplete={handleSplashComplete} />}
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <SettingsProvider>

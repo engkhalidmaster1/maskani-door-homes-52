@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
-import { Search, X, List, Layers, TrendingUp, Home, Bed, MapPinned, Share2, Ruler, CircleDot } from 'lucide-react';
+import { Search, X, List, Layers, TrendingUp, Home, Bed, MapPinned, Share2, Ruler, CircleDot, SlidersHorizontal, ChevronDown, ChevronUp } from 'lucide-react';
 import { MapPropertyPopup } from '@/components/Map/MapPropertyPopup';
 import { MapSidebar } from '@/components/Map/MapSidebar';
 import { createPriceIcon, createUserLocationIcon } from '@/components/Map/PriceMarker';
@@ -196,6 +196,7 @@ export function MapPage() {
   const [fitBoundsEnabled, setFitBoundsEnabled] = useState(true);
   const [searchOnMove, setSearchOnMove] = useState(false);
   const [visibleBounds, setVisibleBounds] = useState<L.LatLngBounds | null>(null);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   // Filter state
   const [searchTerm, setSearchTerm] = useState('');
@@ -325,6 +326,7 @@ export function MapPage() {
   }, [filteredMapProperties.length, fitBoundsEnabled]);
 
   const hasActiveFilters = searchTerm.trim().length > 0 || listingTypeFilter !== '' || propertyTypeFilter !== '' || minPrice !== '' || maxPrice !== '' || bedroomsFilter !== '' || minArea > 0 || maxArea < 500 || statusFilter !== '' || bathroomsFilter !== '' || furnishedFilter !== '';
+  const advancedFilterCount = [minArea > 0 || maxArea < 500, statusFilter !== '', bathroomsFilter !== '', furnishedFilter !== ''].filter(Boolean).length;
 
   const clearAllFilters = () => {
     setSearchTerm(''); setListingTypeFilter(''); setPropertyTypeFilter('');
@@ -381,7 +383,7 @@ export function MapPage() {
               </div>
             </div>
 
-            {/* Filter chips */}
+            {/* Primary Filter chips - always visible */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-hide">
               {/* Listing type */}
               <div className="flex rounded-lg p-0.5 bg-primary-foreground/15 backdrop-blur-sm shrink-0">
@@ -475,113 +477,97 @@ export function MapPage() {
                 </PopoverContent>
               </Popover>
 
-              {/* Area */}
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`h-8 px-3 rounded-lg text-xs shrink-0 ${
-                      minArea > 0 || maxArea < 500
-                        ? 'bg-background text-foreground shadow'
-                        : 'text-primary-foreground bg-primary-foreground/15 hover:bg-primary-foreground/25'
-                    }`}
-                  >
-                    <Ruler className="w-3 h-3 ml-1" />
-                    المساحة
-                    {(minArea > 0 || maxArea < 500) && (
-                      <Badge variant="secondary" className="mr-1 h-4 px-1 text-[9px]">✓</Badge>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-72 p-4 z-[2000]" align="start">
-                  <div className="space-y-4">
-                    <h4 className="text-sm font-semibold text-right">المساحة (م²)</h4>
-                    <Slider
-                      min={0}
-                      max={500}
-                      step={10}
-                      value={[minArea, maxArea]}
-                      onValueChange={([min, max]) => { setMinArea(min); setMaxArea(max); }}
-                      className="my-4"
-                    />
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>{minArea} م²</span>
-                      <span>{maxArea >= 500 ? '500+ م²' : `${maxArea} م²`}</span>
-                    </div>
-                    {(minArea > 0 || maxArea < 500) && (
-                      <Button size="sm" variant="ghost" className="w-full text-xs" onClick={() => { setMinArea(0); setMaxArea(500); }}>
-                        إعادة تعيين
+              {/* Advanced filters toggle (mobile) */}
+              {isMobile && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowAdvancedFilters((v) => !v)}
+                  className={`h-8 px-2.5 rounded-lg text-xs shrink-0 ${
+                    showAdvancedFilters || advancedFilterCount > 0
+                      ? 'bg-background text-foreground shadow'
+                      : 'text-primary-foreground bg-primary-foreground/15 hover:bg-primary-foreground/25'
+                  }`}
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5 ml-1" />
+                  المزيد
+                  {advancedFilterCount > 0 && (
+                    <Badge variant="destructive" className="mr-1 h-4 w-4 p-0 text-[9px] flex items-center justify-center">{advancedFilterCount}</Badge>
+                  )}
+                  {showAdvancedFilters ? <ChevronUp className="w-3 h-3 mr-0.5" /> : <ChevronDown className="w-3 h-3 mr-0.5" />}
+                </Button>
+              )}
+
+              {/* Advanced filters inline on desktop */}
+              {!isMobile && (
+                <>
+                  {/* Area */}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={`h-8 px-3 rounded-lg text-xs shrink-0 ${
+                          minArea > 0 || maxArea < 500
+                            ? 'bg-background text-foreground shadow'
+                            : 'text-primary-foreground bg-primary-foreground/15 hover:bg-primary-foreground/25'
+                        }`}
+                      >
+                        <Ruler className="w-3 h-3 ml-1" />
+                        المساحة
+                        {(minArea > 0 || maxArea < 500) && (
+                          <Badge variant="secondary" className="mr-1 h-4 px-1 text-[9px]">✓</Badge>
+                        )}
                       </Button>
-                    )}
+                    </PopoverTrigger>
+                    <PopoverContent className="w-72 p-4 z-[2000]" align="start">
+                      <div className="space-y-4">
+                        <h4 className="text-sm font-semibold text-right">المساحة (م²)</h4>
+                        <Slider min={0} max={500} step={10} value={[minArea, maxArea]} onValueChange={([min, max]) => { setMinArea(min); setMaxArea(max); }} className="my-4" />
+                        <div className="flex justify-between text-xs text-muted-foreground">
+                          <span>{minArea} م²</span>
+                          <span>{maxArea >= 500 ? '500+ م²' : `${maxArea} م²`}</span>
+                        </div>
+                        {(minArea > 0 || maxArea < 500) && (
+                          <Button size="sm" variant="ghost" className="w-full text-xs" onClick={() => { setMinArea(0); setMaxArea(500); }}>إعادة تعيين</Button>
+                        )}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+
+                  {/* Status */}
+                  <div className="flex rounded-lg p-0.5 bg-primary-foreground/15 backdrop-blur-sm shrink-0">
+                    {([{ key: 'available', icon: '🟢', label: 'متاح' }, { key: 'negotiating', icon: '🟡', label: 'تفاوض' }] as const).map(({ key, icon, label }) => (
+                      <Button key={key} variant="ghost" size="sm" onClick={() => setStatusFilter((p) => (p === key ? '' : key))}
+                        className={`h-8 px-2.5 rounded-md text-xs transition ${statusFilter === key ? 'bg-background text-foreground shadow' : 'text-primary-foreground hover:bg-primary-foreground/20'}`}>
+                        {`${icon} ${label}`}
+                      </Button>
+                    ))}
                   </div>
-                </PopoverContent>
-              </Popover>
 
-              {/* Status */}
-              <div className="flex rounded-lg p-0.5 bg-primary-foreground/15 backdrop-blur-sm shrink-0">
-                {([
-                  { key: 'available', icon: '🟢', label: 'متاح' },
-                  { key: 'negotiating', icon: '🟡', label: 'تفاوض' },
-                ] as const).map(({ key, icon, label }) => (
-                  <Button
-                    key={key}
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setStatusFilter((p) => (p === key ? '' : key))}
-                    className={`h-8 px-2.5 rounded-md text-xs transition ${
-                      statusFilter === key
-                        ? 'bg-background text-foreground shadow'
-                        : 'text-primary-foreground hover:bg-primary-foreground/20'
-                    }`}
-                  >
-                    {isMobile ? icon : `${icon} ${label}`}
-                  </Button>
-                ))}
-              </div>
+                  {/* Bathrooms */}
+                  <div className="flex rounded-lg p-0.5 bg-primary-foreground/15 backdrop-blur-sm shrink-0">
+                    {[1, 2, 3].map((n) => (
+                      <Button key={n} variant="ghost" size="sm" onClick={() => setBathroomsFilter((p) => (p === n ? '' : n))}
+                        className={`h-8 w-8 p-0 rounded-md text-xs transition ${bathroomsFilter === n ? 'bg-background text-foreground shadow' : 'text-primary-foreground hover:bg-primary-foreground/20'}`}
+                        title={`${n}+ حمام`}>
+                        {n}+
+                      </Button>
+                    ))}
+                    <span className="text-[10px] text-primary-foreground/60 mx-1 self-center">🚿</span>
+                  </div>
 
-              {/* Bathrooms */}
-              <div className="flex rounded-lg p-0.5 bg-primary-foreground/15 backdrop-blur-sm shrink-0">
-                {[1, 2, 3].map((n) => (
-                  <Button
-                    key={n}
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setBathroomsFilter((p) => (p === n ? '' : n))}
-                    className={`h-8 w-8 p-0 rounded-md text-xs transition ${
-                      bathroomsFilter === n
-                        ? 'bg-background text-foreground shadow'
-                        : 'text-primary-foreground hover:bg-primary-foreground/20'
-                    }`}
-                    title={`${n}+ حمام`}
-                  >
-                    {n}+
-                  </Button>
-                ))}
-                <span className="text-[10px] text-primary-foreground/60 mx-1 self-center">🚿</span>
-              </div>
-
-              {/* Furnished */}
-              <div className="flex rounded-lg p-0.5 bg-primary-foreground/15 backdrop-blur-sm shrink-0">
-                {([
-                  { key: 'yes', label: 'مفروش' },
-                  { key: 'no', label: 'فارغ' },
-                ] as const).map(({ key, label }) => (
-                  <Button
-                    key={key}
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setFurnishedFilter((p) => (p === key ? '' : key))}
-                    className={`h-8 px-2.5 rounded-md text-xs transition ${
-                      furnishedFilter === key
-                        ? 'bg-background text-foreground shadow'
-                        : 'text-primary-foreground hover:bg-primary-foreground/20'
-                    }`}
-                  >
-                    {key === 'yes' ? '🛋️' : '📦'} {!isMobile && label}
-                  </Button>
-                ))}
-              </div>
+                  {/* Furnished */}
+                  <div className="flex rounded-lg p-0.5 bg-primary-foreground/15 backdrop-blur-sm shrink-0">
+                    {([{ key: 'yes', label: 'مفروش' }, { key: 'no', label: 'فارغ' }] as const).map(({ key, label }) => (
+                      <Button key={key} variant="ghost" size="sm" onClick={() => setFurnishedFilter((p) => (p === key ? '' : key))}
+                        className={`h-8 px-2.5 rounded-md text-xs transition ${furnishedFilter === key ? 'bg-background text-foreground shadow' : 'text-primary-foreground hover:bg-primary-foreground/20'}`}>
+                        {key === 'yes' ? '🛋️' : '📦'} {label}
+                      </Button>
+                    ))}
+                  </div>
+                </>
+              )}
 
               {/* Clear */}
               {hasActiveFilters && (
@@ -589,7 +575,7 @@ export function MapPage() {
                   variant="ghost"
                   size="sm"
                   onClick={clearAllFilters}
-                  className="h-8 px-2 text-xs text-red-200 hover:bg-primary-foreground/20 shrink-0"
+                  className="h-8 px-2 text-xs text-destructive-foreground hover:bg-primary-foreground/20 shrink-0"
                 >
                   <X className="w-3 h-3 ml-1" />
                   مسح
@@ -616,6 +602,68 @@ export function MapPage() {
                 <Share2 className="w-3.5 h-3.5" />
               </Button>
             </div>
+
+            {/* Advanced filters panel (mobile only) */}
+            {isMobile && showAdvancedFilters && (
+              <div className="flex flex-wrap items-center gap-2 py-2 border-t border-primary-foreground/20 animate-in slide-in-from-top-2 duration-200">
+                {/* Area */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="sm"
+                      className={`h-8 px-3 rounded-lg text-xs shrink-0 ${minArea > 0 || maxArea < 500 ? 'bg-background text-foreground shadow' : 'text-primary-foreground bg-primary-foreground/15 hover:bg-primary-foreground/25'}`}>
+                      <Ruler className="w-3 h-3 ml-1" />
+                      المساحة
+                      {(minArea > 0 || maxArea < 500) && <Badge variant="secondary" className="mr-1 h-4 px-1 text-[9px]">✓</Badge>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-72 p-4 z-[2000]" align="start">
+                    <div className="space-y-4">
+                      <h4 className="text-sm font-semibold text-right">المساحة (م²)</h4>
+                      <Slider min={0} max={500} step={10} value={[minArea, maxArea]} onValueChange={([min, max]) => { setMinArea(min); setMaxArea(max); }} className="my-4" />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>{minArea} م²</span>
+                        <span>{maxArea >= 500 ? '500+ م²' : `${maxArea} م²`}</span>
+                      </div>
+                      {(minArea > 0 || maxArea < 500) && (
+                        <Button size="sm" variant="ghost" className="w-full text-xs" onClick={() => { setMinArea(0); setMaxArea(500); }}>إعادة تعيين</Button>
+                      )}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+                {/* Status */}
+                <div className="flex rounded-lg p-0.5 bg-primary-foreground/15 backdrop-blur-sm shrink-0">
+                  {([{ key: 'available', icon: '🟢', label: 'متاح' }, { key: 'negotiating', icon: '🟡', label: 'تفاوض' }] as const).map(({ key, icon, label }) => (
+                    <Button key={key} variant="ghost" size="sm" onClick={() => setStatusFilter((p) => (p === key ? '' : key))}
+                      className={`h-8 px-2.5 rounded-md text-xs transition ${statusFilter === key ? 'bg-background text-foreground shadow' : 'text-primary-foreground hover:bg-primary-foreground/20'}`}>
+                      {icon} {label}
+                    </Button>
+                  ))}
+                </div>
+
+                {/* Bathrooms */}
+                <div className="flex rounded-lg p-0.5 bg-primary-foreground/15 backdrop-blur-sm shrink-0">
+                  {[1, 2, 3].map((n) => (
+                    <Button key={n} variant="ghost" size="sm" onClick={() => setBathroomsFilter((p) => (p === n ? '' : n))}
+                      className={`h-8 w-8 p-0 rounded-md text-xs transition ${bathroomsFilter === n ? 'bg-background text-foreground shadow' : 'text-primary-foreground hover:bg-primary-foreground/20'}`}
+                      title={`${n}+ حمام`}>
+                      {n}+
+                    </Button>
+                  ))}
+                  <span className="text-[10px] text-primary-foreground/60 mx-1 self-center">🚿</span>
+                </div>
+
+                {/* Furnished */}
+                <div className="flex rounded-lg p-0.5 bg-primary-foreground/15 backdrop-blur-sm shrink-0">
+                  {([{ key: 'yes', label: '🛋️ مفروش' }, { key: 'no', label: '📦 فارغ' }] as const).map(({ key, label }) => (
+                    <Button key={key} variant="ghost" size="sm" onClick={() => setFurnishedFilter((p) => (p === key ? '' : key))}
+                      className={`h-8 px-2.5 rounded-md text-xs transition ${furnishedFilter === key ? 'bg-background text-foreground shadow' : 'text-primary-foreground hover:bg-primary-foreground/20'}`}>
+                      {label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

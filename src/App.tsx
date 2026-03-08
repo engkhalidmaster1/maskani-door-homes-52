@@ -92,7 +92,7 @@ function AnimatedRoutes() {
                 <Route path="/properties" element={<PropertiesManagement />} />
                 <Route path="/offices" element={<Offices />} />
                 <Route path="/map" element={<MapPage />} />
-                {/* <Route path="/smart-search" element={<SmartSearchPage />} /> */} {/* مخفي مؤقتاً */}
+                
                 <Route path="/favorites" element={<Favorites />} />
                 {/* Dashboard: redirect bare /dashboard to a default tab and allow tab-specific routes */}
                 <Route path="/dashboard" element={<Navigate to="/dashboard/overview" replace />} />

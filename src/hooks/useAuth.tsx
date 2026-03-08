@@ -47,12 +47,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       try {
         const { data: isAdminData, error: isAdminError } = await supabase.rpc('is_admin', { uid: userId });
         if (!isAdminError && isAdminData !== undefined && isAdminData !== null) {
-          let isAdminFlag = false;
-          if (typeof isAdminData === 'boolean') {
-            isAdminFlag = isAdminData;
-          } else if (Array.isArray(isAdminData) && isAdminData.length > 0) {
-            isAdminFlag = Boolean(isAdminData[0]);
-          }
+          const isAdminFlag = typeof isAdminData === 'boolean' ? isAdminData : false;
 
           if (isAdminFlag) {
             setUserRole('admin');

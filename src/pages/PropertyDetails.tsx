@@ -61,6 +61,10 @@ interface Property {
   longitude?: number | null;
   market?: string | null;
   marketLabel?: string | null;
+  furnished?: string | null;
+  building?: string | null;
+  apartment?: string | null;
+  floor?: string | null;
 }
 
 const FALLBACK_IMAGE =
@@ -142,6 +146,7 @@ export const PropertyDetails = () => {
         location: (rawData["location"] as string | null) ?? null,
         address: (rawData["address"] as string | null) ?? null,
         amenities: (rawData["amenities"] as string[] | null) ?? null,
+        status: (rawData["status"] as string | null) ?? "available",
         images: (rawData["images"] as string[] | null) ?? null,
         is_published: Boolean(rawData["is_published"]),
         created_at: (rawData["created_at"] as string) ?? new Date().toISOString(),
@@ -151,6 +156,10 @@ export const PropertyDetails = () => {
         longitude: rawData["longitude"] !== null ? Number(rawData["longitude"]) : null,
         market: resolvedMarket ?? null,
         marketLabel: resolvedMarket ? getMarketLabel(resolvedMarket) : null,
+        furnished: (rawData["furnished"] as string | null) ?? null,
+        building: (rawData["building"] as string | null) ?? null,
+        apartment: (rawData["apartment"] as string | null) ?? null,
+        floor: (rawData["floor"] as string | null) ?? null,
       };
 
       setProperty(mappedProperty);
@@ -589,7 +598,40 @@ export const PropertyDetails = () => {
                         {property.area ? `${property.area} م²` : "غير محددة"}
                       </p>
                     </div>
+                    {property.furnished && (
+                      <div className="rounded-2xl border bg-slate-50 p-4 text-center">
+                        <CheckCircle2 className="mx-auto mb-2 h-6 w-6 text-primary" />
+                        <p className="text-sm text-gray-500">الأثاث</p>
+                        <p className="text-xl font-semibold text-gray-900">
+                          {property.furnished === 'yes' ? 'مفروش' : 'فارغ'}
+                        </p>
+                      </div>
+                    )}
                   </div>
+
+                  {/* تفاصيل البناء */}
+                  {(property.building || property.apartment || property.floor) && (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                      {property.building && (
+                        <div className="rounded-2xl border bg-slate-50 p-4 text-center">
+                          <p className="text-sm text-gray-500">العمارة</p>
+                          <p className="text-lg font-semibold text-gray-900">{property.building}</p>
+                        </div>
+                      )}
+                      {property.apartment && (
+                        <div className="rounded-2xl border bg-slate-50 p-4 text-center">
+                          <p className="text-sm text-gray-500">رقم الشقة</p>
+                          <p className="text-lg font-semibold text-gray-900">{property.apartment}</p>
+                        </div>
+                      )}
+                      {property.floor && (
+                        <div className="rounded-2xl border bg-slate-50 p-4 text-center">
+                          <p className="text-sm text-gray-500">الطابق</p>
+                          <p className="text-lg font-semibold text-gray-900">{property.floor}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 

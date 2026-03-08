@@ -640,6 +640,15 @@ export const EditProperty = () => {
                 <Input id="bedrooms" type="number" value={property.bedrooms} onChange={(e) => setProperty(prev => ({ ...prev, bedrooms: Number(e.target.value) }))} required />
               </Card>
             )}
+            {property.property_type !== 'commercial' && (
+              <Card className="p-4 border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 shadow-md">
+                <Label htmlFor="bathrooms" className="flex items-center gap-2 text-sm font-bold mb-3 text-blue-800">
+                  <div className="p-2 bg-blue-500 text-white rounded-lg">🚿</div>
+                  عدد الحمامات <span className="text-red-500">*</span>
+                </Label>
+                <Input id="bathrooms" type="number" value={property.bathrooms} onChange={(e) => setProperty(prev => ({ ...prev, bathrooms: Number(e.target.value) }))} min={1} required />
+              </Card>
+            )}
           </div>
 
           {/* Furnished option for rent */}

@@ -250,3 +250,11 @@ export const BEDROOM_QUICK_OPTIONS: QuickOption[] = [
     { value: '4', label: '4', icon: '🛏️' },
     { value: '5', label: '5', icon: '🛏️' },
 ];
+
+// خيارات الحمامات المحددة مسبقاً
+export const BATHROOM_QUICK_OPTIONS: QuickOption[] = [
+    { value: '1', label: '1', icon: '🚿' },
+    { value: '2', label: '2', icon: '🚿' },
+    { value: '3', label: '3', icon: '🚿' },
+    { value: '4', label: '4', icon: '🚿' },
+];

@@ -187,11 +187,8 @@ export const AdvancedSearchBar: React.FC<AdvancedSearchBarProps> = ({ className 
                   <SelectContent>
                     <SelectItem value="all">جميع الأنواع</SelectItem>
                     <SelectItem value="apartment">شقة</SelectItem>
-                    <SelectItem value="villa">فيلا</SelectItem>
-                    <SelectItem value="house">منزل</SelectItem>
-                    <SelectItem value="land">أرض</SelectItem>
+                    <SelectItem value="house">بيت</SelectItem>
                     <SelectItem value="commercial">تجاري</SelectItem>
-                    <SelectItem value="farm">مزرعة</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -13,7 +13,7 @@ interface PropertyTypeSectionProps {
 
 const PROPERTY_TYPE_LABELS = {
   apartment: "شقة",
-  villa: "فيلا",
+  house: "بيت",
   commercial: "تجاري",
 };
 

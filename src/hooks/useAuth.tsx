@@ -43,37 +43,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const fetchUserRole = useCallback(async (userId: string): Promise<string> => {
     try {
-      console.log('Fetching role for user:', userId);
-
       // First, ask the server whether this user is an admin (authoritative)
       try {
         const { data: isAdminData, error: isAdminError } = await supabase.rpc('is_admin', { uid: userId });
         if (!isAdminError && isAdminData !== undefined && isAdminData !== null) {
-          const anyAdminData: unknown = isAdminData as unknown;
-          let isAdminFlag = false;
-          // boolean scalar
-          if (typeof anyAdminData === 'boolean') {
-            isAdminFlag = anyAdminData as boolean;
-          } else if (Array.isArray(anyAdminData) && (anyAdminData as unknown[]).length > 0) {
-            // sometimes RPC returns array of scalars
-            isAdminFlag = Boolean((anyAdminData as unknown[])[0]);
-          } else if (typeof anyAdminData === 'object' && anyAdminData !== null) {
-            // sometimes RPC returns an object like { is_admin: true }
-            const obj = anyAdminData as Record<string, unknown>;
-            if (typeof obj.is_admin === 'boolean') isAdminFlag = obj.is_admin as boolean;
-            else if (typeof obj.isAdmin === 'boolean') isAdminFlag = obj.isAdmin as boolean;
-          }
+          const isAdminFlag = typeof isAdminData === 'boolean' ? isAdminData : false;
 
-          console.log('is_admin RPC result for', userId, ':', isAdminFlag);
           if (isAdminFlag) {
             setUserRole('admin');
             return 'admin';
           }
-        } else if (isAdminError) {
-          console.warn('is_admin RPC error:', isAdminError.message);
         }
       } catch (rpcErr) {
-        console.warn('is_admin RPC failed, falling back to table checks:', rpcErr);
         // Continue to fallback logic below
       }
 
@@ -101,18 +82,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         .single();
 
       if (error || !data) {
-        console.error('Error fetching user role:', error);
         setUserRole('publisher');
         return 'publisher';
       }
 
-      console.log('User role data:', data);
-  const role = data.role || 'publisher';
-      console.log('User role fetched:', role);
+      const role = data.role || 'publisher';
       setUserRole(role);
       return role;
-    } catch (error) {
-      console.error('Error in fetchUserRole:', error);
+    } catch {
       setUserRole('publisher');
       return 'publisher';
     }
@@ -122,7 +99,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state change:', event, session?.user?.email);
+        
         
         if (event === 'SIGNED_OUT') {
           // Clear all state when user signs out
@@ -139,10 +116,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (session?.user) {
           // Fetch user role after session is established
           setTimeout(async () => {
-            const role = await fetchUserRole(session.user.id);
-            console.log('User role fetched:', role);
-            setUserRole(role);
-
+            await fetchUserRole(session.user.id);
           }, 0);
         } else {
           setUserRole(null);
@@ -159,8 +133,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       
       if (session?.user) {
         setTimeout(async () => {
-          const role = await fetchUserRole(session.user.id);
-          setUserRole(role);
+          await fetchUserRole(session.user.id);
         }, 0);
       }
       
@@ -289,7 +262,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const isAdmin = userRole === 'admin';
-  console.log('Auth state:', { user: user?.email, userRole, isAdmin, isLoading });
 
   const value = {
     user,

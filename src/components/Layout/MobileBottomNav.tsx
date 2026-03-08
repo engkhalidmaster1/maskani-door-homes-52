@@ -71,7 +71,7 @@ export const MobileBottomNav = ({ onDrawerOpen }: MobileBottomNavProps) => {
 
         {/* More / Drawer button */}
         <button
-          onClick={onDrawerOpen}
+          onClick={() => { haptic('medium'); onDrawerOpen(); }}
           className="relative flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-colors"
           aria-label="المزيد"
         >

@@ -54,6 +54,7 @@ interface Property {
   images: string[] | null;
   is_published: boolean;
   status?: string;
+  furnished?: string | null;
   created_at: string;
   updated_at: string;
   latitude?: number | null;

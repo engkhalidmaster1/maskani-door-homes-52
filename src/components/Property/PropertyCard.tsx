@@ -174,7 +174,7 @@ export const PropertyCard = ({
             location: property.location,
             address: property.address,
             images: property.images,
-            furnished: property.furnished,
+            furnished: (property as any).furnished,
             amenities: property.amenities,
             market: property.market,
             status: property.status,

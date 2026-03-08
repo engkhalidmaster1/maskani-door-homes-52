@@ -17,7 +17,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Activity,
-  UsersRound
+  UsersRound,
+  BookOpen
 } from "lucide-react";
 
 interface DashboardSidebarProps {

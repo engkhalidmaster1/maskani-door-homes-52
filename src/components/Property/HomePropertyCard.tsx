@@ -179,7 +179,7 @@ export const HomePropertyCard = ({ property }: HomePropertyCardProps) => {
               <h3 className="text-lg font-bold text-card-foreground line-clamp-1" dir="rtl">{property.title}</h3>
             </div>
             <div className="w-2/5 text-left">
-              <span className="text-xl font-bold text-primary bg-blue-50 px-2 py-1 rounded">
+              <span className="text-xl font-bold text-primary bg-primary/10 px-2 py-1 rounded">
                 {formatCurrency(property.price)}
               </span>
             </div>

@@ -267,7 +267,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const isAdmin = userRole === 'admin';
-  console.log('Auth state:', { user: user?.email, userRole, isAdmin, isLoading });
 
   const value = {
     user,

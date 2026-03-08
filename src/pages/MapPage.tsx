@@ -314,7 +314,7 @@ export function MapPage() {
       list = list.filter(({ coords: [lat, lng] }) => visibleBounds.contains(L.latLng(lat, lng)));
     }
     return list;
-  }, [mapProperties, listingTypeFilter, propertyTypeFilter, debouncedSearch, nearMeEnabled, userLocation, radiusKm, minPrice, maxPrice, bedroomsFilter, minArea, maxArea, statusFilter, searchOnMove, visibleBounds]);
+  }, [mapProperties, listingTypeFilter, propertyTypeFilter, debouncedSearch, nearMeEnabled, userLocation, radiusKm, minPrice, maxPrice, bedroomsFilter, minArea, maxArea, statusFilter, bathroomsFilter, furnishedFilter, searchOnMove, visibleBounds]);
 
   // Disable auto-fit after first load
   useEffect(() => {

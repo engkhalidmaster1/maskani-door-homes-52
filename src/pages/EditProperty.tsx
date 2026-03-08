@@ -85,6 +85,7 @@ interface PropertyForm {
   price: number;
   description: string;
   bedrooms: number;
+  bathrooms: number;
   area: number;
   is_published: boolean;
   status: 'available' | 'sold' | 'rented';
@@ -115,6 +116,7 @@ export const EditProperty = () => {
     price: 0,
     description: "",
     bedrooms: 2,
+    bathrooms: 1,
     area: 0,
     is_published: false,
     status: 'available',
@@ -174,16 +176,17 @@ export const EditProperty = () => {
 
         setProperty({
           title: (rawData.title as string) || "",
-          property_type: ['apartment', 'house', 'commercial'].includes(rawData.property_type as 'apartment' | 'house' | 'commercial') ? (rawData.property_type as 'apartment' | 'house' | 'commercial') : 'apartment',
-          listing_type: ['sale', 'rent'].includes(rawData.listing_type as 'sale' | 'rent') ? (rawData.listing_type as 'sale' | 'rent') : '',
+          property_type: ['apartment', 'house', 'commercial'].includes(rawData.property_type as string) ? (rawData.property_type as 'apartment' | 'house' | 'commercial') : 'apartment',
+          listing_type: ['sale', 'rent'].includes(rawData.listing_type as string) ? (rawData.listing_type as 'sale' | 'rent') : '',
           building: extracted.building,
           apartment: extracted.apartment,
           floor: extracted.floor,
           market: resolvedMarket ?? '',
-          furnished: Array.isArray(rawData.amenities) && rawData.amenities.includes('مؤثثة') ? 'yes' : (Array.isArray(rawData.amenities) && rawData.amenities.includes('غير مؤثثة') ? 'no' : ''),
+          furnished: ['yes', 'no'].includes(rawData.furnished as string) ? (rawData.furnished as 'yes' | 'no') : (Array.isArray(rawData.amenities) && rawData.amenities.includes('مؤثثة') ? 'yes' : (Array.isArray(rawData.amenities) && rawData.amenities.includes('غير مؤثثة') ? 'no' : '')),
           price: Number(rawData.price) || 0,
           description: (rawData.description as string) || "",
           bedrooms: Number(rawData.bedrooms) || 2,
+          bathrooms: Number(rawData.bathrooms) || 1,
           area: Number(rawData.area) || 0,
           is_published: Boolean(rawData.is_published),
           status: ['available', 'sold', 'rented'].includes(rawData.status as string) ? (rawData.status as 'available' | 'sold' | 'rented') : 'available',
@@ -334,8 +337,8 @@ export const EditProperty = () => {
         price: property.price,
         description: property.description,
         bedrooms: property.bedrooms,
+        bathrooms: property.bathrooms,
         area: property.area,
-        is_published: property.is_published,
         status: property.status,
         location: mergedLocation,
         address: mergedAddress,
@@ -635,6 +638,15 @@ export const EditProperty = () => {
                   عدد غرف النوم <span className="text-red-500">*</span>
                 </Label>
                 <Input id="bedrooms" type="number" value={property.bedrooms} onChange={(e) => setProperty(prev => ({ ...prev, bedrooms: Number(e.target.value) }))} required />
+              </Card>
+            )}
+            {property.property_type !== 'commercial' && (
+              <Card className="p-4 border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 shadow-md">
+                <Label htmlFor="bathrooms" className="flex items-center gap-2 text-sm font-bold mb-3 text-blue-800">
+                  <div className="p-2 bg-blue-500 text-white rounded-lg">🚿</div>
+                  عدد الحمامات <span className="text-red-500">*</span>
+                </Label>
+                <Input id="bathrooms" type="number" value={property.bathrooms} onChange={(e) => setProperty(prev => ({ ...prev, bathrooms: Number(e.target.value) }))} min={1} required />
               </Card>
             )}
           </div>

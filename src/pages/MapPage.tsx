@@ -324,12 +324,13 @@ export function MapPage() {
     }
   }, [filteredMapProperties.length, fitBoundsEnabled]);
 
-  const hasActiveFilters = searchTerm.trim().length > 0 || listingTypeFilter !== '' || propertyTypeFilter !== '' || minPrice !== '' || maxPrice !== '' || bedroomsFilter !== '' || minArea > 0 || maxArea < 500 || statusFilter !== '';
+  const hasActiveFilters = searchTerm.trim().length > 0 || listingTypeFilter !== '' || propertyTypeFilter !== '' || minPrice !== '' || maxPrice !== '' || bedroomsFilter !== '' || minArea > 0 || maxArea < 500 || statusFilter !== '' || bathroomsFilter !== '' || furnishedFilter !== '';
 
   const clearAllFilters = () => {
     setSearchTerm(''); setListingTypeFilter(''); setPropertyTypeFilter('');
     setMinPrice(''); setMaxPrice(''); setBedroomsFilter('');
     setMinArea(0); setMaxArea(500); setStatusFilter('');
+    setBathroomsFilter(''); setFurnishedFilter('');
   };
 
   // ===== Stats =====

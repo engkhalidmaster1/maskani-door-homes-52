@@ -203,6 +203,9 @@ export function MapPage() {
   const [minPrice, setMinPrice] = useState<number | ''>('');
   const [maxPrice, setMaxPrice] = useState<number | ''>('');
   const [bedroomsFilter, setBedroomsFilter] = useState<number | ''>('');
+  const [minArea, setMinArea] = useState<number>(0);
+  const [maxArea, setMaxArea] = useState<number>(500);
+  const [statusFilter, setStatusFilter] = useState<'' | 'available' | 'negotiating'>('');
   const [nearMeEnabled, setNearMeEnabled] = useState(true);
   const [radiusKm, setRadiusKm] = useState(25);
 

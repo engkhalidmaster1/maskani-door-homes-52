@@ -472,6 +472,36 @@ export type Database = {
           },
         ]
       }
+      otp_codes: {
+        Row: {
+          attempts: number
+          code_hash: string
+          created_at: string
+          expires_at: string
+          id: string
+          user_id: string
+          verified: boolean
+        }
+        Insert: {
+          attempts?: number
+          code_hash: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          user_id: string
+          verified?: boolean
+        }
+        Update: {
+          attempts?: number
+          code_hash?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          user_id?: string
+          verified?: boolean
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
@@ -482,6 +512,7 @@ export type Database = {
           phone: string | null
           updated_at: string
           user_id: string
+          whatsapp_number: string | null
         }
         Insert: {
           address?: string | null
@@ -492,6 +523,7 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           user_id: string
+          whatsapp_number?: string | null
         }
         Update: {
           address?: string | null
@@ -502,6 +534,7 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           user_id?: string
+          whatsapp_number?: string | null
         }
         Relationships: [
           {
@@ -951,6 +984,30 @@ export type Database = {
         }
         Relationships: []
       }
+      trusted_devices: {
+        Row: {
+          created_at: string
+          device_hash: string
+          expires_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_hash: string
+          expires_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_hash?: string
+          expires_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_permissions: {
         Row: {
           can_publish: boolean
@@ -1147,6 +1204,11 @@ export type Database = {
         Returns: undefined
       }
       can_add_property: { Args: { uid?: string }; Returns: boolean }
+      check_trusted_device: {
+        Args: { p_device_hash: string; p_user_id: string }
+        Returns: boolean
+      }
+      cleanup_expired_otps: { Args: never; Returns: undefined }
       create_system_alert: {
         Args: {
           p_action_required?: string
@@ -1304,6 +1366,10 @@ export type Database = {
       resolve_alert: {
         Args: { alert_id: string; user_id: string }
         Returns: boolean
+      }
+      save_trusted_device: {
+        Args: { p_device_hash: string; p_user_id: string }
+        Returns: undefined
       }
       set_app_settings: { Args: { p_settings: Json }; Returns: undefined }
       set_maintenance_mode: { Args: { p_on: boolean }; Returns: undefined }

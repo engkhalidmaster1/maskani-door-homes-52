@@ -3,6 +3,7 @@ import { User, Session, AuthError } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from '@/integrations/supabase/types';
 import { useToast } from "@/hooks/use-toast";
+import { getDeviceHash } from "@/utils/deviceFingerprint";
 
 type AuthActionResult = {
   error: AuthError | Error | null;
@@ -17,6 +18,12 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<AuthActionResult>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
+  // OTP 2FA
+  needsOtp: boolean;
+  otpMaskedNumber: string | null;
+  verifyOtp: (code: string, rememberDevice: boolean) => Promise<AuthActionResult>;
+  resendOtp: () => Promise<AuthActionResult>;
+  cancelOtp: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,6 +46,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [session, setSession] = useState<Session | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [needsOtp, setNeedsOtp] = useState(false);
+  const [otpMaskedNumber, setOtpMaskedNumber] = useState<string | null>(null);
   const { toast } = useToast();
 
   const fetchUserRole = useCallback(async (userId: string): Promise<string> => {
@@ -191,7 +200,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signIn = async (email: string, password: string): Promise<AuthActionResult> => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: signInData, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -202,15 +211,63 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           description: error.message,
           variant: "destructive",
         });
-      } else {
+        return { error };
+      }
+
+      // Check if device is trusted
+      const deviceHash = await getDeviceHash();
+      const userId = signInData.user.id;
+
+      const { data: isTrusted } = await supabase.rpc('check_trusted_device', {
+        p_user_id: userId,
+        p_device_hash: deviceHash,
+      });
+
+      if (isTrusted) {
         toast({
           title: "🎉 مرحباً بعودتك!",
-          description: "تم تسجيل الدخول بنجاح - استمتع بتصفح العقارات",
-          duration: 8000, // زمن أطول لإعطاء المستخدم وقت لرؤية الزر
+          description: "تم تسجيل الدخول بنجاح",
+          duration: 8000,
         });
+        return { error: null };
       }
+
+      // Check if user has whatsapp_number
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('whatsapp_number')
+        .eq('user_id', userId)
+        .single();
+
+      if (!profile?.whatsapp_number) {
+        toast({
+          title: "🎉 مرحباً بعودتك!",
+          description: "تم تسجيل الدخول بنجاح",
+          duration: 8000,
+        });
+        return { error: null };
+      }
+
+      // Send OTP
+      const { data: otpResult, error: otpError } = await supabase.functions.invoke('send-otp-whatsapp');
+
+      if (otpError || otpResult?.skip) {
+        toast({
+          title: "🎉 مرحباً بعودتك!",
+          description: "تم تسجيل الدخول بنجاح",
+          duration: 8000,
+        });
+        return { error: null };
+      }
+
+      setNeedsOtp(true);
+      setOtpMaskedNumber(otpResult?.masked_number || null);
+      toast({
+        title: "🔐 تحقق من هويتك",
+        description: "تم إرسال رمز التحقق عبر واتساب",
+      });
       
-      return { error };
+      return { error: null };
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "حدث خطأ غير متوقع أثناء تسجيل الدخول";
       toast({
@@ -222,42 +279,83 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const verifyOtp = async (code: string, rememberDevice: boolean): Promise<AuthActionResult> => {
+    try {
+      const deviceHash = await getDeviceHash();
+      const { data, error } = await supabase.functions.invoke('verify-otp', {
+        body: { code, device_hash: deviceHash, remember_device: rememberDevice },
+      });
+
+      if (error || !data?.verified) {
+        const msg = data?.error || 'رمز التحقق غير صحيح';
+        toast({
+          title: "خطأ في التحقق",
+          description: msg,
+          variant: "destructive",
+        });
+        return { error: new Error(msg) };
+      }
+
+      setNeedsOtp(false);
+      setOtpMaskedNumber(null);
+      toast({
+        title: "🎉 تم التحقق بنجاح!",
+        description: "مرحباً بعودتك",
+        duration: 5000,
+      });
+      return { error: null };
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "خطأ في التحقق";
+      toast({ title: "خطأ", description: message, variant: "destructive" });
+      return { error: new Error(message) };
+    }
+  };
+
+  const resendOtp = async (): Promise<AuthActionResult> => {
+    try {
+      const { data, error } = await supabase.functions.invoke('send-otp-whatsapp');
+      if (error) {
+        toast({ title: "خطأ", description: "فشل إعادة إرسال الرمز", variant: "destructive" });
+        return { error: new Error("Failed to resend") };
+      }
+      setOtpMaskedNumber(data?.masked_number || otpMaskedNumber);
+      toast({ title: "تم إعادة الإرسال", description: "تم إرسال رمز جديد عبر واتساب" });
+      return { error: null };
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "خطأ";
+      toast({ title: "خطأ", description: message, variant: "destructive" });
+      return { error: new Error(message) };
+    }
+  };
+
+  const cancelOtp = () => {
+    setNeedsOtp(false);
+    setOtpMaskedNumber(null);
+    supabase.auth.signOut();
+  };
+
   const signOut = async () => {
     try {
       console.log('Signing out...');
-      
-      // Sign out from Supabase first
       const { error } = await supabase.auth.signOut();
       
       if (error) {
         console.error('Sign out error:', error);
-        toast({
-          title: "خطأ في تسجيل الخروج",
-          description: error.message,
-          variant: "destructive",
-        });
+        toast({ title: "خطأ في تسجيل الخروج", description: error.message, variant: "destructive" });
         return;
       }
       
-      console.log('Sign out successful');
-      
-      // Clear local state after successful sign out
       setUser(null);
       setSession(null);
       setUserRole(null);
+      setNeedsOtp(false);
+      setOtpMaskedNumber(null);
       
-      toast({
-        title: "تم تسجيل الخروج",
-        description: "نراك قريباً!",
-      });
+      toast({ title: "تم تسجيل الخروج", description: "نراك قريباً!" });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "حدث خطأ غير متوقع أثناء تسجيل الخروج";
       console.error('Sign out error:', error);
-      toast({
-        title: "خطأ في تسجيل الخروج",
-        description: message,
-        variant: "destructive",
-      });
+      toast({ title: "خطأ في تسجيل الخروج", description: message, variant: "destructive" });
     }
   };
 
@@ -272,6 +370,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     signIn,
     signOut,
     isAdmin,
+    needsOtp,
+    otpMaskedNumber,
+    verifyOtp,
+    resendOtp,
+    cancelOtp,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

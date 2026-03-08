@@ -7,6 +7,9 @@ import { OfflineStatusIndicator } from "@/components/OfflineStatusIndicator";
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { AnimatePresence, motion } from "framer-motion";
 import { HelmetProvider } from 'react-helmet-async';
+import { CompareProvider } from '@/context/CompareContext';
+import { CompareFloatingBar } from '@/components/Compare/CompareFloatingBar';
+import { CompareSheet } from '@/components/Compare/CompareSheet';
 // Lazy-loaded pages/components
 const Home = lazy(() => import("@/pages/Home").then(m => ({ default: m.Home })));
 const DashboardPage = lazy(() => import("@/pages/Dashboard"));

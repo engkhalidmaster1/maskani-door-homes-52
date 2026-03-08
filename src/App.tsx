@@ -127,6 +127,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <SettingsProvider>
         <AuthProviderWithBoundary>
+          <CompareProvider>
           <Router>
             {/* مؤشر حالة الاتصال - يظهر عند الحاجة فقط */}
             <ConditionalOfflineStatusIndicator />
@@ -138,8 +139,11 @@ function App() {
             }>
             <AnimatedRoutes />
             </Suspense>
+            <CompareFloatingBar />
+            <CompareSheet />
             </Router>
             <Toaster />
+          </CompareProvider>
         </AuthProviderWithBoundary>
         </SettingsProvider>
       </QueryClientProvider>

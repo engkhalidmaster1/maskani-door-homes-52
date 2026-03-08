@@ -253,7 +253,7 @@ export const PropertyCard = ({
         {/* Property Details */}
         <div className="p-4 bg-card">
           {/* Title and Price */}
-          <div className="flex items-center justify-between mb-3 border-b pb-3 border-gray-200" dir="rtl">
+          <div className="flex items-center justify-between mb-3 border-b pb-3 border-border" dir="rtl">
             <div className="text-right w-3/5">
               <h3 className="text-lg font-bold text-gray-800 line-clamp-1" dir="rtl">{property.title}</h3>
             </div>

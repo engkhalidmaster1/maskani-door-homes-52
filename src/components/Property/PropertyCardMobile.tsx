@@ -103,7 +103,7 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
     <Card className="w-full max-w-sm mx-auto overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 border-2 border-border">
       <div onClick={handleCardClick}>
         {/* Image Section */}
-        <div className="relative h-48 bg-gray-100">
+        <div className="relative h-48 bg-muted">
           {/* Property Status Badge - Deal Status */}
           <PropertyStatusBadgeEnhanced 
             status={property.status} 
@@ -119,12 +119,12 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
               fallback="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23f5f5f5'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999'%3EImage not found%3C/text%3E%3C/svg%3E"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center text-gray-500 relative">
+            <div className="w-full h-full bg-gradient-to-br from-muted to-muted/70 flex flex-col items-center justify-center text-muted-foreground relative">
               <div className="text-center">
                 <div className="mb-2">
                   <span className="text-4xl">{getPropertyTypeEmoji(property.property_type)}</span>
                 </div>
-                <span className="text-sm font-medium text-gray-600 block">{getPropertyTypeLabel(property.property_type)}</span>
+                <span className="text-sm font-medium text-muted-foreground block">{getPropertyTypeLabel(property.property_type)}</span>
                 <div className="flex items-center gap-1 mt-1 justify-center">
                   <svg className="w-3 h-3 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
@@ -223,9 +223,9 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
           {(property.location || marketLabel) && (
             <div className="space-y-1 mb-2 text-right" dir="rtl">
               {property.location && (
-                <div className="flex items-center gap-1 text-gray-600">
+                <div className="flex items-center gap-1 text-muted-foreground">
                   <MapPin className="h-3 w-3 ml-1 text-blue-500" />
-                  <span className="text-xs line-clamp-1 text-gray-700">{property.location}</span>
+                  <span className="text-xs line-clamp-1 text-muted-foreground">{property.location}</span>
                 </div>
               )}
               {marketLabel && (
@@ -242,16 +242,16 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
             {property.area && (
               <div className="flex items-center gap-1 flex-row-reverse bg-blue-50 p-1 px-2 rounded">
                 <Square className="h-3 w-3 ml-1 text-blue-500" />
-                <span className="text-xs font-medium text-gray-700">{property.area}م²</span>
+                <span className="text-xs font-medium text-foreground">{property.area}م²</span>
               </div>
             )}
             <div className="flex items-center gap-1 flex-row-reverse bg-green-50 p-1 px-2 rounded">
               <Bath className="h-3 w-3 ml-1 text-green-500" />
-              <span className="text-xs font-medium text-gray-700">{property.bathrooms}</span>
+              <span className="text-xs font-medium text-foreground">{property.bathrooms}</span>
             </div>
             <div className="flex items-center gap-1 flex-row-reverse bg-purple-50 p-1 px-2 rounded">
               <BedDouble className="h-3 w-3 ml-1 text-purple-500" />
-              <span className="text-xs font-medium text-gray-700">{property.bedrooms}</span>
+              <span className="text-xs font-medium text-foreground">{property.bedrooms}</span>
             </div>
             {/* معلومات الصور */}
             {property.images && property.images.length > 0 ? (
@@ -259,33 +259,33 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
                 <svg className="w-3 h-3 ml-1 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
                 </svg>
-                <span className="text-xs font-medium text-gray-700">{property.images.length}</span>
+                <span className="text-xs font-medium text-foreground">{property.images.length}</span>
               </div>
             ) : (
               <div className="flex items-center gap-1 flex-row-reverse bg-orange-50 p-1 px-2 rounded">
                 <svg className="w-3 h-3 ml-1 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                 </svg>
-                <span className="text-xs font-medium text-gray-700">بلا صورة</span>
+                <span className="text-xs font-medium text-foreground">بلا صورة</span>
               </div>
             )}
           </div>
 
           {/* Property Code */}
           {property.property_code && (
-            <div className="text-xs text-gray-500 mb-2">
+            <div className="text-xs text-muted-foreground mb-2">
               الرمز: {property.property_code}
             </div>
           )}
 
           {/* Action Buttons */}
           {showActions && (user?.id === property.user_id || onEdit || onDelete) && (
-            <div className="flex gap-2 pt-2 border-t bg-gray-50 -mx-3 px-3 pb-1">
+            <div className="flex gap-2 pt-2 border-t border-border bg-muted/50 -mx-3 px-3 pb-1">
               {(user?.id === property.user_id || onEdit) && (
                 <Button
                   size="sm"
                   variant="outline"
-                  className="flex-1 h-8 text-xs bg-white hover:bg-primary hover:text-white"
+                  className="flex-1 h-8 text-xs bg-card hover:bg-primary hover:text-primary-foreground"
                   onClick={(e) => {
                     e.stopPropagation();
                     if (onEdit) {
@@ -303,7 +303,7 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
               <Button
                 size="sm"
                 variant="outline"
-                className="flex-1 h-8 text-xs bg-white hover:bg-blue-500 hover:text-white"
+                className="flex-1 h-8 text-xs bg-card hover:bg-primary hover:text-primary-foreground"
                 onClick={(e) => {
                   e.stopPropagation();
                   navigate(`/property/${property.id}`);
@@ -317,7 +317,7 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
                 <Button
                   size="sm"
                   variant="outline"
-                  className="h-8 px-3 text-xs bg-white hover:bg-red-500 hover:text-white"
+                  className="h-8 px-3 text-xs bg-card hover:bg-destructive hover:text-destructive-foreground"
                   onClick={(e) => {
                     e.stopPropagation();
                     if (onDelete) {

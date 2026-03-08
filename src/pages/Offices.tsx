@@ -34,7 +34,7 @@ export default function Offices() {
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') searchOffices(q); }}
-                  className="pl-10 pr-4 bg-white text-foreground border-2 border-white/70 rounded-xl shadow-md"
+                  className="pl-10 pr-4 bg-background text-foreground border-2 border-background/70 rounded-xl shadow-md"
                 />
               </div>
             </div>

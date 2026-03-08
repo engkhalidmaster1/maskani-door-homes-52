@@ -326,6 +326,7 @@ export function MapPage() {
   }, [filteredMapProperties.length, fitBoundsEnabled]);
 
   const hasActiveFilters = searchTerm.trim().length > 0 || listingTypeFilter !== '' || propertyTypeFilter !== '' || minPrice !== '' || maxPrice !== '' || bedroomsFilter !== '' || minArea > 0 || maxArea < 500 || statusFilter !== '' || bathroomsFilter !== '' || furnishedFilter !== '';
+  const advancedFilterCount = [minArea > 0 || maxArea < 500, statusFilter !== '', bathroomsFilter !== '', furnishedFilter !== ''].filter(Boolean).length;
 
   const clearAllFilters = () => {
     setSearchTerm(''); setListingTypeFilter(''); setPropertyTypeFilter('');

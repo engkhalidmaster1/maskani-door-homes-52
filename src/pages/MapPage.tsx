@@ -948,6 +948,39 @@ export function MapPage() {
         </div>
       </div>
     </div>
+
+      {/* Save Filter Dialog */}
+      <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+        <DialogContent className="sm:max-w-sm z-[3000]">
+          <DialogHeader>
+            <DialogTitle className="text-right">💾 حفظ الفلاتر الحالية</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <Input
+              placeholder="اسم الفلتر (مثال: شقق 3 غرف بغداد)"
+              value={saveFilterName}
+              onChange={(e) => setSaveFilterName(e.target.value)}
+              className="text-right"
+              autoFocus
+            />
+            <Button
+              className="w-full"
+              disabled={!saveFilterName.trim()}
+              onClick={async () => {
+                const ok = await savePreset(saveFilterName.trim(), getCurrentFilters());
+                if (ok) {
+                  setSaveFilterName('');
+                  setShowSaveDialog(false);
+                }
+              }}
+            >
+              <Bookmark className="w-4 h-4 ml-2" />
+              حفظ
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
 

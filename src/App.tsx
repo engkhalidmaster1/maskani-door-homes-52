@@ -179,6 +179,7 @@ function App() {
 
   return (
     <HelmetProvider>
+    {isMobile && showSplash && <SplashScreen onComplete={handleSplashComplete} />}
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <SettingsProvider>

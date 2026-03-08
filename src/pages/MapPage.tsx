@@ -540,7 +540,50 @@ export function MapPage() {
                 ))}
               </div>
 
-              {hasActiveFilters && (
+              {/* Bathrooms */}
+              <div className="flex rounded-lg p-0.5 bg-primary-foreground/15 backdrop-blur-sm shrink-0">
+                {[1, 2, 3].map((n) => (
+                  <Button
+                    key={n}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setBathroomsFilter((p) => (p === n ? '' : n))}
+                    className={`h-8 w-8 p-0 rounded-md text-xs transition ${
+                      bathroomsFilter === n
+                        ? 'bg-background text-foreground shadow'
+                        : 'text-primary-foreground hover:bg-primary-foreground/20'
+                    }`}
+                    title={`${n}+ حمام`}
+                  >
+                    {n}+
+                  </Button>
+                ))}
+                <span className="text-[10px] text-primary-foreground/60 mx-1 self-center">🚿</span>
+              </div>
+
+              {/* Furnished */}
+              <div className="flex rounded-lg p-0.5 bg-primary-foreground/15 backdrop-blur-sm shrink-0">
+                {([
+                  { key: 'yes', label: 'مفروش' },
+                  { key: 'no', label: 'فارغ' },
+                ] as const).map(({ key, label }) => (
+                  <Button
+                    key={key}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setFurnishedFilter((p) => (p === key ? '' : key))}
+                    className={`h-8 px-2.5 rounded-md text-xs transition ${
+                      furnishedFilter === key
+                        ? 'bg-background text-foreground shadow'
+                        : 'text-primary-foreground hover:bg-primary-foreground/20'
+                    }`}
+                  >
+                    {key === 'yes' ? '🛋️' : '📦'} {!isMobile && label}
+                  </Button>
+                ))}
+              </div>
+
+
                 <Button
                   variant="ghost"
                   size="sm"

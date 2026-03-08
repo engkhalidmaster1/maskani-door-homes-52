@@ -6,7 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
-import { Search, X, List, Layers, TrendingUp, Home, Bed, MapPinned, Share2, Ruler, CircleDot, SlidersHorizontal, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, X, List, Layers, TrendingUp, Home, Bed, MapPinned, Share2, Ruler, CircleDot, SlidersHorizontal, ChevronDown, ChevronUp, Bookmark, BookmarkCheck, Trash2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { MapPropertyPopup } from '@/components/Map/MapPropertyPopup';
 import { MapSidebar } from '@/components/Map/MapSidebar';
 import { createPriceIcon, createUserLocationIcon } from '@/components/Map/PriceMarker';
@@ -22,6 +24,7 @@ import 'leaflet.heat';
 import '@/styles/map-clusters.css';
 import { MARKET_COORDINATES, resolveMarketValue } from '@/constants/markets';
 import { formatCurrency } from '@/lib/utils';
+import { useSavedFilters } from '@/hooks/useSavedFilters';
 
 // Fix default Leaflet icons
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: () => void })._getIconUrl;
@@ -197,6 +200,11 @@ export function MapPage() {
   const [searchOnMove, setSearchOnMove] = useState(false);
   const [visibleBounds, setVisibleBounds] = useState<L.LatLngBounds | null>(null);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [saveFilterName, setSaveFilterName] = useState('');
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+
+  // Saved filters
+  const { presets, savePreset, deletePreset } = useSavedFilters();
 
   // Filter state
   const [searchTerm, setSearchTerm] = useState('');
@@ -334,6 +342,28 @@ export function MapPage() {
     setMinArea(0); setMaxArea(500); setStatusFilter('');
     setBathroomsFilter(''); setFurnishedFilter('');
   };
+
+  const getCurrentFilters = useCallback(() => ({
+    searchTerm, listingTypeFilter, propertyTypeFilter,
+    minPrice, maxPrice, bedroomsFilter,
+    minArea, maxArea, statusFilter,
+    bathroomsFilter, furnishedFilter,
+  }), [searchTerm, listingTypeFilter, propertyTypeFilter, minPrice, maxPrice, bedroomsFilter, minArea, maxArea, statusFilter, bathroomsFilter, furnishedFilter]);
+
+  const loadFilters = useCallback((filters: Record<string, unknown>) => {
+    setSearchTerm((filters.searchTerm as string) || '');
+    setListingTypeFilter((filters.listingTypeFilter as '' | 'sale' | 'rent') || '');
+    setPropertyTypeFilter((filters.propertyTypeFilter as '' | 'apartment' | 'house' | 'commercial') || '');
+    setMinPrice(filters.minPrice !== undefined && filters.minPrice !== '' ? Number(filters.minPrice) : '');
+    setMaxPrice(filters.maxPrice !== undefined && filters.maxPrice !== '' ? Number(filters.maxPrice) : '');
+    setBedroomsFilter(filters.bedroomsFilter !== undefined && filters.bedroomsFilter !== '' ? Number(filters.bedroomsFilter) : '');
+    setMinArea(Number(filters.minArea) || 0);
+    setMaxArea(filters.maxArea !== undefined ? Number(filters.maxArea) : 500);
+    setStatusFilter((filters.statusFilter as '' | 'available' | 'negotiating') || '');
+    setBathroomsFilter(filters.bathroomsFilter !== undefined && filters.bathroomsFilter !== '' ? Number(filters.bathroomsFilter) : '');
+    setFurnishedFilter((filters.furnishedFilter as '' | 'yes' | 'no') || '');
+    toast({ title: '📂 تم تحميل الفلتر' });
+  }, [toast]);
 
   // ===== Stats =====
   const stats = useMemo(() => {
@@ -601,6 +631,57 @@ export function MapPage() {
               >
                 <Share2 className="w-3.5 h-3.5" />
               </Button>
+
+              {/* Save/Load Filters */}
+              {user && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={`h-8 px-2.5 shrink-0 ${presets.length > 0 ? 'text-primary-foreground' : 'text-primary-foreground/70'} hover:bg-primary-foreground/20`}
+                      title="الفلاتر المحفوظة"
+                    >
+                      {presets.length > 0 ? <BookmarkCheck className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 z-[2000]">
+                    <DropdownMenuItem
+                      onClick={() => setShowSaveDialog(true)}
+                      disabled={!hasActiveFilters}
+                      className="gap-2 text-xs"
+                    >
+                      <Bookmark className="w-3.5 h-3.5" />
+                      حفظ الفلاتر الحالية
+                    </DropdownMenuItem>
+                    {presets.length > 0 && (
+                      <>
+                        <DropdownMenuSeparator />
+                        {presets.map((preset) => (
+                          <DropdownMenuItem
+                            key={preset.id}
+                            className="flex items-center justify-between text-xs group"
+                            onClick={() => loadFilters(preset.filters)}
+                          >
+                            <span className="truncate">📂 {preset.name}</span>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); deletePreset(preset.id); }}
+                              className="opacity-0 group-hover:opacity-100 hover:text-destructive transition-opacity p-0.5"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </DropdownMenuItem>
+                        ))}
+                      </>
+                    )}
+                    {presets.length === 0 && (
+                      <div className="px-2 py-3 text-center text-xs text-muted-foreground">
+                        لا توجد فلاتر محفوظة بعد
+                      </div>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </div>
 
             {/* Advanced filters panel (mobile only) */}
@@ -866,6 +947,38 @@ export function MapPage() {
           />
         </div>
       </div>
+
+      {/* Save Filter Dialog */}
+      <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+        <DialogContent className="sm:max-w-sm z-[3000]">
+          <DialogHeader>
+            <DialogTitle className="text-right">💾 حفظ الفلاتر الحالية</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <Input
+              placeholder="اسم الفلتر (مثال: شقق 3 غرف بغداد)"
+              value={saveFilterName}
+              onChange={(e) => setSaveFilterName(e.target.value)}
+              className="text-right"
+              autoFocus
+            />
+            <Button
+              className="w-full"
+              disabled={!saveFilterName.trim()}
+              onClick={async () => {
+                const ok = await savePreset(saveFilterName.trim(), getCurrentFilters());
+                if (ok) {
+                  setSaveFilterName('');
+                  setShowSaveDialog(false);
+                }
+              }}
+            >
+              <Bookmark className="w-4 h-4 ml-2" />
+              حفظ
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

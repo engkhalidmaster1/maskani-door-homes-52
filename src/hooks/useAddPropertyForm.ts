@@ -26,6 +26,7 @@ const initialFormData = {
   price: "",
   description: "",
   bedrooms: "2",
+  bathrooms: "1",
   area: "",
   latitude: null as number | null,
   longitude: null as number | null,
@@ -333,6 +334,8 @@ export const useAddPropertyForm = () => {
 
       // numeric values were parsed earlier for validation
 
+      const parsedBathrooms = formData.bathrooms ? parseInt(formData.bathrooms, 10) : null;
+
       const propertyData = {
         user_id: user.id,
         property_code: propertyCode,
@@ -344,6 +347,7 @@ export const useAddPropertyForm = () => {
         price: parsedPrice,
         area: parsedArea,
         bedrooms: parsedBedrooms,
+        bathrooms: parsedBathrooms,
         location: locationText,
         address: addressText,
         building: formData.building?.trim() || null,

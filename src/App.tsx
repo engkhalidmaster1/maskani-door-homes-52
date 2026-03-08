@@ -33,7 +33,7 @@ const Register = lazy(() => import("@/pages/Auth/Register").then(m => ({ default
 const MapPage = lazy(() => import("@/pages/MapPage").then(m => ({ default: m.MapPage })));
 const EditOffice = lazy(() => import("@/pages/EditOffice").then(m => ({ default: m.EditOffice })));
 const PropertyDetails = lazy(() => import("@/pages/PropertyDetails").then(m => ({ default: m.PropertyDetails })));
-const UsersView = lazy(() => import("@/pages/UsersView"));
+// UsersView removed — unified into AdminUsers
 const AdminDebug = lazy(() => import("@/pages/AdminDebug").then(m => ({ default: m.AdminDebug })));
 const AdminUsers = lazy(() => import("@/pages/AdminUsers"));
 const AdminAddUser = lazy(() => import("@/pages/AdminAddUser"));

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Home, Building, PlusCircle, User, Menu, LogOut, Settings, LogIn, UserPlus, Heart, MapPin } from "lucide-react";
+import { Home, Building, PlusCircle, User, Menu, LogOut, Settings, LogIn, UserPlus, Heart, MapPin, Moon, Sun } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/hooks/useAuth";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -20,6 +21,7 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
   const navigate = useNavigate();
   const { getFavoritesCount } = useFavorites();
   const { settings } = useSettings() ?? { settings: null };
+  const { theme, toggleTheme } = useTheme();
   const labelOverrides = parseMenuLabelOverrides(settings);
   
   // Desktop navigation items
@@ -81,7 +83,18 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
           </nav>
 
           {/* Right side actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 md:gap-2">
+            {/* Theme toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="text-primary-foreground hover:bg-white/20 h-9 w-9"
+              aria-label={theme === "dark" ? "الوضع الفاتح" : "الوضع الداكن"}
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
+
             {/* Notifications bell */}
             {user && <NotificationsBell />}
 

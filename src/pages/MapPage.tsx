@@ -947,7 +947,6 @@ export function MapPage() {
           />
         </div>
       </div>
-    </div>
 
       {/* Save Filter Dialog */}
       <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>

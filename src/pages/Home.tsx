@@ -129,7 +129,7 @@ export const Home = () => {
                     <div className={`${card.iconColor} w-12 h-12 rounded-xl flex items-center justify-center mb-4`}>
                       <Icon className="h-6 w-6 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold mb-3 text-gray-800">
+                    <h3 className="text-xl font-bold mb-3 text-card-foreground">
                       {card.title}
                     </h3>
                     <p className="text-gray-600 text-sm leading-relaxed">

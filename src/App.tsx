@@ -39,6 +39,7 @@ const AdminUsers = lazy(() => import("@/pages/AdminUsers"));
 const AdminAddUser = lazy(() => import("@/pages/AdminAddUser"));
 const SystemDocumentation = lazy(() => import("@/pages/SystemDocumentation"));
 const SettingsTab = lazy(() => import("@/components/Dashboard/SettingsTab").then(m => ({ default: m.SettingsTab })));
+const SettingsPage = lazy(() => import("@/pages/Settings").then(m => ({ default: m.Settings })));
   
 import { useEffect } from "react";
 
@@ -155,6 +156,7 @@ function AnimatedRoutes() {
                   
                   <Route path="/system-documentation" element={<ProtectedRoute><SystemDocumentation /></ProtectedRoute>} />
                   <Route path="/users-view" element={<ProtectedRoute><UsersView /></ProtectedRoute>} />
+                  <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
                   <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           </Routes>

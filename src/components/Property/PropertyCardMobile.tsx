@@ -273,7 +273,7 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
 
           {/* Property Code */}
           {property.property_code && (
-            <div className="text-xs text-gray-500 mb-2">
+            <div className="text-xs text-muted-foreground mb-2">
               الرمز: {property.property_code}
             </div>
           )}

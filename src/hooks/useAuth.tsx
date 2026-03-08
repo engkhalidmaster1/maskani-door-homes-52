@@ -43,28 +43,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const fetchUserRole = useCallback(async (userId: string): Promise<string> => {
     try {
-      console.log('Fetching role for user:', userId);
-
       // First, ask the server whether this user is an admin (authoritative)
       try {
         const { data: isAdminData, error: isAdminError } = await supabase.rpc('is_admin', { uid: userId });
         if (!isAdminError && isAdminData !== undefined && isAdminData !== null) {
-          const anyAdminData: unknown = isAdminData as unknown;
           let isAdminFlag = false;
-          // boolean scalar
-          if (typeof anyAdminData === 'boolean') {
-            isAdminFlag = anyAdminData as boolean;
-          } else if (Array.isArray(anyAdminData) && (anyAdminData as unknown[]).length > 0) {
-            // sometimes RPC returns array of scalars
-            isAdminFlag = Boolean((anyAdminData as unknown[])[0]);
-          } else if (typeof anyAdminData === 'object' && anyAdminData !== null) {
-            // sometimes RPC returns an object like { is_admin: true }
-            const obj = anyAdminData as Record<string, unknown>;
-            if (typeof obj.is_admin === 'boolean') isAdminFlag = obj.is_admin as boolean;
-            else if (typeof obj.isAdmin === 'boolean') isAdminFlag = obj.isAdmin as boolean;
+          if (typeof isAdminData === 'boolean') {
+            isAdminFlag = isAdminData;
+          } else if (Array.isArray(isAdminData) && isAdminData.length > 0) {
+            isAdminFlag = Boolean(isAdminData[0]);
           }
 
-          console.log('is_admin RPC result for', userId, ':', isAdminFlag);
           if (isAdminFlag) {
             setUserRole('admin');
             return 'admin';

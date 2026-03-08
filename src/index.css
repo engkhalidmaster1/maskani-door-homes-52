@@ -133,6 +133,19 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
     font-family: 'Tajawal', system-ui, -apple-system, sans-serif;
     line-height: 1.6;
+    /* Safe area for notched mobile devices */
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  /* Hide scrollbar on mobile for app-like feel */
+  @media (max-width: 767px) {
+    ::-webkit-scrollbar {
+      display: none;
+    }
+    body {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
   }
 
   /* Custom scrollbar */

@@ -216,7 +216,7 @@ export const HomePropertyCard = ({ property }: HomePropertyCardProps) => {
             {property.area && (
               <div className="flex items-center flex-row-reverse bg-blue-50 p-1 px-2 rounded">
                 <Ruler className="h-4 w-4 mr-1 text-blue-500" />
-                <span className="text-gray-700 font-medium text-sm">{property.area} م²</span>
+                <span className="text-foreground font-medium text-sm">{property.area} م²</span>
               </div>
             )}
             {/* معلومات الصور */}

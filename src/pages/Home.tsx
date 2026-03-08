@@ -160,12 +160,7 @@ export const Home = () => {
           </h2>
           
           {isLoading ? (
-            <div className="flex items-center justify-center py-8 md:py-12">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-10 w-10 md:h-12 md:w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                <p className="text-muted-foreground text-sm">جاري تحميل العقارات...</p>
-              </div>
-            </div>
+            <PropertyCardSkeletonGrid />
           ) : featuredProperties.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
               {featuredProperties.map((property) => (

@@ -285,6 +285,9 @@ export function MapPage() {
     if (minPrice !== '') list = list.filter((m) => m.property.price >= Number(minPrice));
     if (maxPrice !== '') list = list.filter((m) => m.property.price <= Number(maxPrice));
     if (bedroomsFilter !== '') list = list.filter((m) => m.property.bedrooms >= Number(bedroomsFilter));
+    if (minArea > 0) list = list.filter((m) => (m.property.area ?? 0) >= minArea);
+    if (maxArea < 500) list = list.filter((m) => (m.property.area ?? Infinity) <= maxArea);
+    if (statusFilter) list = list.filter((m) => (m.property.status || 'available') === statusFilter);
     if (debouncedSearch) {
       const s = debouncedSearch;
       list = list.filter((m) =>

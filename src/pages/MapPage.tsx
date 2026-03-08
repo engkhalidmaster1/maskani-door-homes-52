@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
-import { Search, X, List, Layers, TrendingUp, Home, Bed, MapPinned, Share2 } from 'lucide-react';
+import { Search, X, List, Layers, TrendingUp, Home, Bed, MapPinned, Share2, Ruler, CircleDot } from 'lucide-react';
 import { MapPropertyPopup } from '@/components/Map/MapPropertyPopup';
 import { MapSidebar } from '@/components/Map/MapSidebar';
 import { createPriceIcon, createUserLocationIcon } from '@/components/Map/PriceMarker';
@@ -203,6 +203,9 @@ export function MapPage() {
   const [minPrice, setMinPrice] = useState<number | ''>('');
   const [maxPrice, setMaxPrice] = useState<number | ''>('');
   const [bedroomsFilter, setBedroomsFilter] = useState<number | ''>('');
+  const [minArea, setMinArea] = useState<number>(0);
+  const [maxArea, setMaxArea] = useState<number>(500);
+  const [statusFilter, setStatusFilter] = useState<'' | 'available' | 'negotiating'>('');
   const [nearMeEnabled, setNearMeEnabled] = useState(true);
   const [radiusKm, setRadiusKm] = useState(25);
 
@@ -282,6 +285,9 @@ export function MapPage() {
     if (minPrice !== '') list = list.filter((m) => m.property.price >= Number(minPrice));
     if (maxPrice !== '') list = list.filter((m) => m.property.price <= Number(maxPrice));
     if (bedroomsFilter !== '') list = list.filter((m) => m.property.bedrooms >= Number(bedroomsFilter));
+    if (minArea > 0) list = list.filter((m) => (m.property.area ?? 0) >= minArea);
+    if (maxArea < 500) list = list.filter((m) => (m.property.area ?? Infinity) <= maxArea);
+    if (statusFilter) list = list.filter((m) => (m.property.status || 'available') === statusFilter);
     if (debouncedSearch) {
       const s = debouncedSearch;
       list = list.filter((m) =>
@@ -303,7 +309,7 @@ export function MapPage() {
       list = list.filter(({ coords: [lat, lng] }) => visibleBounds.contains(L.latLng(lat, lng)));
     }
     return list;
-  }, [mapProperties, listingTypeFilter, propertyTypeFilter, debouncedSearch, nearMeEnabled, userLocation, radiusKm, minPrice, maxPrice, bedroomsFilter, searchOnMove, visibleBounds]);
+  }, [mapProperties, listingTypeFilter, propertyTypeFilter, debouncedSearch, nearMeEnabled, userLocation, radiusKm, minPrice, maxPrice, bedroomsFilter, minArea, maxArea, statusFilter, searchOnMove, visibleBounds]);
 
   // Disable auto-fit after first load
   useEffect(() => {
@@ -313,11 +319,12 @@ export function MapPage() {
     }
   }, [filteredMapProperties.length, fitBoundsEnabled]);
 
-  const hasActiveFilters = searchTerm.trim().length > 0 || listingTypeFilter !== '' || propertyTypeFilter !== '' || minPrice !== '' || maxPrice !== '' || bedroomsFilter !== '';
+  const hasActiveFilters = searchTerm.trim().length > 0 || listingTypeFilter !== '' || propertyTypeFilter !== '' || minPrice !== '' || maxPrice !== '' || bedroomsFilter !== '' || minArea > 0 || maxArea < 500 || statusFilter !== '';
 
   const clearAllFilters = () => {
     setSearchTerm(''); setListingTypeFilter(''); setPropertyTypeFilter('');
     setMinPrice(''); setMaxPrice(''); setBedroomsFilter('');
+    setMinArea(0); setMaxArea(500); setStatusFilter('');
   };
 
   // ===== Stats =====
@@ -462,7 +469,71 @@ export function MapPage() {
                 </PopoverContent>
               </Popover>
 
-              {/* Clear */}
+              {/* Area */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`h-8 px-3 rounded-lg text-xs shrink-0 ${
+                      minArea > 0 || maxArea < 500
+                        ? 'bg-background text-foreground shadow'
+                        : 'text-primary-foreground bg-primary-foreground/15 hover:bg-primary-foreground/25'
+                    }`}
+                  >
+                    <Ruler className="w-3 h-3 ml-1" />
+                    المساحة
+                    {(minArea > 0 || maxArea < 500) && (
+                      <Badge variant="secondary" className="mr-1 h-4 px-1 text-[9px]">✓</Badge>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-72 p-4 z-[2000]" align="start">
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-semibold text-right">المساحة (م²)</h4>
+                    <Slider
+                      min={0}
+                      max={500}
+                      step={10}
+                      value={[minArea, maxArea]}
+                      onValueChange={([min, max]) => { setMinArea(min); setMaxArea(max); }}
+                      className="my-4"
+                    />
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>{minArea} م²</span>
+                      <span>{maxArea >= 500 ? '500+ م²' : `${maxArea} م²`}</span>
+                    </div>
+                    {(minArea > 0 || maxArea < 500) && (
+                      <Button size="sm" variant="ghost" className="w-full text-xs" onClick={() => { setMinArea(0); setMaxArea(500); }}>
+                        إعادة تعيين
+                      </Button>
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
+
+              {/* Status */}
+              <div className="flex rounded-lg p-0.5 bg-primary-foreground/15 backdrop-blur-sm shrink-0">
+                {([
+                  { key: 'available', icon: '🟢', label: 'متاح' },
+                  { key: 'negotiating', icon: '🟡', label: 'تفاوض' },
+                ] as const).map(({ key, icon, label }) => (
+                  <Button
+                    key={key}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setStatusFilter((p) => (p === key ? '' : key))}
+                    className={`h-8 px-2.5 rounded-md text-xs transition ${
+                      statusFilter === key
+                        ? 'bg-background text-foreground shadow'
+                        : 'text-primary-foreground hover:bg-primary-foreground/20'
+                    }`}
+                  >
+                    {isMobile ? icon : `${icon} ${label}`}
+                  </Button>
+                ))}
+              </div>
+
               {hasActiveFilters && (
                 <Button
                   variant="ghost"

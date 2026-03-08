@@ -2,6 +2,7 @@ import { useCallback, useRef } from "react";
 import { motion, useMotionValue, useTransform, PanInfo } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { haptic } from "@/utils/haptic";
 
 // Pages that are considered "detail/inner" pages where swipe-back makes sense
 const SWIPEABLE_PAGES = [
@@ -38,6 +39,7 @@ export const SwipeBackWrapper = ({ children }: SwipeBackWrapperProps) => {
       // Swipe right (RTL: means "back") if offset > 100px or velocity > 500
       if ((info.offset.x > 100 || info.velocity.x > 500) && !hasNavigated.current) {
         hasNavigated.current = true;
+        haptic('medium');
         navigate(-1);
         setTimeout(() => {
           hasNavigated.current = false;

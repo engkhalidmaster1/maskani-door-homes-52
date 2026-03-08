@@ -100,7 +100,7 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
   };
 
   return (
-    <Card className="w-full max-w-sm mx-auto overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 border-2 border-gray-100">
+    <Card className="w-full max-w-sm mx-auto overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 border-2 border-border">
       <div onClick={handleCardClick}>
         {/* Image Section */}
         <div className="relative h-48 bg-gray-100">

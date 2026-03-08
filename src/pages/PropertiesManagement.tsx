@@ -812,5 +812,6 @@ export const PropertiesManagement = () => {
         )}
       </div>
     </div>
+    </PullToRefresh>
   );
 };

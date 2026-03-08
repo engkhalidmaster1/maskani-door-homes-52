@@ -74,19 +74,6 @@ export const DashboardSidebar = ({ activeTab, onTabChange, isOpen, onClose, onTo
       ]
     },
     {
-      title: "المستخدمين",
-      items: [
-        { 
-          id: "users-view", 
-          label: "قائمة المستخدمين", 
-          icon: UsersRound,
-          color: "text-sky-600",
-          bgColor: "bg-sky-50",
-          description: "عرض بيانات المستخدمين"
-        },
-      ]
-    },
-    {
       title: "إدارة المستخدمين",
       items: [
         { 

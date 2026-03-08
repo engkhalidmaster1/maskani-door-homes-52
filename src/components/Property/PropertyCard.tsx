@@ -302,16 +302,16 @@ export const PropertyCard = ({
             {property.area && (
               <div className="flex items-center flex-row-reverse bg-blue-50 p-1 px-2 rounded">
                 <Ruler className="h-4 w-4 ml-1 text-blue-500" />
-                <span className="text-gray-700 font-medium text-sm">{property.area} م²</span>
+                <span className="text-foreground font-medium text-sm">{property.area} م²</span>
               </div>
             )}
             <div className="flex items-center flex-row-reverse bg-green-50 p-1 px-2 rounded">
               <Bath className="h-4 w-4 ml-1 text-green-500" />
-              <span className="text-gray-700 font-medium text-sm">{property.bathrooms}</span>
+              <span className="text-foreground font-medium text-sm">{property.bathrooms}</span>
             </div>
             <div className="flex items-center flex-row-reverse bg-purple-50 p-1 px-2 rounded">
               <Bed className="h-4 w-4 ml-1 text-purple-500" />
-              <span className="text-gray-700 font-medium text-sm">{property.bedrooms}</span>
+              <span className="text-foreground font-medium text-sm">{property.bedrooms}</span>
             </div>
             {/* معلومات الصور */}
             {property.images && property.images.length > 0 ? (

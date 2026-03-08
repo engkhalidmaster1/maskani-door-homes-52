@@ -52,7 +52,7 @@ export function CompareFloatingBar() {
                 <div className="h-16 bg-muted">
                   {item.images?.[0] ? (
                     <img
-                      src={getOptimizedImageUrl(item.images[0], 120)}
+                      src={getOptimizedImageUrl(item.images[0], 'small')}
                       alt={item.title}
                       className="w-full h-full object-cover"
                     />

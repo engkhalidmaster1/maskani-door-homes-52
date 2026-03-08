@@ -115,7 +115,7 @@ export function CompareSheet() {
                   <div className="relative mx-auto w-full aspect-[4/3] rounded-xl overflow-hidden border bg-muted">
                     {item.images?.[0] ? (
                       <img
-                        src={getOptimizedImageUrl(item.images[0], 300)}
+                        src={getOptimizedImageUrl(item.images[0], 'medium')}
                         alt={item.title}
                         className="w-full h-full object-cover"
                       />

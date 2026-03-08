@@ -24,6 +24,7 @@ import 'leaflet.heat';
 import '@/styles/map-clusters.css';
 import { MARKET_COORDINATES, resolveMarketValue } from '@/constants/markets';
 import { formatCurrency } from '@/lib/utils';
+import { useSavedFilters } from '@/hooks/useSavedFilters';
 
 // Fix default Leaflet icons
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: () => void })._getIconUrl;

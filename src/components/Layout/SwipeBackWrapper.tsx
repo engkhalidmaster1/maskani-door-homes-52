@@ -2,6 +2,8 @@ import { useCallback, useRef } from "react";
 import { motion, useMotionValue, useTransform, PanInfo } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { haptic } from "@/utils/haptic";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Pages that are considered "detail/inner" pages where swipe-back makes sense
 const SWIPEABLE_PAGES = [

@@ -61,6 +61,10 @@ interface Property {
   longitude?: number | null;
   market?: string | null;
   marketLabel?: string | null;
+  furnished?: string | null;
+  building?: string | null;
+  apartment?: string | null;
+  floor?: string | null;
 }
 
 const FALLBACK_IMAGE =

@@ -5,7 +5,7 @@ import { LazyImage } from "@/components/ui/lazy-image";
 import { PropertyStatusBadge } from "@/components/Property/PropertyStatusBadge";
 import { PropertyStatusBadgeEnhanced } from "@/components/Property/PropertyStatusBadgeEnhanced";
 import { getOptimizedImageUrl } from "@/utils/imageOptimization";
-import { Building, Home as HomeIcon, MapPin, Bed, Bath, Ruler, Heart, CheckSquare, Square, Edit, Trash2, Eye, EyeOff, Store } from "lucide-react";
+import { Building, Home as HomeIcon, MapPin, Bed, Bath, Ruler, Heart, CheckSquare, Square, Edit, Trash2, Eye, EyeOff, Store, GitCompareArrows } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { formatCurrency, formatDate, getPropertyTypeLabel } from "@/lib/utils";
 import { getMarketLabel, resolveMarketValue } from "@/constants/markets";
+import { useCompare } from "@/context/CompareContext";
 
 interface Property {
   id: string;

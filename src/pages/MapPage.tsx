@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
-import { Search, X, List, Layers, TrendingUp, Home, Bed, MapPinned, Satellite } from 'lucide-react';
+import { Search, X, List, Layers, TrendingUp, Home, Bed, MapPinned, Share2 } from 'lucide-react';
 import { MapPropertyPopup } from '@/components/Map/MapPropertyPopup';
 import { MapSidebar } from '@/components/Map/MapSidebar';
 import { createPriceIcon, createUserLocationIcon } from '@/components/Map/PriceMarker';
@@ -474,6 +474,26 @@ export function MapPage() {
                   مسح
                 </Button>
               )}
+
+              {/* Share */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const url = window.location.href;
+                  if (navigator.share) {
+                    navigator.share({ title: 'بحث عقارات - سكني', url }).catch(() => {});
+                  } else {
+                    navigator.clipboard.writeText(url).then(() => {
+                      toast({ title: '✅ تم نسخ رابط البحث', description: 'يمكنك لصقه ومشاركته', duration: 2000 });
+                    });
+                  }
+                }}
+                className="h-8 w-8 p-0 text-primary-foreground hover:bg-primary-foreground/20 shrink-0"
+                title="مشاركة رابط البحث"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+              </Button>
             </div>
           </div>
         </div>

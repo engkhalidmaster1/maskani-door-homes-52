@@ -119,12 +119,12 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
               fallback="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23f5f5f5'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999'%3EImage not found%3C/text%3E%3C/svg%3E"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center text-gray-500 relative">
+            <div className="w-full h-full bg-gradient-to-br from-muted to-muted/70 flex flex-col items-center justify-center text-muted-foreground relative">
               <div className="text-center">
                 <div className="mb-2">
                   <span className="text-4xl">{getPropertyTypeEmoji(property.property_type)}</span>
                 </div>
-                <span className="text-sm font-medium text-gray-600 block">{getPropertyTypeLabel(property.property_type)}</span>
+                <span className="text-sm font-medium text-muted-foreground block">{getPropertyTypeLabel(property.property_type)}</span>
                 <div className="flex items-center gap-1 mt-1 justify-center">
                   <svg className="w-3 h-3 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />

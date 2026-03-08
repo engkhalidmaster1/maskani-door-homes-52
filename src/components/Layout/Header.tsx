@@ -21,6 +21,7 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
   const navigate = useNavigate();
   const { getFavoritesCount } = useFavorites();
   const { settings } = useSettings() ?? { settings: null };
+  const { theme, toggleTheme } = useTheme();
   const labelOverrides = parseMenuLabelOverrides(settings);
   
   // Desktop navigation items

@@ -583,7 +583,8 @@ export function MapPage() {
                 ))}
               </div>
 
-
+              {/* Clear */}
+              {hasActiveFilters && (
                 <Button
                   variant="ghost"
                   size="sm"

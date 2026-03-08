@@ -156,6 +156,7 @@ function AnimatedRoutes() {
                   
                   <Route path="/system-documentation" element={<ProtectedRoute><SystemDocumentation /></ProtectedRoute>} />
                   <Route path="/users-view" element={<ProtectedRoute><UsersView /></ProtectedRoute>} />
+                  <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
                   <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           </Routes>

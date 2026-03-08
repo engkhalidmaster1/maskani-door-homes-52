@@ -15,16 +15,14 @@ interface HeaderProps {
 }
 
 export const Header = ({ onSidebarToggle }: HeaderProps) => {
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const { user, signOut, isAdmin } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const { getFavoritesCount } = useFavorites();
   const { settings } = useSettings() ?? { settings: null };
   const labelOverrides = parseMenuLabelOverrides(settings);
-  const { userStatus, getStatusLabel, getStatusColor } = useUserStatus();
   
-  // Different navigation items based on authentication status
+  // Desktop navigation items
   const navItems = user ? [
     { id: "/", label: getMenuLabel('/', 'الرئيسية', labelOverrides), icon: Home },
     { id: "/properties", label: getMenuLabel('/properties', 'العقارات', labelOverrides), icon: Building },
@@ -41,32 +39,21 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
     { id: "/offices", label: getMenuLabel('/offices', 'المكاتب', labelOverrides), icon: Building },
   ];
 
-  // Check if current path is dashboard-related
   const isDashboardPath = location.pathname.startsWith('/dashboard');
-
 
   return (
     <header className="gradient-primary text-primary-foreground shadow-elegant sticky top-0 z-50">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Menu button - Mobile Only */}
-          <Button
-            className="md:hidden flex items-center justify-center p-0 rounded-full border-4 border-white bg-blue-500 w-12 h-12 shadow-lg"
-            onClick={onSidebarToggle}
-            aria-label="فتح القائمة"
-          >
-            <Menu className="h-7 w-7 text-white" />
-          </Button>
-
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-3">
-            <div className="bg-accent text-accent-foreground p-2 rounded-xl">
-              <Home className="h-6 w-6" />
+        <div className="flex items-center justify-between h-14 md:h-16">
+          {/* Mobile: Logo on the right */}
+          <Link to="/" className="flex items-center gap-2 md:gap-3">
+            <div className="bg-accent text-accent-foreground p-1.5 md:p-2 rounded-xl">
+              <Home className="h-5 w-5 md:h-6 md:w-6" />
             </div>
-            <h1 className="text-2xl font-bold">سكني</h1>
+            <h1 className="text-xl md:text-2xl font-bold">سكني</h1>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation - hidden on mobile */}
           <nav className="hidden md:flex items-center gap-2">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -75,10 +62,10 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
                 <Link key={item.id} to={item.id}>
                   <Button
                     variant="ghost"
-                      className={`text-primary-foreground hover:bg-white/20 gap-2 relative ${
+                    className={`text-primary-foreground hover:bg-white/20 gap-2 relative ${
                       isActive ? "bg-white/25" : ""
                     }`}
-                      style={{ fontSize: 'var(--menu-font-size)' }}
+                    style={{ fontSize: 'var(--menu-font-size)' }}
                   >
                     <Icon className="h-4 w-4" />
                     {item.label}
@@ -93,47 +80,12 @@ export const Header = ({ onSidebarToggle }: HeaderProps) => {
             })}
           </nav>
 
-          {/* User Actions + Profile Icon */}
+          {/* Right side actions */}
           <div className="flex items-center gap-2">
-            {/* Removed maintenance indicator and settings dependency */}
             {/* Notifications bell */}
-            {user && (
-              <div className="block">
-                <NotificationsBell />
-              </div>
-            )}
-            {/* زر الملف الشخصي يظهر فقط في الجوال */}
-            <div className="relative md:hidden">
-              <Button
-                className="flex items-center justify-center p-0 rounded-full border-4 border-white bg-blue-500 w-12 h-12 shadow-lg"
-                onClick={() => {
-                  if (!user) {
-                    navigate("/login");
-                  } else {
-                    setShowProfileMenu((prev) => !prev);
-                  }
-                }}
-                title={user ? "الملف الشخصي" : "تسجيل الدخول"}
-              >
-                <User className="h-7 w-7 text-white" />
-              </Button>
-              {/* قائمة تسجيل خروج تظهر عند الضغط */}
-              {user && showProfileMenu && (
-                <div className="absolute left-0 mt-2 w-36 bg-white rounded-xl shadow-lg z-50 border">
-                  <Button
-                    className="w-full text-red-600 rounded-xl"
-                    variant="ghost"
-                    onClick={async () => {
-                      setShowProfileMenu(false);
-                      await signOut();
-                      navigate("/");
-                    }}
-                  >
-                    تسجيل الخروج
-                  </Button>
-                </div>
-              )}
-            </div>
+            {user && <NotificationsBell />}
+
+            {/* Desktop auth buttons */}
             {!user ? (
               <div className="hidden md:flex items-center gap-2">
                 <Link to="/login">

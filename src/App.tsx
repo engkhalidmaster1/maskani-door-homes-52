@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useRef } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { AppLayout } from "@/components/Layout/AppLayout";
 import { OfflineStatusIndicator } from "@/components/OfflineStatusIndicator";
@@ -10,6 +10,9 @@ import { HelmetProvider } from 'react-helmet-async';
 import { CompareProvider } from '@/context/CompareContext';
 import { CompareFloatingBar } from '@/components/Compare/CompareFloatingBar';
 import { CompareSheet } from '@/components/Compare/CompareSheet';
+import { SwipeBackWrapper } from "@/components/Layout/SwipeBackWrapper";
+import { useIsMobile } from "@/hooks/use-mobile";
+// Lazy-loaded pages/components
 // Lazy-loaded pages/components
 const Home = lazy(() => import("@/pages/Home").then(m => ({ default: m.Home })));
 const DashboardPage = lazy(() => import("@/pages/Dashboard"));
@@ -69,50 +72,92 @@ function ConditionalOfflineStatusIndicator() {
   );
 }
 
-// مكون للصفحات مع animations
+// Detect navigation direction for slide animations
+function useNavigationDirection() {
+  const location = useLocation();
+  const prevPath = useRef(location.pathname);
+  
+  // Simple heuristic: deeper paths = forward, shallower = back
+  const getDepth = (path: string) => path.split('/').filter(Boolean).length;
+  
+  const prevDepth = getDepth(prevPath.current);
+  const currDepth = getDepth(location.pathname);
+  const direction = currDepth >= prevDepth ? 'forward' : 'back';
+  
+  prevPath.current = location.pathname;
+  return direction;
+}
+
+// Mobile-optimized page transition variants
+const mobileVariants = {
+  forward: {
+    initial: { x: '-30%', opacity: 0 },
+    animate: { x: 0, opacity: 1 },
+    exit: { x: '30%', opacity: 0 },
+  },
+  back: {
+    initial: { x: '30%', opacity: 0 },
+    animate: { x: 0, opacity: 1 },
+    exit: { x: '-30%', opacity: 0 },
+  },
+};
+
+const desktopVariants = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -12 },
+};
+
 function AnimatedRoutes() {
   const location = useLocation();
+  const isMobile = useIsMobile();
+  const direction = useNavigationDirection();
+
+  const variants = isMobile ? mobileVariants[direction] : desktopVariants;
 
   return (
     <AnimatePresence mode="wait">
       <motion.div
         key={location.pathname}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
+        initial={variants.initial}
+        animate={variants.animate}
+        exit={variants.exit}
+        transition={{
+          duration: isMobile ? 0.25 : 0.3,
+          ease: [0.25, 0.1, 0.25, 1], // cubic-bezier for native feel
+        }}
         className="min-h-screen"
       >
-        <Routes location={location}>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/property/:id" element={<PropertyDetails />} />
-          <Route element={<AppLayout />}>
-                <Route path="/" element={<Home />} />
-                <Route path="/properties" element={<PropertiesManagement />} />
-                <Route path="/offices" element={<Offices />} />
-                <Route path="/map" element={<MapPage />} />
-                
-                <Route path="/favorites" element={<Favorites />} />
-                {/* Dashboard: redirect bare /dashboard to a default tab and allow tab-specific routes */}
-                <Route path="/dashboard" element={<Navigate to="/dashboard/overview" replace />} />
-                <Route path="/dashboard/:tab" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-                {/* Removed legacy /admin/settings mapping - RBAC and sidebar now point to /dashboard/settings */}
-                <Route path="/add-property" element={<ProtectedRoute><AddProperty /></ProtectedRoute>} />
-                <Route path="/edit-property/:id" element={<ProtectedRoute><EditProperty /></ProtectedRoute>} />
-                <Route path="/properties-management" element={<ProtectedRoute><PropertiesManagement /></ProtectedRoute>} />
-                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-                <Route path="/edit-office/:id" element={<ProtectedRoute><EditOffice /></ProtectedRoute>} />
-                <Route path="/image-diagnostics" element={<ProtectedRoute><ImageDiagnostics /></ProtectedRoute>} />
-                <Route path="/admin/debug" element={<ProtectedRoute><AdminDebug /></ProtectedRoute>} />
-                <Route path="/admin/users" element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} />
-                <Route path="/admin/add-user" element={<ProtectedRoute><AdminAddUser /></ProtectedRoute>} />
-                
-                <Route path="/system-documentation" element={<ProtectedRoute><SystemDocumentation /></ProtectedRoute>} />
-                <Route path="/users-view" element={<ProtectedRoute><UsersView /></ProtectedRoute>} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-          </Route>
-            </Routes>
+        <SwipeBackWrapper>
+          <Routes location={location}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/property/:id" element={<PropertyDetails />} />
+            <Route element={<AppLayout />}>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/properties" element={<PropertiesManagement />} />
+                  <Route path="/offices" element={<Offices />} />
+                  <Route path="/map" element={<MapPage />} />
+                  
+                  <Route path="/favorites" element={<Favorites />} />
+                  <Route path="/dashboard" element={<Navigate to="/dashboard/overview" replace />} />
+                  <Route path="/dashboard/:tab" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+                  <Route path="/add-property" element={<ProtectedRoute><AddProperty /></ProtectedRoute>} />
+                  <Route path="/edit-property/:id" element={<ProtectedRoute><EditProperty /></ProtectedRoute>} />
+                  <Route path="/properties-management" element={<ProtectedRoute><PropertiesManagement /></ProtectedRoute>} />
+                  <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                  <Route path="/edit-office/:id" element={<ProtectedRoute><EditOffice /></ProtectedRoute>} />
+                  <Route path="/image-diagnostics" element={<ProtectedRoute><ImageDiagnostics /></ProtectedRoute>} />
+                  <Route path="/admin/debug" element={<ProtectedRoute><AdminDebug /></ProtectedRoute>} />
+                  <Route path="/admin/users" element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} />
+                  <Route path="/admin/add-user" element={<ProtectedRoute><AdminAddUser /></ProtectedRoute>} />
+                  
+                  <Route path="/system-documentation" element={<ProtectedRoute><SystemDocumentation /></ProtectedRoute>} />
+                  <Route path="/users-view" element={<ProtectedRoute><UsersView /></ProtectedRoute>} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
+          </Routes>
+        </SwipeBackWrapper>
       </motion.div>
     </AnimatePresence>
   );
@@ -134,7 +179,7 @@ function App() {
             
             <Suspense fallback={
               <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               </div>
             }>
             <AnimatedRoutes />

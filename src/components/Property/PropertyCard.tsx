@@ -357,7 +357,7 @@ export const PropertyCard = ({
                 variant="outline"
                 aria-label={isPublished ? "إخفاء العقار" : "نشر العقار"}
                 onClick={handleTogglePublication}
-                className="flex-1 bg-white hover:bg-primary hover:text-white border-gray-300"
+                className="flex-1 bg-card hover:bg-primary hover:text-primary-foreground border-border"
                 disabled={isToggling}
               >
                 {isHidden ? (

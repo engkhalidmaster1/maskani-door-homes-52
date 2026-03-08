@@ -18,6 +18,7 @@ export default function Offices() {
   }, [fetchOffices]);
 
   return (
+    <PullToRefresh onRefresh={() => fetchOffices()}>
     <div className="min-h-screen bg-background">
       {/* Page Header */}
       <div className="gradient-primary text-primary-foreground shadow-elegant sticky top-14 md:top-16 z-40">

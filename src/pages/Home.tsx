@@ -243,5 +243,6 @@ export const Home = () => {
         </section>
       </div>
     </div>
+    </PullToRefresh>
   );
 };

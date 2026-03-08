@@ -3,6 +3,7 @@ import { User, Session, AuthError } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from '@/integrations/supabase/types';
 import { useToast } from "@/hooks/use-toast";
+import { getDeviceHash } from "@/utils/deviceFingerprint";
 
 type AuthActionResult = {
   error: AuthError | Error | null;

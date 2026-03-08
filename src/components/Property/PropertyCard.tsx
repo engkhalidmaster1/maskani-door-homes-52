@@ -5,7 +5,7 @@ import { LazyImage } from "@/components/ui/lazy-image";
 import { PropertyStatusBadge } from "@/components/Property/PropertyStatusBadge";
 import { PropertyStatusBadgeEnhanced } from "@/components/Property/PropertyStatusBadgeEnhanced";
 import { getOptimizedImageUrl } from "@/utils/imageOptimization";
-import { Building, Home as HomeIcon, MapPin, Bed, Bath, Ruler, Heart, CheckSquare, Square, Edit, Trash2, Eye, EyeOff, Store } from "lucide-react";
+import { Building, Home as HomeIcon, MapPin, Bed, Bath, Ruler, Heart, CheckSquare, Square, Edit, Trash2, Eye, EyeOff, Store, GitCompareArrows } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { formatCurrency, formatDate, getPropertyTypeLabel } from "@/lib/utils";
 import { getMarketLabel, resolveMarketValue } from "@/constants/markets";
+import { useCompare } from "@/context/CompareContext";
 
 interface Property {
   id: string;
@@ -64,6 +65,7 @@ export const PropertyCard = ({
 }: PropertyCardProps) => {
   const { user } = useAuth();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { has: isInCompare, toggle: toggleCompare } = useCompare();
   const [isToggling, setIsToggling] = useState(false);
   const [optimisticPublished, setOptimisticPublished] = useState<undefined | boolean>(undefined);
   const [optimisticHidden, setOptimisticHidden] = useState<undefined | boolean>(undefined);
@@ -153,7 +155,41 @@ export const PropertyCard = ({
         </button>
       )}
 
-      {/* Main Content - Clickable Area */}
+      {/* Compare Button */}
+      <button
+        aria-label={isInCompare(property.id) ? "إزالة من المقارنة" : "إضافة للمقارنة"}
+        title={isInCompare(property.id) ? "إزالة من المقارنة" : "إضافة للمقارنة"}
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          toggleCompare({
+            id: property.id,
+            title: property.title,
+            property_type: property.property_type,
+            listing_type: property.listing_type,
+            price: property.price,
+            area: property.area,
+            bedrooms: property.bedrooms,
+            bathrooms: property.bathrooms,
+            location: property.location,
+            address: property.address,
+            images: property.images,
+            furnished: (property as any).furnished,
+            amenities: property.amenities,
+            market: property.market,
+            status: property.status,
+            created_at: property.created_at,
+          });
+        }}
+        className={`absolute top-3 right-3 z-10 p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-md transition-all hover:scale-110 ${
+          isInCompare(property.id)
+            ? 'text-primary ring-2 ring-primary/30'
+            : 'text-gray-400 hover:text-primary'
+        }`}
+      >
+        <GitCompareArrows className="w-4 h-4" />
+      </button>
+
       <div 
         onClick={() => navigate(`/property/${property.id}`)} 
         className="cursor-pointer"

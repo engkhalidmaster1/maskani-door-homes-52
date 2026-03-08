@@ -1,5 +1,31 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
+export const OfficeCardSkeleton = () => (
+  <div className="rounded-lg border border-border bg-card overflow-hidden">
+    <Skeleton className="h-12 md:h-14 w-full" />
+    <div className="p-3 md:p-4 space-y-2.5">
+      <Skeleton className="h-3 w-full" />
+      <Skeleton className="h-3 w-2/3" />
+      <div className="flex gap-2 pt-2">
+        <Skeleton className="h-4 w-4 rounded-full" />
+        <Skeleton className="h-4 w-28" />
+      </div>
+      <div className="flex gap-2">
+        <Skeleton className="h-4 w-4 rounded-full" />
+        <Skeleton className="h-4 w-24" />
+      </div>
+    </div>
+  </div>
+);
+
+export const OfficeCardSkeletonGrid = () => (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+    {Array.from({ length: 6 }).map((_, i) => (
+      <OfficeCardSkeleton key={i} />
+    ))}
+  </div>
+);
+
 export const NavCardSkeleton = () => (
   <div className="rounded-xl md:rounded-2xl p-4 md:p-6 border border-border bg-card">
     <Skeleton className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl mb-3 md:mb-4" />

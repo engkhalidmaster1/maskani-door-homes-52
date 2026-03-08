@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { useRealEstateOfficesDB } from '@/hooks/useRealEstateOfficesDB';
 import { Building2, Search, ShieldCheck, Phone, Mail, MapPin, Globe } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { OfficeCardSkeletonGrid } from "@/components/Skeletons";
 
 export default function Offices() {
   const { offices, loading, fetchOffices, searchOffices } = useRealEstateOfficesDB();
@@ -55,12 +56,7 @@ export default function Offices() {
 
       <div className="container mx-auto px-3 md:px-4 py-4 md:py-6">
         {loading ? (
-          <div className="flex items-center justify-center py-12 md:py-16">
-            <div className="text-center">
-              <div className="animate-spin h-8 w-8 md:h-10 md:w-10 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
-              <p className="text-muted-foreground text-sm">جاري تحميل المكاتب...</p>
-            </div>
-          </div>
+          <OfficeCardSkeletonGrid />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
             {offices.map((o) => (

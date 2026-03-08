@@ -121,10 +121,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (session?.user) {
           // Fetch user role after session is established
           setTimeout(async () => {
-            const role = await fetchUserRole(session.user.id);
-            console.log('User role fetched:', role);
-            setUserRole(role);
-
+            await fetchUserRole(session.user.id);
           }, 0);
         } else {
           setUserRole(null);

@@ -23,6 +23,7 @@ import { SystemHealthTab } from "@/components/Dashboard/SystemHealthTab";
 import { FloatingButtonManagement } from "@/components/Dashboard/FloatingButtonManagement";
 import { HomeCardsManagement } from "@/components/Dashboard/HomeCardsManagement";
 import { SearchBarSettings } from "@/components/Dashboard/SearchBarSettings";
+import DevDocumentation from "@/pages/DevDocumentation";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,

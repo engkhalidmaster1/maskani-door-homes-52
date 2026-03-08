@@ -210,7 +210,7 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
           {/* Title and Price */}
           <div className="flex items-center justify-between mb-3 border-b pb-2 border-border" dir="rtl">
             <div className="text-right w-3/5">
-              <h3 className="font-semibold text-sm line-clamp-2 text-gray-800" dir="rtl">{property.title}</h3>
+              <h3 className="font-semibold text-sm line-clamp-2 text-card-foreground" dir="rtl">{property.title}</h3>
             </div>
             <div className="w-2/5 text-left">
               <div className="text-sm font-bold text-primary bg-blue-50 px-2 py-1 rounded">

@@ -101,7 +101,7 @@ export const Home = () => {
                 </h2>
               )}
               {homeSettings.search_bar_subtitle && (
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   {homeSettings.search_bar_subtitle}
                 </p>
               )}

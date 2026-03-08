@@ -85,7 +85,7 @@ export const Home = () => {
   // Auto-close modal functionality moved to FloatingWelcomeButton component
 
   return (
-    <PullToRefresh onRefresh={() => refetch()}>
+    <PullToRefresh onRefresh={() => fetchProperties()}>
     <div className="min-h-screen">
       <div className="container mx-auto px-3 md:px-4 py-4 md:py-8">
         <ScrollingBanner />

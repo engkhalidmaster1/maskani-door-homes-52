@@ -343,6 +343,28 @@ export function MapPage() {
     setBathroomsFilter(''); setFurnishedFilter('');
   };
 
+  const getCurrentFilters = useCallback(() => ({
+    searchTerm, listingTypeFilter, propertyTypeFilter,
+    minPrice, maxPrice, bedroomsFilter,
+    minArea, maxArea, statusFilter,
+    bathroomsFilter, furnishedFilter,
+  }), [searchTerm, listingTypeFilter, propertyTypeFilter, minPrice, maxPrice, bedroomsFilter, minArea, maxArea, statusFilter, bathroomsFilter, furnishedFilter]);
+
+  const loadFilters = useCallback((filters: Record<string, unknown>) => {
+    setSearchTerm((filters.searchTerm as string) || '');
+    setListingTypeFilter((filters.listingTypeFilter as '' | 'sale' | 'rent') || '');
+    setPropertyTypeFilter((filters.propertyTypeFilter as '' | 'apartment' | 'house' | 'commercial') || '');
+    setMinPrice(filters.minPrice !== undefined && filters.minPrice !== '' ? Number(filters.minPrice) : '');
+    setMaxPrice(filters.maxPrice !== undefined && filters.maxPrice !== '' ? Number(filters.maxPrice) : '');
+    setBedroomsFilter(filters.bedroomsFilter !== undefined && filters.bedroomsFilter !== '' ? Number(filters.bedroomsFilter) : '');
+    setMinArea(Number(filters.minArea) || 0);
+    setMaxArea(filters.maxArea !== undefined ? Number(filters.maxArea) : 500);
+    setStatusFilter((filters.statusFilter as '' | 'available' | 'negotiating') || '');
+    setBathroomsFilter(filters.bathroomsFilter !== undefined && filters.bathroomsFilter !== '' ? Number(filters.bathroomsFilter) : '');
+    setFurnishedFilter((filters.furnishedFilter as '' | 'yes' | 'no') || '');
+    toast({ title: '📂 تم تحميل الفلتر' });
+  }, [toast]);
+
   // ===== Stats =====
   const stats = useMemo(() => {
     const prices = filteredMapProperties.map((m) => m.property.price);

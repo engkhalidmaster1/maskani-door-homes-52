@@ -165,7 +165,17 @@ function AnimatedRoutes() {
 }
 
 function App() {
-  // Service Worker تم تعطيله مؤقتاً لحل مشكلة الشاشة البيضاء
+  const isMobile = useIsMobile();
+  const [showSplash, setShowSplash] = useState(() => {
+    // Show splash only on mobile and only once per session
+    if (typeof window !== 'undefined' && sessionStorage.getItem('splash_shown')) return false;
+    return true;
+  });
+
+  const handleSplashComplete = useCallback(() => {
+    setShowSplash(false);
+    sessionStorage.setItem('splash_shown', 'true');
+  }, []);
 
   return (
     <HelmetProvider>

@@ -58,8 +58,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             setUserRole('admin');
             return 'admin';
           }
-        } else if (isAdminError) {
-          console.warn('is_admin RPC error:', isAdminError.message);
         }
       } catch (rpcErr) {
         console.warn('is_admin RPC failed, falling back to table checks:', rpcErr);

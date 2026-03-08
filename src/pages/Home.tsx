@@ -123,7 +123,7 @@ export const Home = () => {
                 return (
                   <div
                     key={index}
-                    className={`${card.bgColor} rounded-2xl p-6 shadow-card hover:shadow-lg transition-all duration-300 cursor-pointer border border-gray-100`}
+                    className={`${card.bgColor} rounded-2xl p-6 shadow-card hover:shadow-lg transition-all duration-300 cursor-pointer border border-border`}
                     onClick={() => handleNavigation(card.path, card.requiresAuth)}
                   >
                     <div className={`${card.iconColor} w-12 h-12 rounded-xl flex items-center justify-center mb-4`}>

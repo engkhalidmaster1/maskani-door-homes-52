@@ -383,7 +383,7 @@ export const PropertyCard = ({
                   e.preventDefault();
                   onDelete(property.id);
                 }}
-                className="flex-1 bg-white hover:bg-red-500 hover:text-white border-gray-300"
+                className="flex-1 bg-card hover:bg-destructive hover:text-destructive-foreground border-border"
               >
                 <Trash2 className="h-4 w-4 ml-1" />
                 حذف

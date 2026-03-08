@@ -317,7 +317,7 @@ export const PropertyCardMobile: React.FC<PropertyCardMobileProps> = ({
                 <Button
                   size="sm"
                   variant="outline"
-                  className="h-8 px-3 text-xs bg-white hover:bg-red-500 hover:text-white"
+                  className="h-8 px-3 text-xs bg-card hover:bg-destructive hover:text-destructive-foreground"
                   onClick={(e) => {
                     e.stopPropagation();
                     if (onDelete) {

@@ -49,7 +49,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         { id: "/", label: "الرئيسية", icon: Home },
         { id: "/properties", label: "العقارات", icon: Building },
         // { id: "/smart-search", label: "البحث الذكي", icon: Search }, // مخفي مؤقتاً
-        ...(!isMobile ? [{ id: "/offices", label: "المكاتب العقارية", icon: Shield }] : []),
+        { id: "/offices", label: "المكاتب العقارية", icon: Shield },
       ];
 
   const handleNavClick = (path: string) => {

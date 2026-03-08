@@ -132,7 +132,7 @@ export const Home = () => {
                     <h3 className="text-xl font-bold mb-3 text-card-foreground">
                       {card.title}
                     </h3>
-                    <p className="text-gray-600 text-sm leading-relaxed">
+                    <p className="text-muted-foreground text-sm leading-relaxed">
                       {card.description}
                     </p>
                     {card.requiresAuth && !user && (

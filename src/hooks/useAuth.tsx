@@ -18,6 +18,12 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<AuthActionResult>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
+  // OTP 2FA
+  needsOtp: boolean;
+  otpMaskedNumber: string | null;
+  verifyOtp: (code: string, rememberDevice: boolean) => Promise<AuthActionResult>;
+  resendOtp: () => Promise<AuthActionResult>;
+  cancelOtp: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

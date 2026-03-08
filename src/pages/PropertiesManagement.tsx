@@ -392,10 +392,10 @@ export const PropertiesManagement = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4" />
-          <p className="text-lg text-muted-foreground">جاري تحميل العقارات...</p>
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-3 md:px-4 py-6 md:py-8">
+          <Skeleton className="h-8 w-48 mb-6" />
+          <PropertyCardSkeletonGrid />
         </div>
       </div>
     );

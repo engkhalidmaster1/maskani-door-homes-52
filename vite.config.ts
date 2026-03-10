@@ -102,7 +102,7 @@ export default defineConfig(({ mode }) => ({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router') || id.includes('react-helmet')) {
               return 'vendor-react';
             }
             if (id.includes('@radix-ui')) {
@@ -123,7 +123,8 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('date-fns') || id.includes('clsx') || id.includes('tailwind-merge')) {
               return 'vendor-utils';
             }
-            return 'vendor-other';
+            // Let Vite handle remaining packages automatically
+            // to avoid breaking React context in libraries like framer-motion, sonner, etc.
           }
         },
         chunkFileNames: 'assets/[name]-[hash].js',

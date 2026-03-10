@@ -86,6 +86,7 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    dedupe: ["react", "react-dom", "react/jsx-runtime"],
   },
   test: {
     globals: true,
@@ -130,7 +131,7 @@ export default defineConfig(({ mode }) => ({
         assetFileNames: 'assets/[name]-[hash].[ext]'
       },
       treeshake: {
-        moduleSideEffects: false,
+        moduleSideEffects: true,
         propertyReadSideEffects: false
       }
     },

@@ -131,7 +131,7 @@ export default defineConfig(({ mode }) => ({
         assetFileNames: 'assets/[name]-[hash].[ext]'
       },
       treeshake: {
-        moduleSideEffects: false,
+        moduleSideEffects: true,
         propertyReadSideEffects: false
       }
     },
